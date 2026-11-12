@@ -1,8 +1,8 @@
 import { getReadConnection } from '@/db/client';
 import { requireStaffPage } from '@/server/auth';
-import { MoneyText } from '@/ui/primitives/MoneyText';
-import { Plate } from '@/ui/primitives/Plate';
-import { StatusBadge } from '@/ui/primitives/StatusBadge';
+import { Plate } from '@/ui/data/Plate';
+import { Price } from '@/ui/data/Price';
+import { StatusBadge } from '@/ui/data/StatusBadge';
 
 export default async function AdminMaintenancePage() {
   await requireStaffPage('maintenance.read');
@@ -35,58 +35,61 @@ export default async function AdminMaintenancePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-2xl font-bold tracking-tight text-ink">
-          Maintenance & workshop blocks
+        <h1 className="font-display text-h3 font-bold text-text-1">
+          Maintenance & Workshop Blocks
         </h1>
-        <p className="text-sm text-ink-muted">
-          Scheduled service events automatically create availability blocks so vehicles cannot be
-          booked.
+        <p className="text-body-s text-text-3">
+          Scheduled garage events, preventive maintenance, and fleet workshop holds.
         </p>
       </div>
 
-      <div className="overflow-x-auto rounded-m border border-line bg-surface">
-        <table className="w-full border-collapse text-left text-sm">
+      <div className="overflow-x-auto rounded-m border border-border bg-surface shadow-e0">
+        <table className="w-full border-collapse text-left text-body-s">
           <thead>
-            <tr className="border-b border-line bg-surface-subtle text-xs font-semibold text-ink-muted">
+            <tr className="border-b border-border bg-surface-sunken/60 text-label-s font-semibold text-text-2 select-none">
               <th className="px-4 py-3">Vehicle</th>
-              <th className="px-4 py-3">Work</th>
-              <th className="px-4 py-3">Garage</th>
+              <th className="px-4 py-3">Maintenance Work</th>
+              <th className="px-4 py-3">Authorized Facility</th>
               <th className="px-4 py-3">Cost</th>
               <th className="px-4 py-3">Status</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-line">
-            {logs.map((l) => (
-              <tr key={l.id}>
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    <Plate code={l.plate} paintHex={l.paint_hex} size="sm" />
-                    <span className="font-medium text-ink">
-                      {l.make} {l.model}
-                    </span>
-                  </div>
-                </td>
-                <td className="px-4 py-3">
-                  <div className="font-medium text-ink">{l.title}</div>
-                  <div className="text-xs text-ink-muted">{l.kind}</div>
-                </td>
-                <td className="px-4 py-3 text-xs text-ink-muted">{l.garage ?? 'Internal bay'}</td>
-                <td className="px-4 py-3">
-                  <MoneyText amountMinor={l.cost_minor} />
-                </td>
-                <td className="px-4 py-3">
-                  <StatusBadge
-                    status={
-                      l.status === 'scheduled'
-                        ? 'pending'
-                        : l.status === 'done'
-                          ? 'completed'
-                          : 'active'
-                    }
-                  />
+          <tbody className="divide-y divide-border-subtle">
+            {logs.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="px-4 py-8 text-center text-body-s text-text-3">
+                  No maintenance records found.
                 </td>
               </tr>
-            ))}
+            ) : (
+              logs.map((l) => (
+                <tr key={l.id} className="transition-colors hover:bg-surface-sunken/40">
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2.5">
+                      <Plate code={l.plate} size="sm" />
+                      <span className="font-medium text-text-1">
+                        {l.make} {l.model}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="font-semibold text-text-1">{l.title}</div>
+                    <div className="text-caption text-text-3 capitalize">
+                      {l.kind.replace('_', ' ')}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-caption text-text-2">
+                    {l.garage ?? 'Authorized Kerb Service Center'}
+                  </td>
+                  <td className="px-4 py-3 font-semibold text-text-1">
+                    <Price minorUnits={l.cost_minor} />
+                  </td>
+                  <td className="px-4 py-3">
+                    <StatusBadge status={l.status} />
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

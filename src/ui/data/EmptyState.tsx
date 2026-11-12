@@ -1,3 +1,5 @@
+'use client';
+
 import { MagnifyingGlass } from '@phosphor-icons/react';
 import type { ComponentType, ReactNode } from 'react';
 

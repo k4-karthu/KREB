@@ -1,3 +1,5 @@
+'use client';
+
 import { ArrowClockwise, WarningCircle } from '@phosphor-icons/react';
 import type { ReactNode } from 'react';
 

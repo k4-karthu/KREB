@@ -1,10 +1,13 @@
 'use client';
 
+import { Plus } from '@phosphor-icons/react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { Price } from '@/ui/data/Price';
+import { StatusBadge } from '@/ui/data/StatusBadge';
 import { Button } from '@/ui/primitives/Button';
-import { MoneyText } from '@/ui/primitives/MoneyText';
-import { StatusBadge } from '@/ui/primitives/StatusBadge';
+import { Select, type SelectOption } from '@/ui/primitives/Select';
+import { TextField } from '@/ui/primitives/TextField';
 
 interface PricingProps {
   ratePlans: Array<{ id: number; name: string; base_daily_minor: number; is_active: number }>;
@@ -36,6 +39,16 @@ interface PricingProps {
   }>;
   canEdit: boolean;
 }
+
+const ADDON_TYPE_OPTIONS: SelectOption[] = [
+  { id: 'per_day', label: 'Per Day' },
+  { id: 'flat', label: 'Flat per trip' },
+];
+
+const PROMO_KIND_OPTIONS: SelectOption[] = [
+  { id: 'percent', label: 'Percent (bp, 1000 = 10%)' },
+  { id: 'flat', label: 'Flat paise (50000 = ₹500)' },
+];
 
 export function PricingClient({ ratePlans, rules, addons, promoCodes, canEdit }: PricingProps) {
   const router = useRouter();
@@ -70,35 +83,34 @@ export function PricingClient({ ratePlans, rules, addons, promoCodes, canEdit }:
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="font-display text-2xl font-bold tracking-tight text-ink">
-          Pricing, Rules & Add-ons
-        </h1>
-        <p className="text-sm text-ink-muted">
-          All monetary rates are stored in integer paise. Existing quotes remain locked until
-          expiry.
+        <h1 className="font-display text-h3 font-bold text-text-1">Pricing, Rules & Add-ons</h1>
+        <p className="text-body-s text-text-3">
+          All monetary rates are strictly maintained in integer paise. Existing bookings and valid
+          quotes retain locked rates.
         </p>
       </div>
 
       {error && (
-        <p className="rounded-s border border-stop-600 bg-stop-100 px-3 py-2 text-sm text-stop-600">
+        <div className="rounded-xs border border-danger/30 bg-danger-subtle p-3 text-body-s text-danger">
           {error}
-        </p>
+        </div>
       )}
 
-      <section className="space-y-3 rounded-m border border-line bg-surface p-5">
-        <h2 className="text-base font-semibold text-ink">Rate plans</h2>
-        <div className="divide-y divide-line">
+      {/* Rate Plans Section */}
+      <section className="space-y-4 rounded-m border border-border bg-surface p-5 shadow-e0">
+        <h2 className="text-h4 font-display font-semibold text-text-1">Base Rate Plans</h2>
+        <div className="divide-y divide-border-subtle">
           {ratePlans.map((rp) => (
             <div
               key={rp.id}
-              className="flex flex-wrap items-center justify-between gap-3 py-3 text-sm"
+              className="flex flex-wrap items-center justify-between gap-3 py-3 text-body-s"
             >
               <div>
-                <div className="font-medium text-ink">{rp.name}</div>
-                <div className="text-xs text-ink-muted">Base daily rate</div>
+                <div className="font-semibold text-text-1">{rp.name}</div>
+                <div className="text-caption text-text-3">Base daily rental schedule</div>
               </div>
-              <div className="flex items-center gap-3">
-                <MoneyText amountMinor={rp.base_daily_minor} className="font-semibold" />
+              <div className="flex items-center gap-4">
+                <Price minorUnits={rp.base_daily_minor} className="font-bold text-text-1" />
                 <StatusBadge status={rp.is_active ? 'active' : 'paused'} />
               </div>
             </div>
@@ -106,28 +118,31 @@ export function PricingClient({ ratePlans, rules, addons, promoCodes, canEdit }:
         </div>
       </section>
 
-      <section className="space-y-3 rounded-m border border-line bg-surface p-5">
-        <h2 className="text-base font-semibold text-ink">Calendar & weekend rules</h2>
-        <div className="divide-y divide-line">
+      {/* Dynamic Surcharges & Calendar Rules */}
+      <section className="space-y-4 rounded-m border border-border bg-surface p-5 shadow-e0">
+        <h2 className="text-h4 font-display font-semibold text-text-1">
+          Seasonal & Calendar Rules
+        </h2>
+        <div className="divide-y divide-border-subtle">
           {rules.map((r) => (
             <div
               key={r.id}
-              className="flex flex-wrap items-center justify-between gap-3 py-3 text-sm"
+              className="flex flex-wrap items-center justify-between gap-3 py-3 text-body-s"
             >
               <div>
-                <div className="font-medium text-ink">{r.label}</div>
-                <div className="text-xs text-ink-muted">
+                <div className="font-semibold text-text-1">{r.label}</div>
+                <div className="text-caption text-text-3">
                   {r.kind.replaceAll('_', ' ')} ·{' '}
                   {r.multiplier_bp
-                    ? `${(r.multiplier_bp / 100).toFixed(0)}% of base`
-                    : `+${r.flat_add_minor ?? 0} paise`}
+                    ? `${(r.multiplier_bp / 100).toFixed(0)}% multiplier on base`
+                    : `+₹${((r.flat_add_minor ?? 0) / 100).toFixed(0)} flat adjustment`}
                 </div>
               </div>
               {canEdit && (
                 <Button
                   type="button"
                   size="sm"
-                  variant="secondary"
+                  variant={r.is_active ? 'secondary' : 'primary'}
                   onClick={() =>
                     void postAction({ action: 'toggle_rule', id: r.id, isActive: !r.is_active })
                   }
@@ -140,36 +155,40 @@ export function PricingClient({ ratePlans, rules, addons, promoCodes, canEdit }:
         </div>
       </section>
 
-      <section className="space-y-4 rounded-m border border-line bg-surface p-5">
-        <h2 className="text-base font-semibold text-ink">Optional add-ons</h2>
-        <div className="divide-y divide-line">
+      {/* Optional Add-ons */}
+      <section className="space-y-4 rounded-m border border-border bg-surface p-5 shadow-e0">
+        <h2 className="text-h4 font-display font-semibold text-text-1">
+          Customer Add-ons & Equipment
+        </h2>
+        <div className="divide-y divide-border-subtle">
           {addons.map((a) => (
             <div
               key={a.id}
-              className="flex flex-wrap items-center justify-between gap-3 py-2.5 text-sm"
+              className="flex flex-wrap items-center justify-between gap-3 py-3 text-body-s"
             >
               <div>
-                <div className="font-medium text-ink">{a.name}</div>
-                <div className="text-xs text-ink-muted">
-                  <MoneyText amountMinor={a.price_minor} /> (
-                  {a.price_type === 'per_day' ? 'per day' : 'flat per trip'})
+                <div className="font-semibold text-text-1">{a.name}</div>
+                <div className="text-caption text-text-3">
+                  <Price minorUnits={a.price_minor} /> (
+                  {a.price_type === 'per_day' ? 'per rental day' : 'flat fee per trip'})
                 </div>
               </div>
               {canEdit && (
                 <Button
                   type="button"
                   size="sm"
-                  variant="secondary"
+                  variant={a.is_active ? 'secondary' : 'primary'}
                   onClick={() =>
                     void postAction({ action: 'toggle_addon', id: a.id, isActive: !a.is_active })
                   }
                 >
-                  {a.is_active ? 'Active' : 'Disabled'}
+                  {a.is_active ? 'Deactivate' : 'Activate'}
                 </Button>
               )}
             </div>
           ))}
         </div>
+
         {canEdit && (
           <form
             onSubmit={(e) => {
@@ -183,77 +202,82 @@ export function PricingClient({ ratePlans, rules, addons, promoCodes, canEdit }:
                 maxQty: 1,
               }).then(() => setAddonForm({ name: '', priceType: 'per_day', priceMinor: '35000' }));
             }}
-            className="grid gap-2 border-t border-line pt-3 sm:grid-cols-[1fr_auto_auto_auto]"
+            className="grid gap-3 border-t border-border pt-4 sm:grid-cols-[1fr_160px_160px_auto] items-end"
           >
-            <input
-              required
-              placeholder="New add-on name"
+            <TextField
+              label="Add-on Name"
+              placeholder="e.g. Roof Cargo Box, Child Seat"
               value={addonForm.name}
-              onChange={(e) => setAddonForm({ ...addonForm, name: e.target.value })}
-              className="h-9 rounded-s border border-line bg-surface-subtle px-3 text-sm"
-            />
-            <select
-              value={addonForm.priceType}
-              onChange={(e) => setAddonForm({ ...addonForm, priceType: e.target.value })}
-              className="h-9 rounded-s border border-line bg-surface-subtle px-2.5 text-sm"
-            >
-              <option value="per_day">Per day</option>
-              <option value="flat">Flat</option>
-            </select>
-            <input
-              type="number"
+              onChange={(val) => setAddonForm((prev) => ({ ...prev, name: val }))}
               required
-              value={addonForm.priceMinor}
-              onChange={(e) => setAddonForm({ ...addonForm, priceMinor: e.target.value })}
-              className="h-9 w-32 rounded-s border border-line bg-surface-subtle px-2.5 text-sm tabular-nums"
             />
-            <Button type="submit" size="sm">
-              Add
+            <Select
+              label="Price Model"
+              selectedKey={addonForm.priceType}
+              onSelectionChange={(key) =>
+                setAddonForm((prev) => ({ ...prev, priceType: String(key) }))
+              }
+              options={ADDON_TYPE_OPTIONS}
+            />
+            <TextField
+              label="Price (Paise)"
+              type="number"
+              value={addonForm.priceMinor}
+              onChange={(val) => setAddonForm((prev) => ({ ...prev, priceMinor: val }))}
+              required
+            />
+            <Button type="submit" size="sm" className="gap-1.5 h-10">
+              <Plus size={16} weight="bold" />
+              <span>Add</span>
             </Button>
           </form>
         )}
       </section>
 
-      <section className="space-y-4 rounded-m border border-line bg-surface p-5">
-        <h2 className="text-base font-semibold text-ink">Promo codes</h2>
-        <div className="divide-y divide-line">
+      {/* Promotional Codes */}
+      <section className="space-y-4 rounded-m border border-border bg-surface p-5 shadow-e0">
+        <h2 className="text-h4 font-display font-semibold text-text-1">Promo & Partner Codes</h2>
+        <div className="divide-y divide-border-subtle">
           {promoCodes.map((p) => (
             <div
               key={p.id}
-              className="flex flex-wrap items-center justify-between gap-3 py-2.5 text-sm"
+              className="flex flex-wrap items-center justify-between gap-3 py-3 text-body-s"
             >
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="font-mono font-semibold text-ink">{p.code}</span>
-                <span className="text-xs text-ink-muted">
-                  {p.kind === 'percent'
-                    ? `${(p.value / 100).toFixed(0)}% off`
-                    : `${p.value / 100} INR flat`}
+              <div className="flex flex-wrap items-center gap-4">
+                <span className="tabular-nums font-bold text-text-1  bg-surface-sunken px-2.5 py-1 rounded-xs border border-border-subtle">
+                  {p.code}
                 </span>
-                <span className="text-xs text-ink-muted">Min {p.min_days} days</span>
-                <span className="text-xs text-ink-muted">Used {p.used_count}</span>
+                <span className="text-caption text-text-3">
+                  {p.kind === 'percent'
+                    ? `${(p.value / 100).toFixed(0)}% discount`
+                    : `₹${(p.value / 100).toFixed(0)} flat reduction`}
+                </span>
+                <span className="text-caption text-text-3">Min {p.min_days} rental days</span>
+                <span className="text-caption text-text-3">Redeemed: {p.used_count} times</span>
               </div>
               {canEdit && (
                 <Button
                   type="button"
                   size="sm"
-                  variant="secondary"
+                  variant={p.is_active ? 'secondary' : 'primary'}
                   onClick={() =>
                     void postAction({ action: 'toggle_promo', id: p.id, isActive: !p.is_active })
                   }
                 >
-                  {p.is_active ? 'Active' : 'Inactive'}
+                  {p.is_active ? 'Deactivate' : 'Activate'}
                 </Button>
               )}
             </div>
           ))}
         </div>
+
         {canEdit && (
           <form
             onSubmit={(e) => {
               e.preventDefault();
               void postAction({
                 action: 'create_promo',
-                code: promoForm.code,
+                code: promoForm.code.toUpperCase(),
                 kind: promoForm.kind,
                 value: Number(promoForm.value),
                 minDays: Number(promoForm.minDays),
@@ -263,39 +287,38 @@ export function PricingClient({ ratePlans, rules, addons, promoCodes, canEdit }:
                 setPromoForm({ code: '', kind: 'percent', value: '1000', minDays: '2' }),
               );
             }}
-            className="grid gap-2 border-t border-line pt-3 sm:grid-cols-[1fr_auto_auto_auto_auto]"
+            className="grid gap-3 border-t border-border pt-4 sm:grid-cols-[1fr_200px_120px_100px_auto] items-end"
           >
-            <input
-              required
-              placeholder="PROMO CODE"
+            <TextField
+              label="Promo Code"
+              placeholder="e.g. MONSOON20"
               value={promoForm.code}
-              onChange={(e) => setPromoForm({ ...promoForm, code: e.target.value })}
-              className="h-9 rounded-s border border-line bg-surface-subtle px-3 font-mono text-sm"
-            />
-            <select
-              value={promoForm.kind}
-              onChange={(e) => setPromoForm({ ...promoForm, kind: e.target.value })}
-              className="h-9 rounded-s border border-line bg-surface-subtle px-2.5 text-sm"
-            >
-              <option value="percent">Percent (bp)</option>
-              <option value="flat">Flat (paise)</option>
-            </select>
-            <input
-              type="number"
+              onChange={(val) => setPromoForm((prev) => ({ ...prev, code: val.toUpperCase() }))}
               required
+            />
+            <Select
+              label="Discount Type"
+              selectedKey={promoForm.kind}
+              onSelectionChange={(key) => setPromoForm((prev) => ({ ...prev, kind: String(key) }))}
+              options={PROMO_KIND_OPTIONS}
+            />
+            <TextField
+              label="Value"
+              type="number"
               value={promoForm.value}
-              onChange={(e) => setPromoForm({ ...promoForm, value: e.target.value })}
-              className="h-9 w-28 rounded-s border border-line bg-surface-subtle px-2.5 text-sm tabular-nums"
-            />
-            <input
-              type="number"
+              onChange={(val) => setPromoForm((prev) => ({ ...prev, value: val }))}
               required
-              value={promoForm.minDays}
-              onChange={(e) => setPromoForm({ ...promoForm, minDays: e.target.value })}
-              className="h-9 w-20 rounded-s border border-line bg-surface-subtle px-2.5 text-sm tabular-nums"
             />
-            <Button type="submit" size="sm">
-              Create code
+            <TextField
+              label="Min Days"
+              type="number"
+              value={promoForm.minDays}
+              onChange={(val) => setPromoForm((prev) => ({ ...prev, minDays: val }))}
+              required
+            />
+            <Button type="submit" size="sm" className="gap-1.5 h-10">
+              <Plus size={16} weight="bold" />
+              <span>Create</span>
             </Button>
           </form>
         )}

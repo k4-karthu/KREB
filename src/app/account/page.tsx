@@ -6,6 +6,8 @@ import { SiteFooter } from '@/ui/components/SiteFooter';
 import { SiteHeader } from '@/ui/components/SiteHeader';
 import { StatusBadge } from '@/ui/primitives/StatusBadge';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AccountPage() {
   const actor = await getServerActor();
   if (!actor) {

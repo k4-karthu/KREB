@@ -1,12 +1,12 @@
+import { Car } from '@phosphor-icons/react/dist/ssr';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getReadConnection } from '@/db/client';
 import { getServerActor } from '@/server/auth';
 import { SiteFooter } from '@/ui/components/SiteFooter';
 import { SiteHeader } from '@/ui/components/SiteHeader';
-import { MoneyText } from '@/ui/primitives/MoneyText';
-import { Plate } from '@/ui/primitives/Plate';
-import { StatusBadge } from '@/ui/primitives/StatusBadge';
+import { EmptyState } from '@/ui/data/EmptyState';
+import { TripTicket } from '@/ui/data/TripTicket';
 
 interface TripRow {
   code: string;
@@ -33,6 +33,8 @@ interface TripRow {
   invoice_number: number | null;
   line_count: number;
 }
+
+export const dynamic = 'force-dynamic';
 
 export default async function MyTripsPage() {
   const actor = await getServerActor();
@@ -72,116 +74,78 @@ export default async function MyTripsPage() {
 
   const resolveTripBadge = (t: TripRow): string => {
     if (t.status === 'active') {
-      return t.end_at < now ? 'overdue' : 'on_route';
+      return t.end_at < now ? 'overdue' : 'active';
     }
     return t.status;
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-canvas text-ink">
+    <div className="min-h-screen flex flex-col bg-canvas text-text-1">
       <SiteHeader />
-      <main className="mx-auto w-full max-w-5xl flex-1 space-y-6 px-4 py-10 sm:px-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+      <main className="mx-auto w-full max-w-5xl flex-1 space-y-8 px-4 py-10 sm:px-6">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border-subtle pb-6">
           <div>
-            <h1 className="font-display text-3xl font-bold tracking-tight text-ink">My trips</h1>
-            <p className="text-sm text-ink-muted">
-              Active rentals on route, upcoming pick-ups, approval requests, and itemized receipts.
+            <h1 className="font-display text-h2 font-bold tracking-tight text-text-1">My trips</h1>
+            <p className="mt-1 text-body-s text-text-2">
+              Active rentals on route, upcoming pick-ups, approval requests, and official slips.
             </p>
           </div>
           <Link
             href="/cars"
-            className="inline-flex h-10 items-center rounded-s bg-ink px-4 text-xs font-medium text-surface"
+            className="inline-flex h-10 items-center justify-center rounded-s bg-accent px-5 text-label-s font-semibold text-on-accent transition-colors hover:bg-accent-hover cursor-pointer"
           >
-            Book another car
+            Book a vehicle
           </Link>
         </div>
 
         {trips.length === 0 ? (
-          <div className="rounded-m border border-line bg-surface p-8 text-center text-sm text-ink-muted">
-            You have no trips yet. Pick your dates in the fleet catalog to reserve a car.
-          </div>
+          <EmptyState
+            icon={Car}
+            heading="No trips booked yet"
+            description="You have no active or completed rentals. Explore our verified vehicle catalog to reserve your first ride."
+            action={
+              <Link
+                href="/cars"
+                className="inline-flex h-10 items-center justify-center rounded-s bg-accent px-5 text-label-s font-semibold text-on-accent transition-colors hover:bg-accent-hover cursor-pointer"
+              >
+                Browse available fleet
+              </Link>
+            }
+          />
         ) : (
-          <div className="grid gap-4">
-            {trips.map((t) => {
-              const isOneWay = t.pickup_branch_name !== t.return_branch_name;
-              const invoiceCode =
-                t.invoice_series && t.invoice_year && t.invoice_number
-                  ? `${t.invoice_series}-${t.invoice_year}-${String(t.invoice_number).padStart(4, '0')}`
-                  : null;
-              return (
-                <Link
-                  key={t.code}
-                  href={`/trips/${t.code}`}
-                  className="group grid gap-4 rounded-m border border-line bg-surface p-4 transition-colors hover:border-petrol-600 sm:grid-cols-12 sm:items-center"
-                >
-                  <div className="aspect-3/2 overflow-hidden rounded-s border border-line bg-surface-subtle sm:col-span-3">
-                    {t.image_key ? (
-                      <img
-                        src={`/api/uploads/public/${t.image_key}-640.webp`}
-                        alt={`${t.year} ${t.make} ${t.model}`}
-                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-102"
-                      />
-                    ) : (
-                      <div
-                        className="flex h-full w-full items-end p-2 text-xs font-semibold text-surface"
-                        style={{ backgroundColor: t.paint_hex }}
-                      >
-                        {t.make} {t.model}
-                      </div>
-                    )}
-                  </div>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between text-label-s text-text-3">
+              <span>
+                {trips.length} {trips.length === 1 ? 'reservation' : 'reservations'} recorded
+              </span>
+              <span>Sorted by start date</span>
+            </div>
 
-                  <div className="space-y-2 sm:col-span-6">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Plate code={t.code} paintHex={t.paint_hex} size="sm" />
-                      <StatusBadge status={resolveTripBadge(t)} />
-                      {invoiceCode && (
-                        <span className="rounded-s border border-line bg-surface-subtle px-2 py-0.5 font-mono text-xs text-ink-muted">
-                          Receipt {invoiceCode}
-                        </span>
-                      )}
-                    </div>
+            <div className="grid gap-4">
+              {trips.map((t) => {
+                const isOneWay = t.pickup_branch_name !== t.return_branch_name;
+                const branchDisplay = isOneWay
+                  ? `${t.pickup_branch_name} to ${t.return_branch_name}`
+                  : t.pickup_branch_name;
 
-                    <div>
-                      <div className="font-display text-lg font-bold text-ink">
-                        {t.year} {t.make} {t.model}{' '}
-                        {t.variant ? (
-                          <span className="text-sm font-normal text-ink-muted">{t.variant}</span>
-                        ) : null}
-                      </div>
-                      <div className="text-xs text-ink-muted capitalize">
-                        {t.category}, {t.transmission}, {t.fuel_type} (Plate {t.plate})
-                      </div>
-                    </div>
-
-                    <div className="text-xs text-ink-muted">
-                      <span className="font-medium text-ink">
-                        {fmt(t.start_at)} to {fmt(t.end_at)}
-                      </span>{' '}
-                      at{' '}
-                      {isOneWay
-                        ? `${t.pickup_branch_name} → ${t.return_branch_name} (One-way)`
-                        : `${t.pickup_branch_name} (Round trip)`}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between border-t border-line pt-3 sm:col-span-3 sm:flex-col sm:items-end sm:border-t-0 sm:pt-0">
-                    <div className="text-left sm:text-right">
-                      <div className="text-xs text-ink-muted">
-                        Total ({t.line_count} {t.line_count === 1 ? 'item' : 'items'})
-                      </div>
-                      <MoneyText
-                        amountMinor={t.total_minor}
-                        className="text-lg font-bold text-ink"
-                      />
-                    </div>
-                    <span className="inline-flex h-8 items-center rounded-s border border-line bg-surface-subtle px-3 text-xs font-medium text-petrol-700 group-hover:border-petrol-600">
-                      Open ticket & receipt
-                    </span>
-                  </div>
-                </Link>
-              );
-            })}
+                return (
+                  <TripTicket
+                    key={t.code}
+                    trip={{
+                      code: t.code,
+                      vehicleTitle: `${t.year} ${t.make} ${t.model}${t.variant ? ` ${t.variant}` : ''}`,
+                      vehiclePlate: t.plate,
+                      pickupLabel: fmt(t.start_at),
+                      returnLabel: fmt(t.end_at),
+                      branchName: branchDisplay,
+                      status: resolveTripBadge(t),
+                      totalMinor: t.total_minor,
+                    }}
+                    href={`/trips/${t.code}`}
+                  />
+                );
+              })}
+            </div>
           </div>
         )}
       </main>

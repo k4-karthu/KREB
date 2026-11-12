@@ -5,6 +5,7 @@ import NumberFlow from '@number-flow/react';
 export interface PriceProps {
   value?: number;
   amountMinor?: number;
+  minorUnits?: number;
   period?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
@@ -21,13 +22,14 @@ const SIZE_CLASSES = {
  * Kerb v3 Price:
  * Number Flow animated transitions with superscript ₹ symbol and tabular-nums.
  */
-export function Price({ value, amountMinor, period, size = 'md', className = '' }: PriceProps) {
-  // If amountMinor is provided, convert paise to rupees (divided by 100)
+export function Price({ value, amountMinor, minorUnits, period, size = 'md', className = '' }: PriceProps) {
+  // If amountMinor or minorUnits is provided, convert paise to rupees (divided by 100)
+  const rawMinor = typeof amountMinor === 'number' ? amountMinor : minorUnits;
   const displayValue =
     typeof value === 'number'
       ? value
-      : typeof amountMinor === 'number'
-        ? Math.round(amountMinor / 100)
+      : typeof rawMinor === 'number'
+        ? Math.round(rawMinor / 100)
         : 0;
 
   return (

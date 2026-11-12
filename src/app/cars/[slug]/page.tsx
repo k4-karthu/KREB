@@ -3,16 +3,24 @@ import { notFound } from 'next/navigation';
 import { getReadConnection } from '@/db/client';
 import { checkVehicleAvailable } from '@/domain/availability/availability';
 import { loadAndPriceVehicle } from '@/domain/pricing/pricing';
-import { Gallery, type GalleryImage } from '@/ui/components/Gallery';
 import { SiteFooter } from '@/ui/components/SiteFooter';
 import { SiteHeader } from '@/ui/components/SiteHeader';
-import { SpecSheet } from '@/ui/components/SpecSheet';
-import { Plate } from '@/ui/primitives/Plate';
+import type { GalleryImageItem } from '@/ui/data/Gallery';
+import { Plate } from '@/ui/data/Plate';
+import type { SpecRow } from '@/ui/data/SpecSheet';
 import {
   type AddonOption,
   type ProtectionOption,
   VehicleDetailClient,
 } from './VehicleDetailClient';
+
+interface RawVehicleImage {
+  id: number;
+  fileKey: string;
+  altText: string | null;
+  shotType: string | null;
+  thumbhash: string | null;
+}
 
 export default async function VehicleDetailPage({
   params,
@@ -73,11 +81,18 @@ export default async function VehicleDetailPage({
     notFound();
   }
 
-  const images = sqlite
+  const rawImages = sqlite
     .prepare(
-      'SELECT id, file_key AS fileKey, alt_text AS altText, shot_type AS shotType FROM vehicle_images WHERE vehicle_id = ? ORDER BY is_primary DESC, sort_order ASC',
+      'SELECT id, file_key AS fileKey, alt_text AS altText, shot_type AS shotType, thumbhash FROM vehicle_images WHERE vehicle_id = ? ORDER BY is_primary DESC, sort_order ASC',
     )
-    .all(vehicle.id) as GalleryImage[];
+    .all(vehicle.id) as RawVehicleImage[];
+
+  const galleryImages: GalleryImageItem[] = rawImages.map((img) => ({
+    id: img.id,
+    src: `/api/uploads/public/${img.fileKey}-1280.webp`,
+    alt: img.altText || `${vehicle.year} ${vehicle.make} ${vehicle.model}`,
+    thumbhash: img.thumbhash ?? undefined,
+  }));
 
   const features = sqlite
     .prepare(
@@ -135,7 +150,7 @@ export default async function VehicleDetailPage({
   }>;
 
   const avail = checkVehicleAvailable(sqlite, vehicle.id, startAt, endAt);
-  const quote = loadAndPriceVehicle(sqlite, {
+  const initialQuote = loadAndPriceVehicle(sqlite, {
     vehicleId: vehicle.id,
     pickupBranchId: vehicle.current_branch_id,
     returnBranchId: vehicle.current_branch_id,
@@ -145,152 +160,110 @@ export default async function VehicleDetailPage({
     addonSelections: [],
   });
 
-  const specItems = [
+  const specItems: SpecRow[] = [
+    { label: 'Body style', value: vehicle.category },
     { label: 'Transmission', value: vehicle.transmission },
-    { label: 'Fuel', value: vehicle.fuel_type },
-    { label: 'Seats', value: `${vehicle.seats}` },
+    { label: 'Fuel & powertrain', value: vehicle.fuel_type },
+    { label: 'Seating capacity', value: `${vehicle.seats} seats` },
     {
-      label: 'Boot space',
-      value: vehicle.luggage_liters ? `${vehicle.luggage_liters} L` : 'Standard',
+      label: 'Boot luggage space',
+      value: vehicle.luggage_liters ? `${vehicle.luggage_liters} L` : 'Standard luggage capacity',
     },
     {
-      label: 'Distance limit',
-      value: vehicle.km_per_day ? `${vehicle.km_per_day} km/day` : 'Unlimited km',
+      label: 'Kilometre allowance',
+      value: vehicle.km_per_day ? `${vehicle.km_per_day} km/day included` : 'Unlimited kilometres',
     },
-    { label: 'Minimum age', value: `${vehicle.min_driver_age} years` },
-    ...(vehicle.range_km ? [{ label: 'Certified range', value: `${vehicle.range_km} km` }] : []),
-    ...(vehicle.engine_cc ? [{ label: 'Displacement', value: `${vehicle.engine_cc} cc` }] : []),
+    {
+      label: 'Extra kilometre charge',
+      value: vehicle.extra_km_minor
+        ? `₹${Math.round(vehicle.extra_km_minor / 100)}/km`
+        : 'No extra charge',
+    },
+    { label: 'Minimum driver age', value: `${vehicle.min_driver_age} years` },
+    {
+      label: 'Driving experience',
+      value: `${vehicle.min_licence_years} year${vehicle.min_licence_years === 1 ? '' : 's'} licence`,
+    },
+    ...(vehicle.doors ? [{ label: 'Doors', value: `${vehicle.doors} doors` }] : []),
+    ...(vehicle.range_km
+      ? [{ label: 'Certified range', value: `${vehicle.range_km} km (WLTP)` }]
+      : []),
+    ...(vehicle.engine_cc
+      ? [{ label: 'Engine displacement', value: `${vehicle.engine_cc} cc` }]
+      : []),
+    ...(vehicle.battery_kwh
+      ? [{ label: 'Battery capacity', value: `${vehicle.battery_kwh} kWh` }]
+      : []),
+    { label: 'Exterior studio paint', value: vehicle.paint_name },
+    { label: 'Pick-up hub location', value: vehicle.branch_name },
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-canvas text-ink">
+    <div className="min-h-screen flex flex-col bg-canvas text-text-1">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6">
-        <div className="mb-4 text-xs text-ink-muted">
-          <Link href={`/cars?start=${startAt}&end=${endAt}`} className="hover:text-ink">
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6">
+        {/* Breadcrumb Navigation */}
+        <nav
+          aria-label="Breadcrumbs"
+          className="mb-6 flex items-center gap-2 text-label-s text-text-3"
+        >
+          <Link
+            href={`/cars?start=${startAt}&end=${endAt}`}
+            className="hover:text-text-1 transition-colors"
+          >
             Available fleet
-          </Link>{' '}
-          /{' '}
-          <span className="text-ink">
+          </Link>
+          <span aria-hidden="true">/</span>
+          <span className="text-text-1 font-medium">
             {vehicle.make} {vehicle.model}
           </span>
-        </div>
+        </nav>
 
-        <div className="grid gap-8 lg:grid-cols-12">
-          <div className="space-y-8 lg:col-span-7">
-            <div className="space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <h1 className="font-display text-3xl font-bold tracking-tight text-ink">
-                    {vehicle.year} {vehicle.make} {vehicle.model}
-                  </h1>
-                  <p className="text-sm text-ink-muted">
-                    {vehicle.variant ?? vehicle.category} — Pick-up at {vehicle.branch_name}
-                  </p>
-                </div>
-                <Plate code={vehicle.plate} paintHex={vehicle.paint_hex} />
-              </div>
-
-              <Gallery
-                images={images}
-                paintName={vehicle.paint_name}
-                paintHex={vehicle.paint_hex}
-                vehicleTitle={`${vehicle.make} ${vehicle.model}`}
-              />
-            </div>
-
-            {vehicle.description && (
-              <p className="text-base leading-relaxed text-ink">{vehicle.description}</p>
-            )}
-
-            {siblingVariants.length > 0 && (
-              <section className="space-y-3">
-                <h2 className="font-display text-lg font-bold text-ink">
-                  Other {vehicle.make} {vehicle.model} options
-                </h2>
-                <div className="flex flex-wrap gap-2.5">
-                  <span className="inline-flex items-center gap-2 rounded-s border border-petrol-600 bg-petrol-100 px-3 py-2 text-xs font-semibold text-petrol-900">
-                    <span
-                      className="h-2.5 w-2.5 rounded-full border border-line"
-                      style={{ backgroundColor: vehicle.paint_hex }}
-                    />
-                    {vehicle.variant ?? 'Standard'} ({vehicle.transmission}, {vehicle.fuel_type})
-                  </span>
-                  {siblingVariants.map((sv) => (
-                    <Link
-                      key={sv.slug}
-                      href={`/cars/${sv.slug}?start=${startAt}&end=${endAt}`}
-                      className="inline-flex items-center gap-2 rounded-s border border-line bg-surface px-3 py-2 text-xs font-medium text-ink hover:border-petrol-600"
-                    >
-                      <span
-                        className="h-2.5 w-2.5 rounded-full border border-line"
-                        style={{ backgroundColor: sv.paint_hex }}
-                      />
-                      {sv.variant ?? 'Standard'} ({sv.transmission}, {sv.fuel_type})
-                    </Link>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            <section className="space-y-3">
-              <h2 className="font-display text-lg font-bold text-ink">Technical sheet</h2>
-              <SpecSheet rows={specItems} />
-            </section>
-
-            {features.length > 0 && (
-              <section className="space-y-3">
-                <h2 className="font-display text-lg font-bold text-ink">Equipment included</h2>
-                <div className="flex flex-wrap gap-2">
-                  {features.map((f) => (
-                    <span
-                      key={f.label}
-                      className="rounded-s border border-line bg-surface px-3 py-1.5 text-xs font-medium text-ink"
-                    >
-                      {f.label}
-                    </span>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {reviews.length > 0 && (
-              <section className="space-y-3">
-                <h2 className="font-display text-lg font-bold text-ink">Verified driver notes</h2>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {reviews.map((rev, i) => (
-                    <div
-                      key={`${rev.author_name}-${i}`}
-                      className="rounded-m border border-line bg-surface p-4 text-sm"
-                    >
-                      <div className="flex items-center justify-between text-xs text-ink-muted">
-                        <span className="font-semibold text-ink">{rev.author_name}</span>
-                        <span>Condition {rev.rating_condition}/5</span>
-                      </div>
-                      {rev.comment && <p className="mt-2 text-xs text-ink-muted">{rev.comment}</p>}
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
+        {/* Title Header with Plate */}
+        <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
+          <div className="space-y-1">
+            <h1 className="font-display text-h2 sm:text-h1 font-bold tracking-tight text-text-1">
+              {vehicle.year} {vehicle.make} {vehicle.model}
+            </h1>
+            <p className="text-body text-text-2">
+              {vehicle.variant ? `${vehicle.variant} · ` : ''}
+              {vehicle.category} — Pick-up at {vehicle.branch_name}
+            </p>
           </div>
+          <Plate code={vehicle.plate} size="md" />
+        </header>
 
-          <div className="lg:col-span-5">
-            <VehicleDetailClient
-              vehicleId={vehicle.id}
-              pickupBranchId={vehicle.current_branch_id}
-              startAt={startAt}
-              endAt={endAt}
-              initialAvailable={avail.ok}
-              initialLines={quote.lines}
-              initialTotalMinor={quote.totalMinor}
-              initialDepositMinor={quote.depositMinor}
-              addons={addons}
-              protectionPlans={protectionPlans}
-            />
-          </div>
-        </div>
+        {/* Client Interactive Configuration & Sticky Summary */}
+        <VehicleDetailClient
+          vehicle={{
+            id: vehicle.id,
+            make: vehicle.make,
+            model: vehicle.model,
+            variant: vehicle.variant,
+            year: vehicle.year,
+            plate: vehicle.plate,
+            category: vehicle.category,
+            transmission: vehicle.transmission,
+            fuel_type: vehicle.fuel_type,
+            branch_name: vehicle.branch_name,
+            paint_name: vehicle.paint_name,
+            paint_hex: vehicle.paint_hex,
+          }}
+          galleryImages={galleryImages}
+          description={vehicle.description}
+          specItems={specItems}
+          siblingVariants={siblingVariants}
+          features={features}
+          reviews={reviews}
+          pickupBranchId={vehicle.current_branch_id}
+          startAt={startAt}
+          endAt={endAt}
+          initialAvailable={avail.ok}
+          initialQuote={initialQuote}
+          addons={addons}
+          protectionPlans={protectionPlans}
+        />
       </main>
 
       <SiteFooter />

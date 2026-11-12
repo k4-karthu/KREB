@@ -8,20 +8,20 @@ export async function SiteHeader() {
   const actor = await getServerActor();
 
   return (
-    <header className="sticky top-0 z-30 border-b border-line bg-surface">
+    <header className="sticky top-0 z-30 border-b border-border bg-surface">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
         <div className="flex items-center gap-8">
-          <Link href="/" className="font-display text-xl font-bold tracking-tight text-ink">
+          <Link href="/" className="font-display text-h3 font-bold tracking-tight text-text-1">
             {BRAND.name}
           </Link>
-          <nav aria-label="Primary" className="hidden items-center gap-6 text-sm sm:flex">
-            <Link href="/cars" className="text-ink-muted hover:text-ink">
+          <nav aria-label="Primary" className="hidden items-center gap-6 text-body-s sm:flex">
+            <Link href="/cars" className="text-text-2 hover:text-text-1 transition-colors">
               Fleet
             </Link>
-            <Link href="/branches" className="text-ink-muted hover:text-ink">
+            <Link href="/branches" className="text-text-2 hover:text-text-1 transition-colors">
               Branches
             </Link>
-            <Link href="/trips" className="text-ink-muted hover:text-ink">
+            <Link href="/trips" className="text-text-2 hover:text-text-1 transition-colors">
               My trips
             </Link>
           </nav>
@@ -34,14 +34,14 @@ export async function SiteHeader() {
               {isStaffRole(actor.role) && (
                 <Link
                   href="/admin"
-                  className="rounded-s border border-line px-3 py-1.5 text-xs font-medium text-ink hover:bg-surface-subtle"
+                  className="rounded-s border border-border px-3 py-1.5 text-caption font-medium text-text-1 hover:bg-surface-sunken transition-colors"
                 >
                   Ops desk
                 </Link>
               )}
               <Link
                 href="/account"
-                className="rounded-s bg-ink px-3 py-1.5 text-xs font-medium text-surface hover:opacity-90"
+                className="rounded-s bg-text-1 px-3 py-1.5 text-caption font-medium text-surface hover:opacity-90 transition-opacity"
               >
                 {actor.name.split(' ')[0]}
               </Link>
@@ -49,7 +49,7 @@ export async function SiteHeader() {
           ) : (
             <Link
               href="/login"
-              className="rounded-s border border-line px-3.5 py-1.5 text-xs font-medium text-ink hover:bg-surface-subtle"
+              className="rounded-s border border-border px-3.5 py-1.5 text-caption font-medium text-text-1 hover:bg-surface-sunken transition-colors"
             >
               Sign in
             </Link>

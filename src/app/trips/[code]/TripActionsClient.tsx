@@ -1,9 +1,18 @@
 'use client';
 
+import { CalendarPlus, ClockCountdown, XCircle } from '@phosphor-icons/react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { Price } from '@/ui/data/Price';
 import { Button } from '@/ui/primitives/Button';
-import { MoneyText } from '@/ui/primitives/MoneyText';
+
+export interface TripActionsClientProps {
+  code: string;
+  status: string;
+  endAt: number;
+  refundPreviewMinor: number;
+  refundRuleLabel: string;
+}
 
 export function TripActionsClient({
   code,
@@ -11,13 +20,7 @@ export function TripActionsClient({
   endAt,
   refundPreviewMinor,
   refundRuleLabel,
-}: {
-  code: string;
-  status: string;
-  endAt: number;
-  refundPreviewMinor: number;
-  refundRuleLabel: string;
-}) {
+}: TripActionsClientProps) {
   const router = useRouter();
   const [extending, setExtending] = useState(false);
   const [cancelling, setCancelling] = useState(false);
@@ -66,18 +69,23 @@ export function TripActionsClient({
   return (
     <div className="space-y-4">
       {error && (
-        <p className="rounded-s border border-stop-600 bg-stop-100 px-3 py-2 text-xs text-stop-600">
+        <div
+          role="alert"
+          className="rounded-s border border-danger/30 bg-danger-subtle p-3 text-body-s font-medium text-danger"
+        >
           {error}
-        </p>
+        </div>
       )}
 
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <a
           href={`/api/ics/${code}`}
-          className="inline-flex h-10 items-center rounded-s border border-line bg-surface px-4 text-xs font-medium text-ink hover:bg-surface-subtle"
+          className="inline-flex h-9 items-center justify-center gap-2 rounded-s border border-border bg-surface px-4 text-label-s font-medium text-text-1 transition-colors hover:bg-surface-sunken cursor-pointer"
         >
-          Download .ics
+          <CalendarPlus size={16} weight="bold" />
+          <span>Calendar (.ics)</span>
         </a>
+
         {canExtend && (
           <Button
             type="button"
@@ -86,9 +94,11 @@ export function TripActionsClient({
             disabled={extending}
             onClick={() => void handleExtend24h()}
           >
-            {extending ? 'Checking slot...' : 'Extend by +24 hours'}
+            <ClockCountdown size={16} weight="bold" />
+            <span>{extending ? 'Checking schedule...' : 'Extend rental by 24 hours'}</span>
           </Button>
         )}
+
         {canCancel && !confirmCancelOpen && (
           <Button
             type="button"
@@ -96,19 +106,20 @@ export function TripActionsClient({
             size="sm"
             onClick={() => setConfirmCancelOpen(true)}
           >
-            Cancel booking
+            <XCircle size={16} weight="bold" />
+            <span>Cancel reservation</span>
           </Button>
         )}
       </div>
 
       {confirmCancelOpen && (
-        <div className="space-y-3 rounded-s border border-stop-600 bg-stop-100 p-4 text-xs text-ink">
-          <div className="font-semibold">Confirm cancellation</div>
-          <p className="text-ink-muted">
-            Policy matched: {refundRuleLabel}. Automatic refund:{' '}
-            <MoneyText amountMinor={refundPreviewMinor} className="font-bold text-ink" />.
+        <div className="space-y-3 rounded-m border border-danger/30 bg-danger-subtle/40 p-5 text-body-s">
+          <h4 className="font-display text-body font-bold text-text-1">Confirm cancellation</h4>
+          <p className="text-text-2">
+            Policy applied: {refundRuleLabel}. Calculated refund amount:{' '}
+            <Price amountMinor={refundPreviewMinor} size="sm" />.
           </p>
-          <div className="flex gap-2">
+          <div className="flex gap-2 pt-1">
             <Button
               type="button"
               variant="danger"
@@ -116,7 +127,7 @@ export function TripActionsClient({
               disabled={cancelling}
               onClick={() => void handleCancel()}
             >
-              {cancelling ? 'Cancelling...' : 'Yes, cancel booking'}
+              {cancelling ? 'Cancelling...' : 'Confirm cancellation'}
             </Button>
             <Button
               type="button"

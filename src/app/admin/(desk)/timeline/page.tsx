@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getReadConnection } from '@/db/client';
 import { requireStaffPage } from '@/server/auth';
-import { Plate } from '@/ui/primitives/Plate';
+import { Plate } from '@/ui/data/Plate';
 
 export default async function AdminTimelinePage() {
   await requireStaffPage('fleet.read');
@@ -42,65 +42,71 @@ export default async function AdminTimelinePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-2xl font-bold tracking-tight text-ink">
-          Fleet schedule timeline
-        </h1>
-        <p className="text-sm text-ink-muted">
-          14-day rolling occupancy across active vehicles (-2 days to +12 days).
+        <h1 className="font-display text-h3 font-bold text-text-1">Fleet Schedule Timeline</h1>
+        <p className="text-body-s text-text-3">
+          14-day rolling availability across active vehicles (-2 days to +12 days).
         </p>
       </div>
 
-      <div className="overflow-x-auto rounded-m border border-line bg-surface p-4">
-        <div className="space-y-2" style={{ minWidth: '760px' }}>
-          <div className="grid grid-cols-[200px_1fr] items-center border-b border-line pb-2 text-xs font-semibold text-ink-muted">
+      <div className="overflow-x-auto rounded-m border border-border bg-surface p-5 shadow-e0">
+        <div className="space-y-3" style={{ minWidth: '820px' }}>
+          {/* Header Time Axis */}
+          <div className="grid grid-cols-[220px_1fr] items-center border-b border-border pb-3 text-label-s font-semibold text-text-3">
             <div>Vehicle</div>
-            <div className="relative h-5">
-              <span className="absolute left-0">-2d</span>
-              <span
-                className="absolute -translate-x-1/2 font-mono text-petrol-700"
+            <div className="relative h-6">
+              <span className="absolute left-0 text-text-3">-2 Days</span>
+              <div
+                className="absolute -translate-x-1/2 flex items-center gap-1 font-semibold text-accent"
                 style={{ left: `${nowPct}%` }}
               >
-                NOW
-              </span>
-              <span className="absolute right-0">+12d</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                <span>TODAY</span>
+              </div>
+              <span className="absolute right-0 text-text-3">+12 Days</span>
             </div>
           </div>
 
+          {/* Vehicle Rows */}
           {vehicles.map((v) => {
             const vBlocks = blocks.filter((b) => b.vehicle_id === v.id);
             return (
               <div
                 key={v.id}
-                className="grid grid-cols-[200px_1fr] items-center gap-3 py-1.5 text-xs"
+                className="grid grid-cols-[220px_1fr] items-center gap-4 py-2 text-body-s"
               >
                 <Link
                   href={`/admin/fleet/${v.id}`}
-                  className="flex items-center gap-2 hover:underline"
+                  className="flex items-center gap-2.5 group transition-colors"
                 >
-                  <Plate code={v.plate} paintHex={v.paint_hex} size="sm" />
-                  <span className="truncate text-ink">
+                  <Plate code={v.plate} size="sm" />
+                  <span className="truncate font-medium text-text-1 group-hover:text-accent group-hover:underline">
                     {v.make} {v.model}
                   </span>
                 </Link>
-                <div className="relative h-8 rounded-s border border-line bg-surface-subtle">
+
+                <div className="relative h-9 rounded-xs border border-border-subtle bg-surface-sunken">
+                  {/* Current timestamp indicator line */}
                   <div
                     aria-hidden="true"
-                    className="absolute bottom-0 top-0 w-px bg-petrol-600"
+                    className="absolute bottom-0 top-0 w-0.5 bg-accent z-10"
                     style={{ left: `${nowPct}%` }}
                   />
+
                   {vBlocks.map((b) => {
                     const left = Math.max(0, ((b.start_at - windowStart) / totalSpan) * 100);
                     const right = Math.min(100, ((b.end_at - windowStart) / totalSpan) * 100);
                     const width = Math.max(2, right - left);
-                    const bg =
-                      b.kind === 'maintenance'
-                        ? 'bg-amber-100 border-amber-600 text-petrol-950'
-                        : 'bg-petrol-100 border-petrol-600 text-petrol-900';
+                    const isMaint = b.kind === 'maintenance';
+
                     return (
                       <div
                         key={b.id}
                         title={b.note ?? b.kind}
-                        className={`absolute top-1 bottom-1 truncate rounded-s border px-1.5 leading-6 font-mono text-m1 ${bg}`}
+                        className={`absolute top-1 bottom-1 truncate rounded-2xs border px-2 leading-7 text-caption font-medium transition-transform hover:scale-[1.01] z-0 ${
+                          isMaint
+                            ? 'bg-warning-subtle border-warning/50 text-warning'
+                            : 'bg-accent-subtle border-accent/40 text-accent font-semibold'
+                        }`}
                         style={{ left: `${left}%`, width: `${width}%` }}
                       >
                         {b.booking_code ?? b.kind}

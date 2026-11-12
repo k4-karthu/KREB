@@ -7,10 +7,16 @@ import {
 import { loadAndPriceVehicle } from '@/domain/pricing/pricing';
 import { SiteFooter } from '@/ui/components/SiteFooter';
 import { SiteHeader } from '@/ui/components/SiteHeader';
-import type { VehicleTileData } from '@/ui/components/VehicleTile';
+import type { VehicleTileData } from '@/ui/data/VehicleTile';
 import { CarsClient } from './CarsClient';
 
 export const dynamic = 'force-dynamic';
+
+export interface BranchOption {
+  id: number;
+  name: string;
+  city: string;
+}
 
 export default async function CarsPage({
   searchParams,
@@ -35,7 +41,7 @@ export default async function CarsPage({
     .prepare(
       'SELECT id, name, city FROM branches WHERE deleted_at IS NULL AND is_active = 1 ORDER BY id ASC',
     )
-    .all() as Array<{ id: number; name: string; city: string }>;
+    .all() as BranchOption[];
 
   let validationMessage: string | undefined;
   if (branchId) {
@@ -67,34 +73,35 @@ export default async function CarsPage({
       make: veh.make,
       model: veh.model,
       variant: veh.variant,
-      year: veh.year,
-      plate: veh.plate,
       category: veh.category,
       transmission: veh.transmission,
       fuelType: veh.fuelType,
       seats: veh.seats,
-      paintName: veh.paintName,
-      paintHex: veh.paintHex,
       primaryImageUrl: veh.primaryImageUrl,
       primaryImageAlt: veh.primaryImageAlt,
-      totalMinor: quote.totalMinor,
+      thumbhash: veh.primaryThumbhash,
       dailyMinor: Math.round(quote.totalMinor / Math.max(1, quote.billableDays)),
-      days: quote.billableDays,
-      availabilityLabel: veh.branchName,
+      status: 'ready',
     };
   });
 
   if (sort === 'price_asc') {
-    pricedTiles.sort((a, b) => a.totalMinor - b.totalMinor);
+    pricedTiles.sort((a, b) => a.dailyMinor - b.dailyMinor);
   } else if (sort === 'price_desc') {
-    pricedTiles.sort((a, b) => b.totalMinor - a.totalMinor);
+    pricedTiles.sort((a, b) => b.dailyMinor - a.dailyMinor);
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-canvas text-ink">
+    <div className="min-h-screen flex flex-col bg-canvas text-text-1">
       <SiteHeader />
       <main className="flex-1">
-        <Suspense fallback={<div className="p-8 text-sm text-ink-muted">Loading fleet...</div>}>
+        <Suspense
+          fallback={
+            <div className="mx-auto max-w-7xl px-4 py-16 text-center text-body-s text-text-3 sm:px-6">
+              Loading available fleet...
+            </div>
+          }
+        >
           <CarsClient
             branches={branches}
             vehicles={pricedTiles}

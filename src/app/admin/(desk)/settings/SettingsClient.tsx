@@ -1,9 +1,10 @@
 'use client';
 
-import { Save } from 'lucide-react';
+import { FloppyDisk } from '@phosphor-icons/react';
 import { useState } from 'react';
 import type { RentalSettings } from '@/config/settings';
 import { Button } from '@/ui/primitives/Button';
+import { TextField } from '@/ui/primitives/TextField';
 
 export function SettingsClient({
   initialSettings,
@@ -27,129 +28,119 @@ export function SettingsClient({
     });
     setSaving(false);
     if (!res.ok) {
-      setStatus('Failed to update settings');
+      setStatus('Failed to update rental settings');
       return;
     }
-    setStatus('Rental rules updated and audited.');
+    setStatus('Rental policies updated and verified in audit log.');
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-2xl font-bold tracking-tight text-ink">
-          Rental policy & timings
-        </h1>
-        <p className="text-sm text-ink-muted">
-          Controls turnaround buffers, grace periods, tax, and automatic cancellation refund
-          windows.
+        <h1 className="font-display text-h3 font-bold text-text-1">Rental Policy & Timings</h1>
+        <p className="text-body-s text-text-3">
+          Controls turnaround cleaning buffers, grace intervals, statutory GST tax rate, and
+          automatic cancellation refund windows.
         </p>
       </div>
 
       {status && (
-        <p className="rounded-s border border-go-600 bg-go-100 px-3 py-2 text-sm text-petrol-800">
-          {status}
-        </p>
+        <div className="rounded-xs border border-success/30 bg-surface p-3.5 text-body-s text-text-1 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-success" />
+          <span>{status}</span>
+        </div>
       )}
 
       <form
         onSubmit={handleSubmit}
-        className="space-y-5 rounded-m border border-line bg-surface p-5"
+        className="space-y-6 rounded-m border border-border bg-surface p-5 shadow-e0"
       >
+        <div className="border-b border-border pb-3">
+          <h2 className="text-h4 font-display font-semibold text-text-1">
+            System Operational Buffers
+          </h2>
+          <p className="text-body-s text-text-3">
+            Adjust parameters for fleet availability schedules.
+          </p>
+        </div>
+
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <label className="space-y-1 text-xs font-medium text-ink">
-            <span>Tax rate (basis points, 1800 = 18%)</span>
-            <input
-              type="number"
-              value={form.taxRateBp}
-              onChange={(e) => setForm({ ...form, taxRateBp: Number(e.target.value) })}
-              className="h-9 w-full rounded-s border border-line bg-surface-subtle px-3 text-sm tabular-nums"
-            />
-          </label>
-          <label className="space-y-1 text-xs font-medium text-ink">
-            <span>Return grace period (minutes)</span>
-            <input
-              type="number"
-              value={form.graceMinutes}
-              onChange={(e) => setForm({ ...form, graceMinutes: Number(e.target.value) })}
-              className="h-9 w-full rounded-s border border-line bg-surface-subtle px-3 text-sm tabular-nums"
-            />
-          </label>
-          <label className="space-y-1 text-xs font-medium text-ink">
-            <span>Turnaround buffer (minutes)</span>
-            <input
-              type="number"
-              value={form.turnaroundBufferMinutes}
-              onChange={(e) =>
-                setForm({ ...form, turnaroundBufferMinutes: Number(e.target.value) })
-              }
-              className="h-9 w-full rounded-s border border-line bg-surface-subtle px-3 text-sm tabular-nums"
-            />
-          </label>
-          <label className="space-y-1 text-xs font-medium text-ink">
-            <span>Checkout hold duration (minutes)</span>
-            <input
-              type="number"
-              value={form.holdTimeoutMinutes}
-              onChange={(e) => setForm({ ...form, holdTimeoutMinutes: Number(e.target.value) })}
-              className="h-9 w-full rounded-s border border-line bg-surface-subtle px-3 text-sm tabular-nums"
-            />
-          </label>
-          <label className="space-y-1 text-xs font-medium text-ink">
-            <span>Minimum lead time (minutes)</span>
-            <input
-              type="number"
-              value={form.minLeadTimeMinutes}
-              onChange={(e) => setForm({ ...form, minLeadTimeMinutes: Number(e.target.value) })}
-              className="h-9 w-full rounded-s border border-line bg-surface-subtle px-3 text-sm tabular-nums"
-            />
-          </label>
-          <label className="space-y-1 text-xs font-medium text-ink">
-            <span>No-show release window (minutes)</span>
-            <input
-              type="number"
-              value={form.noShowReleaseMinutes}
-              onChange={(e) => setForm({ ...form, noShowReleaseMinutes: Number(e.target.value) })}
-              className="h-9 w-full rounded-s border border-line bg-surface-subtle px-3 text-sm tabular-nums"
-            />
-          </label>
-          <label className="space-y-1 text-xs font-medium text-ink">
-            <span>Refuel shortfall per 1/8 tank (paise)</span>
-            <input
-              type="number"
-              value={form.fuelShortfallPerEighthMinor}
-              onChange={(e) =>
-                setForm({ ...form, fuelShortfallPerEighthMinor: Number(e.target.value) })
-              }
-              className="h-9 w-full rounded-s border border-line bg-surface-subtle px-3 text-sm tabular-nums"
-            />
-          </label>
-          <label className="space-y-1 text-xs font-medium text-ink">
-            <span>Refuel service fee (paise)</span>
-            <input
-              type="number"
-              value={form.refuelServiceFeeMinor}
-              onChange={(e) => setForm({ ...form, refuelServiceFeeMinor: Number(e.target.value) })}
-              className="h-9 w-full rounded-s border border-line bg-surface-subtle px-3 text-sm tabular-nums"
-            />
-          </label>
-          <label className="space-y-1 text-xs font-medium text-ink">
-            <span>Deposit release (working days)</span>
-            <input
-              type="number"
-              value={form.depositReleaseWorkingDays}
-              onChange={(e) =>
-                setForm({ ...form, depositReleaseWorkingDays: Number(e.target.value) })
-              }
-              className="h-9 w-full rounded-s border border-line bg-surface-subtle px-3 text-sm tabular-nums"
-            />
-          </label>
+          <TextField
+            label="Tax Rate (basis points, 1800 = 18%)"
+            type="number"
+            value={String(form.taxRateBp)}
+            onChange={(val) => setForm((prev) => ({ ...prev, taxRateBp: Number(val) }))}
+            required
+          />
+          <TextField
+            label="Return Grace Period (minutes)"
+            type="number"
+            value={String(form.graceMinutes)}
+            onChange={(val) => setForm((prev) => ({ ...prev, graceMinutes: Number(val) }))}
+            required
+          />
+          <TextField
+            label="Turnaround Buffer (minutes)"
+            type="number"
+            value={String(form.turnaroundBufferMinutes)}
+            onChange={(val) =>
+              setForm((prev) => ({ ...prev, turnaroundBufferMinutes: Number(val) }))
+            }
+            required
+          />
+          <TextField
+            label="Checkout Hold Timeout (minutes)"
+            type="number"
+            value={String(form.holdTimeoutMinutes)}
+            onChange={(val) => setForm((prev) => ({ ...prev, holdTimeoutMinutes: Number(val) }))}
+            required
+          />
+          <TextField
+            label="Minimum Lead Time (minutes)"
+            type="number"
+            value={String(form.minLeadTimeMinutes)}
+            onChange={(val) => setForm((prev) => ({ ...prev, minLeadTimeMinutes: Number(val) }))}
+            required
+          />
+          <TextField
+            label="No-show Release Window (minutes)"
+            type="number"
+            value={String(form.noShowReleaseMinutes)}
+            onChange={(val) => setForm((prev) => ({ ...prev, noShowReleaseMinutes: Number(val) }))}
+            required
+          />
+          <TextField
+            label="Fuel Shortfall per 1/8 Tank (paise)"
+            type="number"
+            value={String(form.fuelShortfallPerEighthMinor)}
+            onChange={(val) =>
+              setForm((prev) => ({ ...prev, fuelShortfallPerEighthMinor: Number(val) }))
+            }
+            required
+          />
+          <TextField
+            label="Refuel Service Convenience Fee (paise)"
+            type="number"
+            value={String(form.refuelServiceFeeMinor)}
+            onChange={(val) => setForm((prev) => ({ ...prev, refuelServiceFeeMinor: Number(val) }))}
+            required
+          />
+          <TextField
+            label="Deposit Settlement (Working Days)"
+            type="number"
+            value={String(form.depositReleaseWorkingDays)}
+            onChange={(val) =>
+              setForm((prev) => ({ ...prev, depositReleaseWorkingDays: Number(val) }))
+            }
+            required
+          />
         </div>
 
         {canEdit && (
-          <div className="flex justify-end">
-            <Button type="submit" disabled={saving}>
-              <Save className="h-4 w-4" />
-              {saving ? 'Saving...' : 'Save policy settings'}
+          <div className="flex justify-end pt-3 border-t border-border">
+            <Button type="submit" disabled={saving} className="gap-2">
+              <FloppyDisk size={16} weight="bold" />
+              <span>{saving ? 'Saving changes...' : 'Save Policy Settings'}</span>
             </Button>
           </div>
         )}

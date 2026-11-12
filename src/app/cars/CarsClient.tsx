@@ -1,10 +1,40 @@
 'use client';
 
+import { CalendarDate, type DateValue } from '@internationalized/date';
+import { ArrowClockwise, ArrowRight, Car, EnvelopeSimple } from '@phosphor-icons/react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
-import { type BranchChoice, DateTimeRange } from '@/ui/components/DateTimeRange';
-import { VehicleTile, type VehicleTileData } from '@/ui/components/VehicleTile';
+import { useMemo, useState, useTransition } from 'react';
+import { EmptyState } from '@/ui/data/EmptyState';
+import { VehicleTile, type VehicleTileData } from '@/ui/data/VehicleTile';
 import { Button } from '@/ui/primitives/Button';
+import { Chip } from '@/ui/primitives/Chips';
+import { DateRangePicker } from '@/ui/primitives/DateRangePicker';
+import { SegmentedControl } from '@/ui/primitives/SegmentedControl';
+import { Select } from '@/ui/primitives/Select';
+import { Slider } from '@/ui/primitives/Slider';
+import { TextField } from '@/ui/primitives/TextField';
+import type { BranchOption } from './page';
+
+function epochMsToCalendarDate(ms: number): CalendarDate {
+  const d = new Date(ms + 330 * 60_000);
+  return new CalendarDate(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate());
+}
+
+function calendarDateToEpochMs(date: DateValue, hour = 10, minute = 0): number {
+  const istOffsetMs = 330 * 60_000;
+  const utcMs = Date.UTC(date.year, date.month - 1, date.day, hour, minute, 0);
+  return utcMs - istOffsetMs;
+}
+
+const CATEGORIES = [
+  { id: 'all', label: 'All styles' },
+  { id: 'ev', label: 'Electric' },
+  { id: 'luxury', label: 'Luxury' },
+  { id: 'suv', label: 'SUV' },
+  { id: 'sedan', label: 'Sedan' },
+  { id: 'hatchback', label: 'Hatchback' },
+  { id: 'muv', label: 'MUV' },
+];
 
 export function CarsClient({
   branches,
@@ -18,7 +48,7 @@ export function CarsClient({
   selectedSort,
   validationMessage,
 }: {
-  branches: BranchChoice[];
+  branches: BranchOption[];
   vehicles: VehicleTileData[];
   startAt: number;
   endAt: number;
@@ -31,8 +61,42 @@ export function CarsClient({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
+
+  const [branchKey, setBranchKey] = useState<string>(
+    selectedBranchId ? String(selectedBranchId) : 'all',
+  );
+  const [dateRange, setDateRange] = useState<{ start: DateValue; end: DateValue }>(() => ({
+    start: epochMsToCalendarDate(startAt),
+    end: epochMsToCalendarDate(endAt),
+  }));
+
+  const maxAvailableDailyRupees = useMemo(() => {
+    if (vehicles.length === 0) return 25000;
+    const rates = vehicles.map((v) => Math.round(v.dailyMinor / 100));
+    return Math.max(10000, ...rates);
+  }, [vehicles]);
+
+  const [maxPrice, setMaxPrice] = useState<number>(() => maxAvailableDailyRupees);
   const [waitlistEmail, setWaitlistEmail] = useState('');
   const [waitlistSent, setWaitlistSent] = useState(false);
+  const [waitlistLoading, setWaitlistLoading] = useState(false);
+
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: vehicles.length };
+    for (const v of vehicles) {
+      const cat = v.category.toLowerCase();
+      counts[cat] = (counts[cat] ?? 0) + 1;
+    }
+    return counts;
+  }, [vehicles]);
+
+  const filteredVehicles = useMemo(() => {
+    return vehicles.filter((v) => {
+      const dailyRupees = Math.round(v.dailyMinor / 100);
+      return dailyRupees <= maxPrice;
+    });
+  }, [vehicles, maxPrice]);
 
   function updateFilter(key: string, value: string) {
     const next = new URLSearchParams(searchParams.toString());
@@ -43,140 +107,279 @@ export function CarsClient({
     } else {
       next.delete(key);
     }
-    router.push(`/cars?${next.toString()}`);
+    startTransition(() => {
+      router.push(`/cars?${next.toString()}`);
+    });
   }
 
-  async function submitWaitlist(e: React.FormEvent) {
-    e.preventDefault();
-    const res = await fetch('/api/waitlist', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: waitlistEmail,
-        category: selectedCategory !== 'all' ? selectedCategory : null,
-        startAt,
-        endAt,
-      }),
+  function applyDateAndBranch() {
+    const next = new URLSearchParams(searchParams.toString());
+    if (branchKey && branchKey !== 'all') {
+      next.set('branch', branchKey);
+    } else {
+      next.delete('branch');
+    }
+    const newStart = calendarDateToEpochMs(dateRange.start, 10, 0);
+    const newEnd = calendarDateToEpochMs(dateRange.end, 10, 0);
+    next.set('start', String(newStart));
+    next.set('end', String(newEnd));
+    startTransition(() => {
+      router.push(`/cars?${next.toString()}`);
     });
-    if (res.ok) {
-      setWaitlistSent(true);
-      setWaitlistEmail('');
+  }
+
+  function resetAllFilters() {
+    const next = new URLSearchParams();
+    next.set('start', String(startAt));
+    next.set('end', String(endAt));
+    if (selectedBranchId) next.set('branch', String(selectedBranchId));
+    setMaxPrice(maxAvailableDailyRupees);
+    startTransition(() => {
+      router.push(`/cars?${next.toString()}`);
+    });
+  }
+
+  const hasActiveFilters =
+    selectedCategory !== 'all' ||
+    selectedTransmission !== 'all' ||
+    selectedFuel !== 'all' ||
+    selectedSort !== 'recommended' ||
+    maxPrice < maxAvailableDailyRupees;
+
+  async function handleWaitlistSubmit() {
+    if (!waitlistEmail.trim() || waitlistLoading) return;
+    setWaitlistLoading(true);
+    try {
+      const res = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: waitlistEmail,
+          category: selectedCategory !== 'all' ? selectedCategory : null,
+          startAt,
+          endAt,
+        }),
+      });
+      if (res.ok) {
+        setWaitlistSent(true);
+        setWaitlistEmail('');
+      }
+    } finally {
+      setWaitlistLoading(false);
     }
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:px-6">
-      <div className="space-y-4">
-        <h1 className="font-display text-3xl font-bold tracking-tight text-ink">Available fleet</h1>
-        <DateTimeRange
-          branches={branches}
-          defaultBranchId={selectedBranchId}
-          defaultStartAt={startAt}
-          defaultEndAt={endAt}
-          actionLabel="Update dates"
-        />
+    <div className="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6">
+      {/* Page Header */}
+      <div className="space-y-2">
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <h1 className="font-display text-h2 sm:text-h1 font-bold tracking-tight text-text-1">
+            Available fleet
+          </h1>
+          <span className="text-body-s font-medium text-text-3">
+            {filteredVehicles.length} {filteredVehicles.length === 1 ? 'vehicle' : 'vehicles'} ready
+            for rental
+          </span>
+        </div>
+        <p className="text-body text-text-2">
+          Transparent whole-rupee daily rates with insurance and roadside coverage included.
+        </p>
+      </div>
+
+      {/* Date & Hub Bar with Primitives */}
+      <div className="rounded-m border border-border bg-surface p-4 shadow-e0">
+        <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-12">
+          <div className="md:col-span-4">
+            <Select
+              label="Pick-up hub"
+              placeholder="Select hub location"
+              selectedKey={branchKey}
+              onSelectionChange={(key) => setBranchKey(String(key))}
+              options={[
+                { id: 'all', label: 'All Bengaluru hubs', description: 'Across all 5 city hubs' },
+                ...branches.map((b) => ({
+                  id: String(b.id),
+                  label: b.name,
+                  description: b.city,
+                })),
+              ]}
+            />
+          </div>
+
+          <div className="md:col-span-5">
+            <DateRangePicker
+              label="Rental dates"
+              value={dateRange}
+              onChange={(range) => {
+                if (range?.start && range?.end) {
+                  setDateRange({ start: range.start, end: range.end });
+                }
+              }}
+            />
+          </div>
+
+          <div className="md:col-span-3">
+            <Button
+              type="button"
+              variant="primary"
+              size="md"
+              disabled={isPending}
+              onClick={applyDateAndBranch}
+              className="w-full"
+            >
+              <span>{isPending ? 'Updating...' : 'Update fleet'}</span>
+              <ArrowRight size={16} weight="bold" />
+            </Button>
+          </div>
+        </div>
+
         {validationMessage && (
-          <p className="rounded-s border border-amber-600 bg-amber-100 px-3 py-2 text-sm text-petrol-950">
+          <div className="mt-3 rounded-s border border-warning/30 bg-warning-subtle px-3 py-2 text-label-s font-medium text-warning">
             {validationMessage}
-          </p>
+          </div>
         )}
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-y border-line py-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <select
-            aria-label="Category"
-            value={selectedCategory}
-            onChange={(e) => updateFilter('category', e.target.value)}
-            className="h-9 rounded-s border border-line bg-surface px-3 text-xs font-medium text-ink"
-          >
-            <option value="all">All body styles</option>
-            <option value="hatchback">Hatchback</option>
-            <option value="sedan">Sedan</option>
-            <option value="suv">SUV</option>
-            <option value="muv">MUV</option>
-            <option value="luxury">Luxury</option>
-            <option value="ev">Electric</option>
-            <option value="van">Van</option>
-          </select>
-
-          <select
-            aria-label="Transmission"
-            value={selectedTransmission}
-            onChange={(e) => updateFilter('transmission', e.target.value)}
-            className="h-9 rounded-s border border-line bg-surface px-3 text-xs font-medium text-ink"
-          >
-            <option value="all">Any gearbox</option>
-            <option value="automatic">Automatic</option>
-            <option value="manual">Manual</option>
-          </select>
-
-          <select
-            aria-label="Fuel type"
-            value={selectedFuel}
-            onChange={(e) => updateFilter('fuel', e.target.value)}
-            className="h-9 rounded-s border border-line bg-surface px-3 text-xs font-medium text-ink"
-          >
-            <option value="all">Any fuel</option>
-            <option value="petrol">Petrol</option>
-            <option value="diesel">Diesel</option>
-            <option value="hybrid">Hybrid</option>
-            <option value="electric">Electric</option>
-            <option value="cng">CNG</option>
-          </select>
+      {/* Main Filter Section */}
+      <div className="space-y-5 rounded-m border border-border-subtle bg-surface p-5 shadow-e0">
+        {/* Category Chips Bar */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-label-s font-medium text-text-3">
+            <span>Body style</span>
+            {hasActiveFilters && (
+              <button
+                type="button"
+                onClick={resetAllFilters}
+                className="inline-flex items-center gap-1 text-label-s font-medium text-accent hover:underline cursor-pointer"
+              >
+                <ArrowClockwise size={14} weight="bold" />
+                <span>Reset all filters</span>
+              </button>
+            )}
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {CATEGORIES.map((cat) => (
+              <Chip
+                key={cat.id}
+                variant="filter"
+                size="sm"
+                selected={selectedCategory === cat.id}
+                onSelect={() => updateFilter('category', cat.id)}
+                count={categoryCounts[cat.id]}
+              >
+                {cat.label}
+              </Chip>
+            ))}
+          </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-ink-muted">
-            {vehicles.length} {vehicles.length === 1 ? 'car' : 'cars'} free
-          </span>
-          <select
-            aria-label="Sort"
-            value={selectedSort}
-            onChange={(e) => updateFilter('sort', e.target.value)}
-            className="h-9 rounded-s border border-line bg-surface px-3 text-xs font-medium text-ink"
-          >
-            <option value="recommended">Recommended</option>
-            <option value="price_asc">Price: low to high</option>
-            <option value="price_desc">Price: high to low</option>
-          </select>
+        {/* Transmission, Fuel, Sort, Price controls */}
+        <div className="flex flex-wrap items-end justify-between gap-4 border-t border-border-subtle pt-4">
+          <div className="flex flex-wrap items-end gap-3">
+            {/* Gearbox SegmentedControl */}
+            <div className="flex flex-col gap-1.5">
+              <span className="text-caption font-medium text-text-2">Transmission</span>
+              <SegmentedControl
+                name="transmission"
+                aria-label="Filter transmission"
+                value={selectedTransmission}
+                onValueChange={(val) => updateFilter('transmission', val)}
+                options={[
+                  { value: 'all', label: 'All gearboxes' },
+                  { value: 'automatic', label: 'Automatic' },
+                  { value: 'manual', label: 'Manual' },
+                ]}
+              />
+            </div>
+
+            {/* Fuel Type Select */}
+            <div className="w-36">
+              <Select
+                label="Fuel type"
+                aria-label="Filter fuel type"
+                selectedKey={selectedFuel}
+                onSelectionChange={(key) => updateFilter('fuel', String(key))}
+                options={[
+                  { id: 'all', label: 'Any fuel' },
+                  { id: 'petrol', label: 'Petrol' },
+                  { id: 'diesel', label: 'Diesel' },
+                  { id: 'electric', label: 'Electric' },
+                  { id: 'hybrid', label: 'Hybrid' },
+                  { id: 'cng', label: 'CNG' },
+                ]}
+              />
+            </div>
+
+            {/* Sort Select */}
+            <div className="w-44">
+              <Select
+                label="Sort order"
+                aria-label="Sort vehicles"
+                selectedKey={selectedSort}
+                onSelectionChange={(key) => updateFilter('sort', String(key))}
+                options={[
+                  { id: 'recommended', label: 'Recommended' },
+                  { id: 'price_asc', label: 'Price: low to high' },
+                  { id: 'price_desc', label: 'Price: high to low' },
+                ]}
+              />
+            </div>
+          </div>
+
+          {/* Price Range Slider */}
+          <div className="w-full sm:w-64">
+            <Slider
+              label="Max daily rate"
+              minValue={2000}
+              maxValue={maxAvailableDailyRupees}
+              step={500}
+              value={maxPrice}
+              onChange={(val) => setMaxPrice(Array.isArray(val) ? val[0] : val)}
+              formatOptions={{ style: 'currency', currency: 'INR', maximumFractionDigits: 0 }}
+            />
+          </div>
         </div>
       </div>
 
-      {vehicles.length === 0 ? (
-        <div className="space-y-5 rounded-m border border-line bg-surface p-8 text-center">
-          <h2 className="font-display text-xl font-bold text-ink">
-            No matching cars are free for those exact filters
-          </h2>
-          <p className="mx-auto max-w-md text-sm text-ink-muted">
-            Try clearing a body style filter, switching pickup hub, or leave your email and we will
-            alert you if a booking cancels.
-          </p>
-          {waitlistSent ? (
-            <p className="text-sm font-medium text-petrol-700">
-              You are on the notification list for these dates.
-            </p>
-          ) : (
-            <form
-              onSubmit={submitWaitlist}
-              className="mx-auto flex max-w-md flex-col gap-2 sm:flex-row"
-            >
-              <input
-                type="email"
-                required
-                value={waitlistEmail}
-                onChange={(e) => setWaitlistEmail(e.target.value)}
-                placeholder="you@example.com"
-                className="h-10 flex-1 rounded-s border border-line bg-surface-subtle px-3 text-sm"
-              />
-              <Button type="submit">Notify me</Button>
-            </form>
-          )}
-        </div>
+      {/* Vehicles Grid / Empty State */}
+      {filteredVehicles.length === 0 ? (
+        <EmptyState
+          icon={Car}
+          heading="No matching vehicles for these exact dates"
+          description="Try adjusting your body style, increasing the price range, or join our notification list to receive an instant alert if a car frees up."
+          action={
+            waitlistSent ? (
+              <div className="rounded-s border border-success/30 bg-success-subtle px-4 py-3 text-body-s font-medium text-success">
+                You are on the alert list for these trip dates.
+              </div>
+            ) : (
+              <div className="w-full max-w-sm space-y-2">
+                <div className="flex gap-2">
+                  <TextField
+                    aria-label="Email address"
+                    placeholder="name@example.com"
+                    value={waitlistEmail}
+                    onChange={setWaitlistEmail}
+                    prefix={<EnvelopeSimple size={16} className="text-text-3" />}
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="primary"
+                    disabled={waitlistLoading || !waitlistEmail.trim()}
+                    onClick={() => void handleWaitlistSubmit()}
+                  >
+                    <span>{waitlistLoading ? 'Saving...' : 'Notify me'}</span>
+                  </Button>
+                </div>
+              </div>
+            )
+          }
+        />
       ) : (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {vehicles.map((v) => (
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {filteredVehicles.map((v) => (
             <VehicleTile
               key={v.slug}
               vehicle={v}

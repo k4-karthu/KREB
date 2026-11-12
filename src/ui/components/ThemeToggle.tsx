@@ -1,6 +1,6 @@
 'use client';
 
-import { Moon, Sun } from 'lucide-react';
+import { Moon, Sun } from '@phosphor-icons/react';
 import { useEffect, useState } from 'react';
 
 export function ThemeToggle({ className = '' }: { className?: string }) {
@@ -28,12 +28,12 @@ export function ThemeToggle({ className = '' }: { className?: string }) {
       type="button"
       onClick={toggle}
       aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
-      className={`inline-flex h-10 w-10 items-center justify-center rounded-full border border-stone-300 bg-sheet text-petrol-800 hover:bg-stone-200 cursor-pointer ${className}`.trim()}
+      className={`inline-flex h-9 w-9 items-center justify-center rounded-xs border border-border bg-surface text-text-2 hover:bg-surface-sunken hover:text-text-1 cursor-pointer transition-colors ${className}`.trim()}
     >
       {theme === 'dark' ? (
-        <Sun className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+        <Sun size={18} weight="bold" aria-hidden="true" />
       ) : (
-        <Moon className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+        <Moon size={18} weight="bold" aria-hidden="true" />
       )}
     </button>
   );

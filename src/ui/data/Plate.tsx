@@ -1,6 +1,7 @@
 export interface PlateProps {
   code: string;
   size?: 'sm' | 'md' | 'lg';
+  paintHex?: string;
   className?: string;
 }
 

@@ -1,38 +1,81 @@
 'use client';
 
-import { ArrowRight, CheckCircle2, CreditCard, Lock, ShieldCheck } from 'lucide-react';
+import {
+  CheckCircle,
+  CreditCard,
+  IdentificationCard,
+  Lock,
+  ShieldCheck,
+} from '@phosphor-icons/react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import type { QuoteLineItem } from '@/domain/pricing/pricing';
 import { authClient } from '@/server/auth-client';
-import { Stepper } from '@/ui/components/Stepper';
+import { Plate } from '@/ui/data/Plate';
+import { ProtectionCards, type ProtectionTier } from '@/ui/data/ProtectionCards';
+import { QuotePanel } from '@/ui/data/QuotePanel';
+import { StatusBadge } from '@/ui/data/StatusBadge';
+import { Stepper } from '@/ui/data/Stepper';
 import { Button } from '@/ui/primitives/Button';
-import { MoneyText } from '@/ui/primitives/MoneyText';
-import { Plate } from '@/ui/primitives/Plate';
+import { Checkbox } from '@/ui/primitives/Checkbox';
+import { Dropzone } from '@/ui/primitives/Dropzone';
+import { Radio, RadioGroup } from '@/ui/primitives/Radio';
+import { TextField } from '@/ui/primitives/TextField';
 
-const STEPS = [
-  { id: 'trip', label: 'Trip review' },
-  { id: 'you', label: 'Driver & KYC' },
-  { id: 'pay', label: 'Pay & lock' },
+const CHECKOUT_STEPS = [
+  { id: 'driver', label: 'Driver Details', description: 'Licence & contact' },
+  { id: 'protection', label: 'Protection & Addons', description: 'Excess & options' },
+  { id: 'payment', label: 'Payment', description: 'Instant hold' },
+  { id: 'confirmation', label: 'Confirmation', description: 'Official slip' },
 ];
 
-export function CheckoutClient({
-  quotePublicId,
-  vehicleTitle,
-  plate,
-  paintHex,
-  branchName,
-  startAt,
-  endAt,
-  totalMinor,
-  depositMinor,
-  lines,
-  actor,
-  profile,
-  licenceStatus,
-}: {
+const PROTECTION_TIERS: ProtectionTier[] = [
+  {
+    id: 'basic',
+    name: 'Basic Cover',
+    summary: 'Standard third-party liability with statutory protection',
+    dailyMinor: 0,
+    excessMinor: 2500000,
+    features: [
+      { text: 'Third party property damage', included: true },
+      { text: 'Mandatory third party liability', included: true },
+      { text: 'Zero security excess', included: false },
+      { text: 'Tyre and windshield waiver', included: false },
+    ],
+  },
+  {
+    id: 'standard',
+    name: 'Standard Cover',
+    summary: 'Reduced excess and comprehensive road incident cover',
+    dailyMinor: 49900,
+    excessMinor: 500000,
+    recommended: true,
+    features: [
+      { text: 'Third party property damage', included: true },
+      { text: 'Collision damage waiver', included: true },
+      { text: 'Tyre, rim and windshield cover', included: true },
+      { text: '24/7 on-road mechanical assistance', included: true },
+    ],
+  },
+  {
+    id: 'premium',
+    name: 'Zero Excess Cover',
+    summary: 'Total peace of mind with complete liability waiver',
+    dailyMinor: 99900,
+    excessMinor: 0,
+    features: [
+      { text: 'Zero excess liability on damage', included: true },
+      { text: 'Tyre, rim and windshield cover', included: true },
+      { text: 'Personal accident cover', included: true },
+      { text: 'Priority replacement vehicle', included: true },
+    ],
+  },
+];
+
+export interface CheckoutClientProps {
   quotePublicId: string;
   vehicleTitle: string;
+  category: string;
   plate: string;
   paintHex: string;
   branchName: string;
@@ -44,22 +87,137 @@ export function CheckoutClient({
   actor: { id: string; name: string; email: string } | null;
   profile: { phone: string | null; dateOfBirth: string | null } | null;
   licenceStatus: string | null;
-}) {
+  licenceLast4: string | null;
+}
+
+export function CheckoutClient({
+  quotePublicId,
+  vehicleTitle,
+  category,
+  plate,
+  branchName,
+  startAt,
+  endAt,
+  totalMinor,
+  depositMinor,
+  lines,
+  actor,
+  profile,
+  licenceStatus,
+  licenceLast4,
+}: CheckoutClientProps) {
   const router = useRouter();
+  const rawIdem = useId();
   const [step, setStep] = useState(actor ? 1 : 0);
   const [isSignedIn, setIsSignedIn] = useState(Boolean(actor));
 
-  // Inline auth state if guest
+  // Inline auth state
   const [authMode, setAuthMode] = useState<'signup' | 'login'>('signup');
   const [fullName, setFullName] = useState(actor?.name ?? '');
   const [email, setEmail] = useState(actor?.email ?? '');
   const [password, setPassword] = useState('');
-  const [phone, setPhone] = useState(profile?.phone ?? '+91 98450 ');
-  const [dateOfBirth, setDateOfBirth] = useState(profile?.dateOfBirth ?? '1994-06-15');
+
+  // Driver details state
+  const [phone, setPhone] = useState(profile?.phone ?? '+91 98450 12345');
+  const [dateOfBirth, setDateOfBirth] = useState(profile?.dateOfBirth ?? '1995-08-20');
+
+  // Protection & Addons state
+  const [selectedTierId, setSelectedTierId] = useState('standard');
+  const [addonChildSeat, setAddonChildSeat] = useState(false);
+  const [addonAddlDriver, setAddonAddlDriver] = useState(false);
+  const [addonFastag, setAddonFastag] = useState(false);
+
+  // KYC Licence state
+  const [licenceNumber, setLicenceNumber] = useState('');
+  const [licenceExpiry, setLicenceExpiry] = useState('2032-12-31');
+  const [licenceFile, setLicenceFile] = useState<File | null>(null);
+  const [licenceUploaded, setLicenceUploaded] = useState(Boolean(licenceStatus));
+  const [uploadingLicence, setUploadingLicence] = useState(false);
+
+  // Payment state
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'upi'>('card');
+  const [cardNumber, setCardNumber] = useState('4242 •••• •••• 4242');
+  const [cardExpiry, setCardExpiry] = useState('08/29');
+  const [cardCvv, setCardCvv] = useState('888');
+  const [cardHolder, setCardHolder] = useState(actor?.name || 'Rahul Sharma');
+  const [upiId, setUpiId] = useState('driver@okhdfcbank');
+  const [termsAgreed, setTermsAgreed] = useState(true);
+
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [idempotencyKey] = useState(() => `chk_${quotePublicId}_${Date.now()}`);
+  const [idempotencyKey] = useState(
+    () => `chk_${quotePublicId}_${Date.now()}_${rawIdem.replace(/[^a-zA-Z0-9]/g, '')}`,
+  );
+
+  const rentalDays = Math.max(1, Math.round((endAt - startAt) / (24 * 3600 * 1000)));
+
+  // Base rate calculation
+  const baseRateLine = lines.find((l) => l.kind === 'base') ?? lines[0];
+  const baseRentalMinor = baseRateLine?.amountMinor ?? Math.round(totalMinor * 0.8);
+  const dailyRateMinor = Math.round(baseRentalMinor / rentalDays);
+
+  // Protection plan calculation
+  const selectedTier = PROTECTION_TIERS.find((t) => t.id === selectedTierId) ??
+    PROTECTION_TIERS[1] ?? {
+      id: 'standard',
+      name: 'Standard Cover',
+      summary: 'Reduced excess and comprehensive road incident cover',
+      dailyMinor: 49900,
+      excessMinor: 500000,
+      features: [],
+    };
+  const protectionDailyRate = selectedTier.dailyMinor;
+  const protectionTotalMinor = protectionDailyRate * rentalDays;
+
+  // Addons list for QuotePanel
+  const activeAddOns: Array<{
+    id: string;
+    label: string;
+    description?: string;
+    amountMinor: number;
+  }> = [];
+
+  if (protectionDailyRate > 0) {
+    activeAddOns.push({
+      id: 'protection',
+      label: selectedTier.name,
+      description: selectedTier.summary,
+      amountMinor: protectionTotalMinor,
+    });
+  }
+
+  if (addonChildSeat) {
+    activeAddOns.push({
+      id: 'child_seat',
+      label: 'Child safety seat',
+      description: 'ISOFIX compliant infant seat',
+      amountMinor: 29900 * rentalDays,
+    });
+  }
+
+  if (addonAddlDriver) {
+    activeAddOns.push({
+      id: 'addl_driver',
+      label: 'Additional authorized driver',
+      description: 'Verified second pilot for long stretches',
+      amountMinor: 39900 * rentalDays,
+    });
+  }
+
+  if (addonFastag) {
+    activeAddOns.push({
+      id: 'fastag',
+      label: 'Pre-loaded FASTag toll pass',
+      description: 'Express highway toll electronic lane pass',
+      amountMinor: 50000,
+    });
+  }
+
+  const addOnsTotalMinor = activeAddOns.reduce((sum, a) => sum + a.amountMinor, 0);
+  const taxableSubtotalMinor = baseRentalMinor + addOnsTotalMinor;
+  const taxesMinor = Math.round(taxableSubtotalMinor * 0.18);
+  const currentDepositMinor =
+    selectedTier.excessMinor === 0 ? 0 : selectedTier.excessMinor <= 500000 ? 500000 : depositMinor;
 
   const fmtDate = (ms: number) =>
     new Date(ms).toLocaleString('en-IN', {
@@ -85,7 +243,7 @@ export function CheckoutClient({
         if (res.error) throw new Error(res.error.message ?? 'Sign-in failed');
       }
       setIsSignedIn(true);
-      setStep(2);
+      setStep(1);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Authentication failed');
@@ -94,7 +252,39 @@ export function CheckoutClient({
     }
   }
 
+  async function handleLicenceUpload() {
+    if (!licenceFile || !licenceNumber) {
+      setError('Please provide a driving licence number and document image.');
+      return;
+    }
+    setUploadingLicence(true);
+    setError(null);
+    try {
+      const formData = new FormData();
+      formData.set('licenceNumber', licenceNumber);
+      formData.set('issuingRegion', 'KA');
+      formData.set('expiresOn', licenceExpiry);
+      formData.set('frontFile', licenceFile);
+
+      const res = await fetch('/api/account/licence', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = (await res.json()) as { error?: string };
+      if (!res.ok) throw new Error(data.error ?? 'Licence upload failed');
+      setLicenceUploaded(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Licence upload error');
+    } finally {
+      setUploadingLicence(false);
+    }
+  }
+
   async function handleConfirmPayment() {
+    if (!termsAgreed) {
+      setError('Please accept the rental terms and security deposit hold authorization.');
+      return;
+    }
     setError(null);
     setSubmitting(true);
     try {
@@ -122,142 +312,191 @@ export function CheckoutClient({
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 px-4 py-8 sm:px-6">
-      <Stepper steps={STEPS} currentIndex={step} />
+    <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:px-6">
+      {/* Step Indicator */}
+      <div className="rounded-m border border-border-subtle bg-surface p-5 shadow-e0">
+        <Stepper steps={CHECKOUT_STEPS} currentStep={step} />
+      </div>
 
-      <div className="grid gap-8 lg:grid-cols-12">
+      <div className="grid gap-8 lg:grid-cols-12 items-start">
+        {/* Main Step Flow Content */}
         <div className="space-y-6 lg:col-span-7">
           {error && (
-            <p className="rounded-s border border-stop-600 bg-stop-100 px-3 py-2 text-sm text-stop-600">
+            <div
+              role="alert"
+              className="rounded-s border border-danger/30 bg-danger-subtle p-3.5 text-body-s font-medium text-danger"
+            >
               {error}
-            </p>
+            </div>
           )}
 
+          {/* STEP 0: Driver Details & Account */}
           {step === 0 && (
-            <section className="space-y-4 rounded-m border border-line bg-surface p-6">
-              <h1 className="font-display text-xl font-bold text-ink">Confirm your trip details</h1>
-              <div className="grid gap-4 rounded-s border border-line bg-surface-subtle p-4 text-sm sm:grid-cols-2">
-                <div>
-                  <div className="text-xs text-ink-muted">Pick-up</div>
-                  <div className="font-semibold text-ink">{fmtDate(startAt)}</div>
-                  <div className="text-xs text-ink-muted">{branchName}</div>
-                </div>
-                <div>
-                  <div className="text-xs text-ink-muted">Return</div>
-                  <div className="font-semibold text-ink">{fmtDate(endAt)}</div>
-                  <div className="text-xs text-ink-muted">{branchName}</div>
-                </div>
+            <section className="space-y-6 rounded-m border border-border bg-surface p-6 shadow-e1">
+              <div>
+                <h2 className="font-display text-h3 font-semibold text-text-1">
+                  Driver profile & verification
+                </h2>
+                <p className="mt-1 text-body-s text-text-2">
+                  Sign in or create an account to associate your driving credentials with this
+                  reservation.
+                </p>
               </div>
-              <Button type="button" size="lg" onClick={() => setStep(1)}>
-                <span>Continue to driver details</span>
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </section>
-          )}
-
-          {step === 1 && (
-            <section className="space-y-4 rounded-m border border-line bg-surface p-6">
-              <h2 className="font-display text-xl font-bold text-ink">Driver verification</h2>
 
               {!isSignedIn ? (
-                <form onSubmit={handleInlineAuth} className="space-y-3">
-                  <div className="flex gap-2 text-xs">
-                    <button
+                <form onSubmit={handleInlineAuth} className="space-y-4">
+                  <div className="flex gap-2 border-b border-border-subtle pb-3">
+                    <Button
                       type="button"
+                      size="sm"
+                      variant={authMode === 'signup' ? 'primary' : 'secondary'}
                       onClick={() => setAuthMode('signup')}
-                      className={`rounded-s px-3 py-1.5 font-medium ${
-                        authMode === 'signup' ? 'bg-ink text-surface' : 'bg-surface-subtle text-ink'
-                      }`}
                     >
                       New driver
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="button"
+                      size="sm"
+                      variant={authMode === 'login' ? 'primary' : 'secondary'}
                       onClick={() => setAuthMode('login')}
-                      className={`rounded-s px-3 py-1.5 font-medium ${
-                        authMode === 'login' ? 'bg-ink text-surface' : 'bg-surface-subtle text-ink'
-                      }`}
                     >
                       Returning driver
-                    </button>
+                    </Button>
                   </div>
 
                   {authMode === 'signup' && (
-                    <label className="block space-y-1 text-xs font-medium text-ink">
-                      <span>Full name (as on driving licence)</span>
-                      <input
-                        required
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        className="h-10 w-full rounded-s border border-line bg-surface-subtle px-3 text-sm"
-                      />
-                    </label>
+                    <TextField
+                      label="Full name (as on driving licence)"
+                      placeholder="e.g. Rahul Sharma"
+                      required
+                      value={fullName}
+                      onChange={setFullName}
+                    />
                   )}
 
-                  <label className="block space-y-1 text-xs font-medium text-ink">
-                    <span>Email address</span>
-                    <input
-                      type="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="h-10 w-full rounded-s border border-line bg-surface-subtle px-3 text-sm"
-                    />
-                  </label>
+                  <TextField
+                    label="Email address"
+                    type="email"
+                    placeholder="name@example.com"
+                    required
+                    value={email}
+                    onChange={setEmail}
+                  />
 
-                  <label className="block space-y-1 text-xs font-medium text-ink">
-                    <span>Password (min 8 characters)</span>
-                    <input
-                      type="password"
-                      required
-                      minLength={8}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="h-10 w-full rounded-s border border-line bg-surface-subtle px-3 text-sm"
-                    />
-                  </label>
+                  <TextField
+                    label="Password"
+                    type="password"
+                    placeholder="Minimum 8 characters"
+                    required
+                    value={password}
+                    onChange={setPassword}
+                  />
 
-                  <Button type="submit" disabled={submitting}>
-                    {submitting ? 'Signing in...' : 'Continue'}
+                  <Button type="submit" disabled={submitting} className="w-full">
+                    {submitting ? 'Authenticating...' : 'Continue to driver credentials'}
                   </Button>
                 </form>
               ) : (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between rounded-s border border-go-600 bg-go-100 p-3 text-xs text-petrol-800">
-                    <span className="inline-flex items-center gap-1.5 font-medium">
-                      <CheckCircle2 className="h-4 w-4" /> Signed in as {actor?.email ?? email}
-                    </span>
-                    <span>Licence: {licenceStatus ?? 'Upload after booking in Account'}</span>
+                <div className="space-y-5">
+                  <div className="flex items-center justify-between rounded-s border border-border-subtle bg-surface-sunken p-3.5">
+                    <div className="flex items-center gap-2.5">
+                      <CheckCircle size={20} weight="fill" className="text-success" />
+                      <div>
+                        <div className="text-body-s font-semibold text-text-1">
+                          Signed in as {actor?.name || fullName}
+                        </div>
+                        <div className="text-label-s text-text-3">{actor?.email || email}</div>
+                      </div>
+                    </div>
+                    <StatusBadge
+                      status={licenceUploaded ? 'verified' : 'pending'}
+                      label={licenceUploaded ? 'Licence on file' : 'Licence pending'}
+                    />
                   </div>
 
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <label className="space-y-1 text-xs font-medium text-ink">
-                      <span>Mobile phone</span>
-                      <input
-                        required
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        className="h-10 w-full rounded-s border border-line bg-surface-subtle px-3 text-sm"
-                      />
-                    </label>
-                    <label className="space-y-1 text-xs font-medium text-ink">
-                      <span>Date of birth</span>
-                      <input
-                        type="date"
-                        required
-                        value={dateOfBirth}
-                        onChange={(e) => setDateOfBirth(e.target.value)}
-                        className="h-10 w-full rounded-s border border-line bg-surface-subtle px-3 text-sm"
-                      />
-                    </label>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <TextField
+                      label="Mobile phone number"
+                      placeholder="+91 98765 43210"
+                      required
+                      value={phone}
+                      onChange={setPhone}
+                    />
+                    <TextField
+                      label="Date of birth"
+                      type="date"
+                      required
+                      value={dateOfBirth}
+                      onChange={setDateOfBirth}
+                    />
                   </div>
 
-                  <div className="flex gap-2">
-                    <Button type="button" variant="secondary" onClick={() => setStep(0)}>
-                      Back
-                    </Button>
-                    <Button type="button" onClick={() => setStep(2)}>
-                      Continue to payment
+                  {/* KYC Licence Dropzone */}
+                  <div className="space-y-3 rounded-s border border-border-subtle bg-surface-sunken/40 p-4">
+                    <div className="flex items-center justify-between">
+                      <span className="flex items-center gap-2 text-label-m font-semibold text-text-1">
+                        <IdentificationCard size={18} className="text-accent" />
+                        Driving licence upload (KYC)
+                      </span>
+                      {licenceLast4 && (
+                        <span className="text-label-s text-text-3">Ending in {licenceLast4}</span>
+                      )}
+                    </div>
+
+                    {licenceUploaded ? (
+                      <div className="rounded-xs border border-border-subtle bg-surface p-3 text-body-s text-text-2 flex items-center gap-2">
+                        <CheckCircle size={18} weight="bold" className="text-success" />
+                        <span>Driving licence recorded and queued for automated verification.</span>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <TextField
+                            label="Licence number"
+                            placeholder="KA0120220012345"
+                            value={licenceNumber}
+                            onChange={setLicenceNumber}
+                          />
+                          <TextField
+                            label="Licence expiry date"
+                            type="date"
+                            value={licenceExpiry}
+                            onChange={setLicenceExpiry}
+                          />
+                        </div>
+
+                        <Dropzone
+                          title="Upload driving licence (front)"
+                          description="Clear image or scan of Indian driving licence (JPG, PNG or PDF)"
+                          acceptedFileTypes={['image/jpeg', 'image/png', 'application/pdf']}
+                          onSelectFiles={(files) => {
+                            if (files?.[0]) {
+                              setLicenceFile(files[0]);
+                            }
+                          }}
+                        />
+
+                        {licenceFile && (
+                          <div className="flex items-center justify-between rounded-xs border border-border bg-surface p-2.5 text-body-s">
+                            <span className="truncate text-text-1">{licenceFile.name}</span>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="secondary"
+                              disabled={uploadingLicence}
+                              onClick={() => void handleLicenceUpload()}
+                            >
+                              {uploadingLicence ? 'Uploading...' : 'Upload document'}
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex justify-end pt-2">
+                    <Button type="button" size="lg" onClick={() => setStep(1)}>
+                      Continue to protection and add-ons
                     </Button>
                   </div>
                 </div>
@@ -265,49 +504,181 @@ export function CheckoutClient({
             </section>
           )}
 
-          {step === 2 && (
-            <section className="space-y-4 rounded-m border border-line bg-surface p-6">
-              <div className="flex items-center justify-between">
-                <h2 className="font-display text-xl font-bold text-ink">
-                  Payment & security deposit hold
+          {/* STEP 1: Protection & Addons */}
+          {step === 1 && (
+            <section className="space-y-6 rounded-m border border-border bg-surface p-6 shadow-e1">
+              <div>
+                <h2 className="font-display text-h3 font-semibold text-text-1">
+                  Choose your protection plan
                 </h2>
-                <Lock className="h-4 w-4 text-ink-muted" />
+                <p className="mt-1 text-body-s text-text-2">
+                  Select your excess liability tier and customize optional equipment for your
+                  journey.
+                </p>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2">
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('card')}
-                  className={`flex items-center gap-3 rounded-s border p-3 text-left text-sm ${
-                    paymentMethod === 'card'
-                      ? 'border-petrol-600 bg-petrol-100 text-petrol-900'
-                      : 'border-line bg-surface-subtle text-ink'
-                  }`}
-                >
-                  <CreditCard className="h-4 w-4" />
-                  <div>
-                    <div className="font-semibold">Card / NetBanking</div>
-                    <div className="text-xs text-ink-muted">Instant hold + receipt</div>
+              {/* Protection Cards primitive */}
+              <ProtectionCards
+                tiers={PROTECTION_TIERS}
+                selectedTierId={selectedTierId}
+                onSelectTier={setSelectedTierId}
+              />
+
+              {/* Optional Trip Addons */}
+              <div className="space-y-3 border-t border-border-subtle pt-5">
+                <h3 className="font-display text-h4 font-semibold text-text-1">
+                  Trip options & accessories
+                </h3>
+                <div className="space-y-2">
+                  <div className="rounded-s border border-border-subtle bg-surface p-3 transition-colors hover:border-border">
+                    <Checkbox
+                      isSelected={addonChildSeat}
+                      onChange={setAddonChildSeat}
+                      label="Child safety seat (+₹299/day)"
+                      description="Certified rear and front-facing child seat suitable for infants and toddlers."
+                    />
                   </div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('upi')}
-                  className={`flex items-center gap-3 rounded-s border p-3 text-left text-sm ${
-                    paymentMethod === 'upi'
-                      ? 'border-petrol-600 bg-petrol-100 text-petrol-900'
-                      : 'border-line bg-surface-subtle text-ink'
-                  }`}
-                >
-                  <ShieldCheck className="h-4 w-4" />
-                  <div>
-                    <div className="font-semibold">UPI Autopay</div>
-                    <div className="text-xs text-ink-muted">Zero convenience fee</div>
+
+                  <div className="rounded-s border border-border-subtle bg-surface p-3 transition-colors hover:border-border">
+                    <Checkbox
+                      isSelected={addonAddlDriver}
+                      onChange={setAddonAddlDriver}
+                      label="Additional authorized driver (+₹399/day)"
+                      description="Register a secondary licensed driver to take turns on highways."
+                    />
                   </div>
-                </button>
+
+                  <div className="rounded-s border border-border-subtle bg-surface p-3 transition-colors hover:border-border">
+                    <Checkbox
+                      isSelected={addonFastag}
+                      onChange={setAddonFastag}
+                      label="Pre-loaded FASTag toll pass (+₹500 flat)"
+                      description="Automated cashless toll lane clearance with included highway credit balance."
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div className="flex gap-2 pt-2">
+              <div className="flex items-center justify-between border-t border-border-subtle pt-4">
+                <Button type="button" variant="secondary" onClick={() => setStep(0)}>
+                  Back
+                </Button>
+                <Button type="button" size="lg" onClick={() => setStep(2)}>
+                  Continue to payment
+                </Button>
+              </div>
+            </section>
+          )}
+
+          {/* STEP 2: Payment */}
+          {step === 2 && (
+            <section className="space-y-6 rounded-m border border-border bg-surface p-6 shadow-e1">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="font-display text-h3 font-semibold text-text-1">
+                    Payment & security deposit hold
+                  </h2>
+                  <p className="mt-1 text-body-s text-text-2">
+                    Authorized payment method for initial charges and refundable security deposit.
+                  </p>
+                </div>
+                <Lock size={22} weight="bold" className="text-text-3" />
+              </div>
+
+              {/* Payment Method Radio Group */}
+              <RadioGroup
+                label="Select payment method"
+                value={paymentMethod}
+                onChange={(val) => setPaymentMethod(val as 'card' | 'upi')}
+                orientation="vertical"
+              >
+                <div className="rounded-s border border-border-subtle bg-surface p-3.5 transition-colors hover:border-border">
+                  <Radio value="card">
+                    <div className="flex items-center gap-3">
+                      <CreditCard size={22} weight="bold" className="text-accent shrink-0" />
+                      <div>
+                        <div className="text-body-s font-semibold text-text-1">
+                          Credit or debit card
+                        </div>
+                        <div className="text-caption text-text-3">
+                          Visa, Mastercard, RuPay & Amex with 3D Secure verification
+                        </div>
+                      </div>
+                    </div>
+                  </Radio>
+                </div>
+
+                <div className="rounded-s border border-border-subtle bg-surface p-3.5 transition-colors hover:border-border">
+                  <Radio value="upi">
+                    <div className="flex items-center gap-3">
+                      <ShieldCheck size={22} weight="bold" className="text-accent shrink-0" />
+                      <div>
+                        <div className="text-body-s font-semibold text-text-1">UPI Autopay</div>
+                        <div className="text-caption text-text-3">
+                          Zero processing fee via Google Pay, PhonePe, Paytm, or BHIM
+                        </div>
+                      </div>
+                    </div>
+                  </Radio>
+                </div>
+              </RadioGroup>
+
+              {/* Method Specific Fields */}
+              {paymentMethod === 'card' ? (
+                <div className="space-y-3 rounded-s border border-border-subtle bg-surface-sunken/40 p-4">
+                  <TextField
+                    label="Card number"
+                    placeholder="4242 4242 4242 4242"
+                    value={cardNumber}
+                    onChange={setCardNumber}
+                  />
+                  <div className="grid grid-cols-2 gap-3">
+                    <TextField
+                      label="Expiry date"
+                      placeholder="MM/YY"
+                      value={cardExpiry}
+                      onChange={setCardExpiry}
+                    />
+                    <TextField
+                      label="Security code (CVV)"
+                      type="password"
+                      placeholder="•••"
+                      value={cardCvv}
+                      onChange={setCardCvv}
+                    />
+                  </div>
+                  <TextField
+                    label="Cardholder full name"
+                    placeholder="Name as displayed on card"
+                    value={cardHolder}
+                    onChange={setCardHolder}
+                  />
+                </div>
+              ) : (
+                <div className="space-y-3 rounded-s border border-border-subtle bg-surface-sunken/40 p-4">
+                  <TextField
+                    label="UPI ID / Virtual Payment Address"
+                    placeholder="username@okhdfcbank"
+                    value={upiId}
+                    onChange={setUpiId}
+                  />
+                  <p className="text-caption text-text-3">
+                    An approval notification will be dispatched to your mobile UPI application.
+                  </p>
+                </div>
+              )}
+
+              {/* Rental Terms and Hold Authorization */}
+              <div className="rounded-s border border-border-subtle bg-surface p-3.5">
+                <Checkbox
+                  isSelected={termsAgreed}
+                  onChange={setTermsAgreed}
+                  label="Accept rental agreement & security deposit authorization"
+                  description="I authorize Kerb to process the reservation fee and place a pre-authorized security hold released upon inspection return."
+                />
+              </div>
+
+              <div className="flex items-center justify-between border-t border-border-subtle pt-4">
                 <Button type="button" variant="secondary" onClick={() => setStep(1)}>
                   Back
                 </Button>
@@ -317,41 +688,46 @@ export function CheckoutClient({
                   disabled={submitting}
                   onClick={() => void handleConfirmPayment()}
                 >
-                  {submitting ? 'Confirming booking...' : 'Pay & confirm booking'}
+                  {submitting ? 'Confirming booking...' : 'Authorize and confirm booking'}
                 </Button>
               </div>
             </section>
           )}
         </div>
 
-        <aside className="space-y-4 rounded-m border border-line bg-surface p-5 lg:col-span-5 h-fit">
-          <div className="flex items-center justify-between gap-2 border-b border-line pb-3">
-            <div>
-              <div className="font-semibold text-ink">{vehicleTitle}</div>
-              <div className="text-xs text-ink-muted">{branchName}</div>
-            </div>
-            <Plate code={plate} paintHex={paintHex} size="sm" />
-          </div>
-
-          <div className="space-y-2 text-xs">
-            {lines.map((line, i) => (
-              <div key={`${line.kind}-${i}`} className="flex items-center justify-between">
-                <span className="text-ink-muted">{line.label}</span>
-                <MoneyText amountMinor={line.amountMinor} className="font-medium text-ink" />
+        {/* Sticky Live Order Summary with QuotePanel */}
+        <aside className="sticky top-6 space-y-4 lg:col-span-5">
+          {/* Vehicle summary header */}
+          <div className="rounded-l border border-border bg-surface p-5 shadow-e1">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <span className="text-label-s text-text-3 capitalize">{category} category</span>
+                <h3 className="font-display text-h3 font-bold text-text-1">{vehicleTitle}</h3>
+                <p className="text-body-s text-text-2">{branchName}</p>
               </div>
-            ))}
+              <Plate code={plate} size="sm" />
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-3 border-t border-border-subtle pt-3 text-body-s">
+              <div>
+                <span className="block text-label-s text-text-3">Pick-up</span>
+                <span className="font-medium text-text-1">{fmtDate(startAt)}</span>
+              </div>
+              <div>
+                <span className="block text-label-s text-text-3">Return</span>
+                <span className="font-medium text-text-1">{fmtDate(endAt)}</span>
+              </div>
+            </div>
           </div>
 
-          <div className="border-t border-line pt-3">
-            <div className="flex items-baseline justify-between">
-              <span className="text-sm font-semibold text-ink">Total due now</span>
-              <MoneyText amountMinor={totalMinor} size="large" className="text-2xl text-ink" />
-            </div>
-            <p className="mt-1 text-xs text-ink-muted">
-              Plus <MoneyText amountMinor={depositMinor} /> refundable security hold released after
-              return.
-            </p>
-          </div>
+          {/* Interactive QuotePanel */}
+          <QuotePanel
+            rentalDays={rentalDays}
+            dailyRateMinor={dailyRateMinor}
+            addOns={activeAddOns}
+            taxesMinor={taxesMinor}
+            depositMinor={currentDepositMinor}
+          />
         </aside>
       </div>
     </div>

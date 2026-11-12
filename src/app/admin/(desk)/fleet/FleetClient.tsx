@@ -1,14 +1,18 @@
 'use client';
 
-import { Plus, Search } from 'lucide-react';
+import { Plus } from '@phosphor-icons/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
+import { CarStudioImage } from '@/ui/components/CarStudioImage';
+import { Plate } from '@/ui/data/Plate';
+import { StatusBadge } from '@/ui/data/StatusBadge';
+import { createAppColumnHelper, Table } from '@/ui/data/Table';
+import { Dialog } from '@/ui/overlays/Dialog';
 import { Button } from '@/ui/primitives/Button';
-import { Dialog } from '@/ui/primitives/Dialog';
-import { MoneyText } from '@/ui/primitives/MoneyText';
-import { Plate } from '@/ui/primitives/Plate';
-import { StatusBadge } from '@/ui/primitives/StatusBadge';
+import { Dropzone } from '@/ui/primitives/Dropzone';
+import { Select, type SelectOption } from '@/ui/primitives/Select';
+import { TextField } from '@/ui/primitives/TextField';
 
 export interface FleetRow {
   id: number;
@@ -47,6 +51,44 @@ interface RatePlanOption {
   base_daily_minor: number;
 }
 
+const CATEGORY_OPTIONS: SelectOption[] = [
+  { id: 'all', label: 'All Categories' },
+  { id: 'hatchback', label: 'Hatchback' },
+  { id: 'sedan', label: 'Sedan' },
+  { id: 'suv', label: 'SUV' },
+  { id: 'luxury', label: 'Luxury' },
+  { id: 'ev', label: 'EV' },
+];
+
+const LIFECYCLE_OPTIONS: SelectOption[] = [
+  { id: 'all', label: 'All Lifecycles' },
+  { id: 'active', label: 'Active' },
+  { id: 'maintenance', label: 'Maintenance' },
+  { id: 'retired', label: 'Retired' },
+];
+
+const CREATE_CATEGORIES: SelectOption[] = [
+  { id: 'hatchback', label: 'Hatchback' },
+  { id: 'sedan', label: 'Sedan' },
+  { id: 'suv', label: 'SUV' },
+  { id: 'luxury', label: 'Luxury' },
+  { id: 'ev', label: 'EV' },
+];
+
+const CREATE_TRANSMISSIONS: SelectOption[] = [
+  { id: 'automatic', label: 'Automatic' },
+  { id: 'manual', label: 'Manual' },
+];
+
+const CREATE_FUELS: SelectOption[] = [
+  { id: 'petrol', label: 'Petrol' },
+  { id: 'diesel', label: 'Diesel' },
+  { id: 'electric', label: 'Electric' },
+  { id: 'hybrid', label: 'Hybrid' },
+];
+
+const columnHelper = createAppColumnHelper<FleetRow>();
+
 export function FleetClient({
   vehicles,
   branches,
@@ -70,19 +112,19 @@ export function FleetClient({
     make: '',
     model: '',
     variant: '',
-    year: 2025,
+    year: '2025',
     plate: '',
-    homeBranchId: branches[0]?.id ?? 1,
+    homeBranchId: branches[0]?.id ? String(branches[0].id) : '1',
     category: 'hatchback',
     transmission: 'automatic',
     fuelType: 'petrol',
-    seats: 5,
+    seats: '5',
     paintName: 'Arctic White',
-    paintHex: '#EAECEF',
-    ratePlanId: ratePlans[0]?.id ?? 1,
-    depositMinor: 500000,
-    kmPerDay: 250,
-    extraKmMinor: 1200,
+    paintHex: 'var(--surface-sunken)',
+    ratePlanId: ratePlans[0]?.id ? String(ratePlans[0].id) : '1',
+    depositMinor: '5000',
+    kmPerDay: '250',
+    extraKmMinor: '12',
     lifecycle: 'active',
     description: '',
   });
@@ -99,6 +141,103 @@ export function FleetClient({
     });
   }, [vehicles, query, categoryFilter, lifecycleFilter]);
 
+  // TanStack columns
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor('primary_file_key', {
+        header: 'Vehicle',
+        enableSorting: false,
+        cell: (info) => {
+          const row = info.row.original;
+          const imageUrl = row.primary_file_key
+            ? `/api/uploads/public/${row.primary_file_key}-640.webp`
+            : null;
+          return (
+            <div className="flex items-center gap-3">
+              <div className="w-16 h-11 shrink-0 overflow-hidden rounded-xs border border-border-subtle bg-plate">
+                {imageUrl ? (
+                  <CarStudioImage
+                    src={imageUrl}
+                    alt={`${row.make} ${row.model}`}
+                    className="w-full h-full"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-surface-sunken text-label-s text-text-3">
+                    No image
+                  </div>
+                )}
+              </div>
+              <div className="min-w-0">
+                <Link
+                  href={`/admin/fleet/${row.id}`}
+                  className="font-semibold text-text-1 hover:text-accent hover:underline transition-colors truncate block"
+                >
+                  {row.make} {row.model}
+                </Link>
+                <div className="text-caption text-text-3 truncate">
+                  {row.year} · {row.category} {row.variant ? `· ${row.variant}` : ''}
+                </div>
+              </div>
+            </div>
+          );
+        },
+      }),
+      columnHelper.accessor('plate', {
+        header: 'Registration',
+        cell: (info) => <Plate code={info.getValue()} size="sm" />,
+      }),
+      columnHelper.accessor('base_daily_minor', {
+        header: 'Daily Rate',
+        cell: (info) => (
+          <div className="font-semibold text-text-1">
+            ₹{Math.round(info.getValue() / 100).toLocaleString('en-IN')}{' '}
+            <span className="text-caption text-text-3 font-normal">/day</span>
+          </div>
+        ),
+      }),
+      columnHelper.accessor('home_branch_name', {
+        header: 'Home Branch',
+        cell: (info) => <span className="text-text-2">{info.getValue()}</span>,
+      }),
+      columnHelper.accessor('lifecycle', {
+        header: 'Lifecycle',
+        cell: (info) => <StatusBadge status={info.getValue()} />,
+      }),
+      columnHelper.accessor('ops_state', {
+        header: 'Bay Status',
+        cell: (info) => <StatusBadge status={info.getValue()} />,
+      }),
+      columnHelper.display({
+        id: 'actions',
+        header: 'Action',
+        enableSorting: false,
+        cell: (info) => (
+          <Link
+            href={`/admin/fleet/${info.row.original.id}`}
+            className="inline-flex items-center justify-center rounded-xs border border-border px-2.5 py-1 text-label-s font-medium text-text-2 hover:bg-surface-sunken hover:text-text-1 transition-colors"
+          >
+            Configure
+          </Link>
+        ),
+      }),
+    ],
+    [],
+  );
+
+  const branchSelectOptions: SelectOption[] = useMemo(
+    () => branches.map((b) => ({ id: String(b.id), label: b.name })),
+    [branches],
+  );
+
+  const ratePlanSelectOptions: SelectOption[] = useMemo(
+    () =>
+      ratePlans.map((rp) => ({
+        id: String(rp.id),
+        label: `${rp.name} (₹${Math.round(rp.base_daily_minor / 100)}/d)`,
+      })),
+    [ratePlans],
+  );
+
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -108,328 +247,262 @@ export function FleetClient({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...form,
+          make: form.make.trim(),
+          model: form.model.trim(),
+          variant: form.variant.trim() || undefined,
           year: Number(form.year),
-          seats: Number(form.seats),
+          plate: form.plate.trim().toUpperCase(),
           homeBranchId: Number(form.homeBranchId),
+          category: form.category,
+          transmission: form.transmission,
+          fuelType: form.fuelType,
+          seats: Number(form.seats),
+          paintName: form.paintName.trim(),
+          paintHex: form.paintHex,
           ratePlanId: Number(form.ratePlanId),
-          depositMinor: Number(form.depositMinor),
+          depositMinor: Math.round(Number(form.depositMinor) * 100),
           kmPerDay: Number(form.kmPerDay) || null,
-          extraKmMinor: Number(form.extraKmMinor),
+          extraKmMinor: Math.round(Number(form.extraKmMinor) * 100),
+          lifecycle: form.lifecycle,
+          description: form.description.trim() || undefined,
         }),
       });
-      const data = (await res.json()) as { id?: number; error?: string };
-      if (!res.ok || !data.id) {
-        throw new Error(data.error ?? 'Could not create vehicle');
+
+      const data = (await res.json()) as { vehicleId?: number; error?: string };
+      if (!res.ok) {
+        setError(data.error ?? 'Failed to add vehicle');
+        setSubmitting(false);
+        return;
       }
+
       setCreateOpen(false);
-      router.push(`/admin/fleet/${data.id}`);
-      router.refresh();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create vehicle');
-    } finally {
+      setSubmitting(false);
+      if (data.vehicleId) {
+        router.push(`/admin/fleet/${data.vehicleId}`);
+      } else {
+        router.refresh();
+      }
+    } catch {
+      setError('An unexpected network error occurred.');
       setSubmitting(false);
     }
   }
 
   return (
     <div className="space-y-6">
+      {/* Title & Action Bar */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="font-display text-2xl font-bold tracking-tight text-ink">
-            Fleet inventory
-          </h1>
-          <p className="text-sm text-ink-muted">
-            {vehicles.length} vehicles registered across {branches.length} branches.
+          <h1 className="font-display text-h3 font-bold text-text-1">Fleet Inventory</h1>
+          <p className="text-body-s text-text-3">
+            {vehicles.length} total vehicles registered across active branches.
           </p>
         </div>
         {canEdit && (
-          <Button type="button" onClick={() => setCreateOpen(true)}>
-            <Plus className="h-4 w-4" />
-            Add vehicle
+          <Button type="button" onClick={() => setCreateOpen(true)} className="gap-2">
+            <Plus size={16} weight="bold" />
+            <span>Add Vehicle</span>
           </Button>
         )}
       </div>
 
-      <div className="flex flex-wrap items-center gap-3 rounded-m border border-line bg-surface p-3">
-        <label className="relative flex-1 min-w-56">
-          <Search className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-ink-muted" />
-          <input
-            type="search"
+      {/* Filter and Search Bar */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="w-full sm:w-72">
+          <TextField
+            placeholder="Search make, model, plate..."
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search make, model, plate, or branch..."
-            className="h-10 w-full rounded-s border border-line bg-surface-subtle pl-9 pr-3 text-sm text-ink"
+            onChange={setQuery}
+            aria-label="Search fleet"
           />
-        </label>
-        <select
-          value={categoryFilter}
-          onChange={(e) => setCategoryFilter(e.target.value)}
-          aria-label="Filter by category"
-          className="h-10 rounded-s border border-line bg-surface-subtle px-3 text-sm text-ink"
-        >
-          <option value="all">All categories</option>
-          <option value="hatchback">Hatchback</option>
-          <option value="sedan">Sedan</option>
-          <option value="suv">SUV</option>
-          <option value="muv">MUV</option>
-          <option value="luxury">Luxury</option>
-          <option value="ev">EV</option>
-          <option value="van">Van</option>
-        </select>
-        <select
-          value={lifecycleFilter}
-          onChange={(e) => setLifecycleFilter(e.target.value)}
-          aria-label="Filter by lifecycle"
-          className="h-10 rounded-s border border-line bg-surface-subtle px-3 text-sm text-ink"
-        >
-          <option value="all">All states</option>
-          <option value="active">Active</option>
-          <option value="draft">Draft</option>
-          <option value="retired">Retired</option>
-        </select>
+        </div>
+
+        <div className="w-44">
+          <Select
+            selectedKey={categoryFilter}
+            onSelectionChange={(key) => setCategoryFilter(String(key))}
+            options={CATEGORY_OPTIONS}
+            aria-label="Filter category"
+          />
+        </div>
+
+        <div className="w-44">
+          <Select
+            selectedKey={lifecycleFilter}
+            onSelectionChange={(key) => setLifecycleFilter(String(key))}
+            options={LIFECYCLE_OPTIONS}
+            aria-label="Filter lifecycle"
+          />
+        </div>
       </div>
 
-      <div className="overflow-x-auto rounded-m border border-line bg-surface">
-        <table className="w-full border-collapse text-left text-sm">
-          <thead>
-            <tr className="border-b border-line bg-surface-subtle text-xs font-semibold text-ink-muted">
-              <th className="px-4 py-3">Vehicle</th>
-              <th className="px-4 py-3">Plate</th>
-              <th className="px-4 py-3">Branch</th>
-              <th className="px-4 py-3">Daily base</th>
-              <th className="px-4 py-3">Photos</th>
-              <th className="px-4 py-3">State</th>
-              <th className="px-4 py-3 text-right">Action</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-line">
-            {filtered.map((v) => (
-              <tr key={v.id} className="hover:bg-surface-subtle/60">
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="h-11 w-16 shrink-0 overflow-hidden rounded-s border border-line"
-                      style={{ backgroundColor: v.paint_hex }}
-                    >
-                      {v.primary_file_key && (
-                        <img
-                          src={`/api/uploads/public/${v.primary_file_key}-640.webp`}
-                          alt={`${v.make} ${v.model}`}
-                          className="h-full w-full object-cover"
-                        />
-                      )}
-                    </div>
-                    <div>
-                      <div className="font-semibold text-ink">
-                        {v.make} {v.model}
-                      </div>
-                      <div className="flex flex-wrap gap-x-2 text-xs text-ink-muted">
-                        <span>{v.year}</span>
-                        <span>{v.variant ?? v.category}</span>
-                        <span>{v.transmission}</span>
-                        <span>{v.fuel_type}</span>
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-4 py-3">
-                  <Plate code={v.plate} />
-                </td>
-                <td className="px-4 py-3 text-ink-muted">{v.home_branch_name}</td>
-                <td className="px-4 py-3 tabular-nums">
-                  <MoneyText amountMinor={v.base_daily_minor} />
-                  <span className="text-xs text-ink-muted"> /day</span>
-                </td>
-                <td className="px-4 py-3 tabular-nums text-ink-muted">
-                  {v.image_count} {v.image_count === 1 ? 'photo' : 'photos'}
-                </td>
-                <td className="px-4 py-3">
-                  <div className="flex flex-wrap gap-1.5">
-                    <StatusBadge status={v.lifecycle} />
-                    {v.ops_state !== 'ready' && <StatusBadge status={v.ops_state} />}
-                  </div>
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <Link
-                    href={`/admin/fleet/${v.id}`}
-                    className="inline-flex h-8 items-center rounded-s border border-line px-3 text-xs font-medium text-ink hover:bg-surface-subtle"
-                  >
-                    Manage
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {error && (
+        <div className="rounded-xs border border-danger/30 bg-danger-subtle p-3 text-body-s text-danger">
+          {error}
+        </div>
+      )}
 
+      {/* TanStack Table */}
+      <Table data={filtered} columns={columns} pageSize={15} />
+
+      {/* Create Vehicle Dialog with Custom Form Controls */}
       <Dialog
         open={createOpen}
         onOpenChange={setCreateOpen}
-        title="Add a vehicle to the fleet"
-        description="Save core specifications first, then upload studio photographs and compliance records."
+        title="Register New Fleet Vehicle"
+        description="Enter vehicle specifications. Plate numbers are strictly formatted according to Indian transport standards."
+        className="max-w-2xl max-h-full overflow-y-auto"
       >
-        <form onSubmit={handleCreate} className="space-y-3">
-          {error && (
-            <p className="rounded-s border border-stop-600 bg-stop-100 px-3 py-2 text-xs text-stop-600">
-              {error}
-            </p>
+        <form onSubmit={handleCreate} className="space-y-4 pt-2">
+          {form.plate && (
+            <div className="flex items-center justify-between p-3 rounded-xs border border-border bg-surface-sunken">
+              <span className="text-body-s text-text-2">Registration Plate Preview:</span>
+              <Plate code={form.plate.toUpperCase()} size="md" />
+            </div>
           )}
-          <div className="grid gap-3 sm:grid-cols-2">
-            <label className="space-y-1 text-xs font-medium text-ink">
-              <span>Make</span>
-              <input
-                required
-                value={form.make}
-                onChange={(e) => setForm({ ...form, make: e.target.value })}
-                placeholder="Honda"
-                className="h-9 w-full rounded-s border border-line bg-surface px-2.5 text-sm"
-              />
-            </label>
-            <label className="space-y-1 text-xs font-medium text-ink">
-              <span>Model</span>
-              <input
-                required
-                value={form.model}
-                onChange={(e) => setForm({ ...form, model: e.target.value })}
-                placeholder="City"
-                className="h-9 w-full rounded-s border border-line bg-surface px-2.5 text-sm"
-              />
-            </label>
-            <label className="space-y-1 text-xs font-medium text-ink">
-              <span>Variant</span>
-              <input
-                value={form.variant}
-                onChange={(e) => setForm({ ...form, variant: e.target.value })}
-                placeholder="ZX CVT"
-                className="h-9 w-full rounded-s border border-line bg-surface px-2.5 text-sm"
-              />
-            </label>
-            <label className="space-y-1 text-xs font-medium text-ink">
-              <span>Plate number</span>
-              <input
-                required
-                value={form.plate}
-                onChange={(e) => setForm({ ...form, plate: e.target.value })}
-                placeholder="KA03NF1024"
-                className="h-9 w-full rounded-s border border-line bg-surface px-2.5 font-mono text-sm"
-              />
-            </label>
-            <label className="space-y-1 text-xs font-medium text-ink">
-              <span>Category</span>
-              <select
-                value={form.category}
-                onChange={(e) => setForm({ ...form, category: e.target.value })}
-                className="h-9 w-full rounded-s border border-line bg-surface px-2.5 text-sm"
-              >
-                <option value="hatchback">Hatchback</option>
-                <option value="sedan">Sedan</option>
-                <option value="suv">SUV</option>
-                <option value="muv">MUV</option>
-                <option value="luxury">Luxury</option>
-                <option value="ev">EV</option>
-                <option value="van">Van</option>
-              </select>
-            </label>
-            <label className="space-y-1 text-xs font-medium text-ink">
-              <span>Home branch</span>
-              <select
-                value={form.homeBranchId}
-                onChange={(e) => setForm({ ...form, homeBranchId: Number(e.target.value) })}
-                className="h-9 w-full rounded-s border border-line bg-surface px-2.5 text-sm"
-              >
-                {branches.map((b) => (
-                  <option key={b.id} value={b.id}>
-                    {b.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="space-y-1 text-xs font-medium text-ink">
-              <span>Transmission</span>
-              <select
-                value={form.transmission}
-                onChange={(e) => setForm({ ...form, transmission: e.target.value })}
-                className="h-9 w-full rounded-s border border-line bg-surface px-2.5 text-sm"
-              >
-                <option value="automatic">Automatic</option>
-                <option value="manual">Manual</option>
-              </select>
-            </label>
-            <label className="space-y-1 text-xs font-medium text-ink">
-              <span>Fuel type</span>
-              <select
-                value={form.fuelType}
-                onChange={(e) => setForm({ ...form, fuelType: e.target.value })}
-                className="h-9 w-full rounded-s border border-line bg-surface px-2.5 text-sm"
-              >
-                <option value="petrol">Petrol</option>
-                <option value="diesel">Diesel</option>
-                <option value="hybrid">Hybrid</option>
-                <option value="electric">Electric</option>
-                <option value="cng">CNG</option>
-              </select>
-            </label>
-            <label className="space-y-1 text-xs font-medium text-ink">
-              <span>Rate plan</span>
-              <select
-                value={form.ratePlanId}
-                onChange={(e) => setForm({ ...form, ratePlanId: Number(e.target.value) })}
-                className="h-9 w-full rounded-s border border-line bg-surface px-2.5 text-sm"
-              >
-                {ratePlans.map((rp) => (
-                  <option key={rp.id} value={rp.id}>
-                    {rp.name} (INR {Math.round(rp.base_daily_minor / 100)}/day)
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="space-y-1 text-xs font-medium text-ink">
-              <span>Paint name</span>
-              <input
-                required
-                value={form.paintName}
-                onChange={(e) => setForm({ ...form, paintName: e.target.value })}
-                className="h-9 w-full rounded-s border border-line bg-surface px-2.5 text-sm"
-              />
-            </label>
-            <label className="space-y-1 text-xs font-medium text-ink">
-              <span>Paint hex</span>
-              <input
-                required
-                type="color"
-                value={form.paintHex}
-                onChange={(e) => setForm({ ...form, paintHex: e.target.value })}
-                className="h-9 w-full rounded-s border border-line bg-surface px-1"
-              />
-            </label>
-            <label className="space-y-1 text-xs font-medium text-ink">
-              <span>Deposit (paise)</span>
-              <input
-                type="number"
-                required
-                value={form.depositMinor}
-                onChange={(e) => setForm({ ...form, depositMinor: Number(e.target.value) })}
-                className="h-9 w-full rounded-s border border-line bg-surface px-2.5 text-sm tabular-nums"
-              />
-            </label>
-          </div>
-          <label className="block space-y-1 text-xs font-medium text-ink">
-            <span>Notes for customers</span>
-            <textarea
-              rows={2}
-              value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-              className="w-full rounded-s border border-line bg-surface p-2 text-sm"
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <TextField
+              label="Make"
+              placeholder="e.g. Hyundai, Tata, Mahindra"
+              value={form.make}
+              onChange={(val) => setForm((prev) => ({ ...prev, make: val }))}
+              required
             />
-          </label>
-          <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="tertiary" onClick={() => setCreateOpen(false)}>
+            <TextField
+              label="Model"
+              placeholder="e.g. Creta, Nexon, Thar"
+              value={form.model}
+              onChange={(val) => setForm((prev) => ({ ...prev, model: val }))}
+              required
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <TextField
+              label="Variant / Trim"
+              placeholder="e.g. SX (O), Fearless+"
+              value={form.variant}
+              onChange={(val) => setForm((prev) => ({ ...prev, variant: val }))}
+            />
+            <TextField
+              label="Model Year"
+              type="number"
+              value={form.year}
+              onChange={(val) => setForm((prev) => ({ ...prev, year: val }))}
+              required
+            />
+            <TextField
+              label="Plate Number"
+              placeholder="e.g. KA01MH1234"
+              value={form.plate}
+              onChange={(val) => setForm((prev) => ({ ...prev, plate: val.toUpperCase() }))}
+              required
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Select
+              label="Category"
+              selectedKey={form.category}
+              onSelectionChange={(key) => setForm((prev) => ({ ...prev, category: String(key) }))}
+              options={CREATE_CATEGORIES}
+            />
+            <Select
+              label="Transmission"
+              selectedKey={form.transmission}
+              onSelectionChange={(key) =>
+                setForm((prev) => ({ ...prev, transmission: String(key) }))
+              }
+              options={CREATE_TRANSMISSIONS}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <Select
+              label="Fuel Type"
+              selectedKey={form.fuelType}
+              onSelectionChange={(key) => setForm((prev) => ({ ...prev, fuelType: String(key) }))}
+              options={CREATE_FUELS}
+            />
+            <TextField
+              label="Seats"
+              type="number"
+              value={form.seats}
+              onChange={(val) => setForm((prev) => ({ ...prev, seats: val }))}
+              required
+            />
+            <TextField
+              label="Paint Name"
+              placeholder="e.g. Polar White"
+              value={form.paintName}
+              onChange={(val) => setForm((prev) => ({ ...prev, paintName: val }))}
+              required
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Select
+              label="Home Branch"
+              selectedKey={form.homeBranchId}
+              onSelectionChange={(key) =>
+                setForm((prev) => ({ ...prev, homeBranchId: String(key) }))
+              }
+              options={branchSelectOptions}
+            />
+            <Select
+              label="Rate Plan"
+              selectedKey={form.ratePlanId}
+              onSelectionChange={(key) => setForm((prev) => ({ ...prev, ratePlanId: String(key) }))}
+              options={ratePlanSelectOptions}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <TextField
+              label="Security Deposit (₹)"
+              type="number"
+              value={form.depositMinor}
+              onChange={(val) => setForm((prev) => ({ ...prev, depositMinor: val }))}
+              required
+            />
+            <TextField
+              label="Daily Included Km"
+              type="number"
+              value={form.kmPerDay}
+              onChange={(val) => setForm((prev) => ({ ...prev, kmPerDay: val }))}
+              required
+            />
+            <TextField
+              label="Extra Km Rate (₹)"
+              type="number"
+              value={form.extraKmMinor}
+              onChange={(val) => setForm((prev) => ({ ...prev, extraKmMinor: val }))}
+              required
+            />
+          </div>
+
+          <div>
+            <span className="text-caption font-medium text-text-2 mb-1.5 block">
+              Vehicle Studio Image / Documentation
+            </span>
+            <Dropzone
+              title="Upload studio vehicle photograph"
+              description="Supports high-res JPEG, PNG, WebP up to 10MB"
+            />
+          </div>
+
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setCreateOpen(false)}
+              disabled={submitting}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={submitting}>
-              {submitting ? 'Saving...' : 'Create & upload photos'}
+              {submitting ? 'Creating vehicle...' : 'Create Vehicle'}
             </Button>
           </div>
         </form>

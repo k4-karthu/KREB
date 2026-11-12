@@ -5,6 +5,10 @@ data/*.db
 data/*.db-wal
 data/*.db-shm
 data/uploads/
+*.db
+*.db-wal
+*.db-shm
+kerb.db*
 .env
 .env*.local
 playwright-report

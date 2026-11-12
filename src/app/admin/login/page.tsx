@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation';
 import { type FormEvent, useState } from 'react';
 import { BRAND } from '@/config/brand';
 import { authClient } from '@/server/auth-client';
+import { Plate } from '@/ui/data/Plate';
 import { Button } from '@/ui/primitives/Button';
-import { Field, Input } from '@/ui/primitives/Field';
-import { Plate } from '@/ui/primitives/Plate';
+import { TextField } from '@/ui/primitives/TextField';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -68,88 +68,81 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <main id="main-content" className="mx-auto max-w-md px-4 py-16">
-      <div className="mb-8 space-y-2">
-        <div className="flex items-center justify-between">
-          <Link href="/" className="font-display-wide text-2 text-petrol-800">
-            {BRAND.name}
-          </Link>
-          <Plate code="OPS DESK" size="sm" />
-        </div>
-        <h1 className="font-display-wide text-3 text-petrol-800">Staff operations sign in</h1>
-        <p className="text-0 text-stone-500">
-          Authorized fleet managers, counter agents, and owners only.
-        </p>
-      </div>
-
-      <form
-        onSubmit={onSubmit}
-        className="space-y-4 rounded-m border border-stone-200 bg-sheet p-6"
-      >
-        {error && (
-          <div
-            role="alert"
-            className="rounded-m border border-stop-600 bg-stop-100 px-3 py-2 text-m1 text-stop-600"
-          >
-            {error}
+    <div className="min-h-screen flex flex-col items-center justify-center bg-canvas px-4 py-16 text-text-1">
+      <main id="main-content" className="w-full max-w-md space-y-6">
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Link
+              href="/"
+              className="font-display text-h3 font-bold tracking-tight text-text-1 hover:text-accent transition-colors"
+            >
+              {BRAND.name}
+            </Link>
+            <Plate code="OPS DESK" size="sm" />
           </div>
-        )}
+          <h1 className="font-display text-h3 font-bold text-text-1">Staff Operations Sign In</h1>
+          <p className="text-body-s text-text-3">
+            Authorized fleet managers, counter agents, and operations staff only.
+          </p>
+        </div>
 
-        {!needsTotp ? (
-          <>
-            <Field id="admin-email" label="Staff email" required>
-              <Input
-                id="admin-email"
+        <form
+          onSubmit={onSubmit}
+          className="space-y-4 rounded-m border border-border bg-surface p-6 shadow-e1"
+        >
+          {error && (
+            <div
+              role="alert"
+              className="rounded-xs border border-danger/30 bg-danger-subtle p-3 text-body-s text-danger"
+            >
+              {error}
+            </div>
+          )}
+
+          {!needsTotp ? (
+            <>
+              <TextField
+                label="Staff Email"
                 type="email"
                 autoComplete="email"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="dev@kerb.local"
+                onChange={setEmail}
+                placeholder="staff@kerb.local"
               />
-            </Field>
 
-            <Field id="admin-password" label="Password" required>
-              <Input
-                id="admin-password"
+              <TextField
+                label="Password"
                 type="password"
                 autoComplete="current-password"
                 required
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={setPassword}
               />
-            </Field>
-          </>
-        ) : (
-          <Field
-            id="admin-totp"
-            label="Authenticator code"
-            hint="Enter the 6-digit TOTP code from your authenticator."
-            required
-          >
-            <Input
-              id="admin-totp"
+            </>
+          ) : (
+            <TextField
+              label="Authenticator Code"
+              description="Enter the 6-digit TOTP code from your mobile authenticator."
               type="text"
-              inputMode="numeric"
               autoComplete="one-time-code"
               required
-              maxLength={6}
               value={totpCode}
-              onChange={(e) => setTotpCode(e.target.value)}
+              onChange={setTotpCode}
             />
-          </Field>
-        )}
+          )}
 
-        <Button type="submit" variant="primary" className="w-full" loading={loading}>
-          {needsTotp ? 'Verify code' : 'Sign in to operations'}
-        </Button>
+          <Button type="submit" variant="primary" className="w-full mt-2" disabled={loading}>
+            {loading ? 'Authenticating...' : needsTotp ? 'Verify Code' : 'Sign In to Operations'}
+          </Button>
 
-        <div className="pt-2 text-m1 text-stone-500">
-          <Link href="/" className="text-petrol-600 underline underline-offset-4">
-            Return to public site
-          </Link>
-        </div>
-      </form>
-    </main>
+          <div className="pt-2 text-center text-caption text-text-3">
+            <Link href="/" className="hover:text-text-1 hover:underline">
+              Return to Public Showroom
+            </Link>
+          </div>
+        </form>
+      </main>
+    </div>
   );
 }

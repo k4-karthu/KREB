@@ -1,13 +1,15 @@
 'use client';
 
-import { ArrowLeft, FilePlus2, Save, Trash2 } from 'lucide-react';
+import { ArrowLeft, FilePlus, FloppyDisk, Trash } from '@phosphor-icons/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ImageManager, type VehicleImageRow } from '@/ui/components/ImageManager';
+import { Plate } from '@/ui/data/Plate';
+import { StatusBadge } from '@/ui/data/StatusBadge';
 import { Button } from '@/ui/primitives/Button';
-import { Plate } from '@/ui/primitives/Plate';
-import { StatusBadge } from '@/ui/primitives/StatusBadge';
+import { Select, type SelectOption } from '@/ui/primitives/Select';
+import { TextField } from '@/ui/primitives/TextField';
 
 interface VehicleDetail {
   id: number;
@@ -45,6 +47,48 @@ interface DocRow {
   expires_on: string | null;
 }
 
+const LIFECYCLE_OPTIONS: SelectOption[] = [
+  { id: 'draft', label: 'Draft (Hidden from catalog)' },
+  { id: 'active', label: 'Active (Bookable)' },
+  { id: 'maintenance', label: 'Maintenance Hold' },
+  { id: 'retired', label: 'Retired (Archived)' },
+];
+
+const OPS_STATE_OPTIONS: SelectOption[] = [
+  { id: 'ready', label: 'Ready for handover' },
+  { id: 'cleaning', label: 'Cleaning & Detailing' },
+  { id: 'inspection', label: 'Return Inspection' },
+  { id: 'hold', label: 'Operations Hold' },
+];
+
+const CATEGORY_OPTIONS: SelectOption[] = [
+  { id: 'hatchback', label: 'Hatchback' },
+  { id: 'sedan', label: 'Sedan' },
+  { id: 'suv', label: 'SUV' },
+  { id: 'luxury', label: 'Luxury' },
+  { id: 'ev', label: 'EV' },
+];
+
+const TRANSMISSION_OPTIONS: SelectOption[] = [
+  { id: 'automatic', label: 'Automatic' },
+  { id: 'manual', label: 'Manual' },
+];
+
+const FUEL_OPTIONS: SelectOption[] = [
+  { id: 'petrol', label: 'Petrol' },
+  { id: 'diesel', label: 'Diesel' },
+  { id: 'electric', label: 'Electric' },
+  { id: 'hybrid', label: 'Hybrid' },
+];
+
+const DOC_TYPE_OPTIONS: SelectOption[] = [
+  { id: 'registration', label: 'Registration (RC)' },
+  { id: 'insurance', label: 'Insurance Policy' },
+  { id: 'road_tax', label: 'Road Tax Certificate' },
+  { id: 'emissions', label: 'Pollution Under Control (PUC)' },
+  { id: 'permit', label: 'All India Tourist Permit' },
+];
+
 export function VehicleEditorClient({
   vehicle,
   images,
@@ -71,26 +115,27 @@ export function VehicleEditorClient({
     make: vehicle.make,
     model: vehicle.model,
     variant: vehicle.variant ?? '',
-    year: vehicle.year,
+    year: String(vehicle.year),
     plate: vehicle.plate,
-    homeBranchId: vehicle.home_branch_id,
-    currentBranchId: vehicle.current_branch_id,
+    homeBranchId: String(vehicle.home_branch_id),
+    currentBranchId: String(vehicle.current_branch_id),
     category: vehicle.category,
     transmission: vehicle.transmission,
     fuelType: vehicle.fuel_type,
-    seats: vehicle.seats,
-    luggageLiters: vehicle.luggage_liters ?? 300,
+    seats: String(vehicle.seats),
+    luggageLiters: String(vehicle.luggage_liters ?? 300),
     paintName: vehicle.paint_name,
     paintHex: vehicle.paint_hex,
-    ratePlanId: vehicle.rate_plan_id,
-    depositMinor: vehicle.deposit_minor,
-    kmPerDay: vehicle.km_per_day ?? 0,
-    extraKmMinor: vehicle.extra_km_minor,
-    odometerKm: vehicle.odometer_km,
+    ratePlanId: String(vehicle.rate_plan_id),
+    depositMinor: String(Math.round(vehicle.deposit_minor / 100)),
+    kmPerDay: String(vehicle.km_per_day ?? 0),
+    extraKmMinor: String(Math.round(vehicle.extra_km_minor / 100)),
+    odometerKm: String(vehicle.odometer_km),
     lifecycle: vehicle.lifecycle,
     opsState: vehicle.ops_state,
     description: vehicle.description ?? '',
   });
+
   const [featureIds, setFeatureIds] = useState<number[]>(initialFeatureIds);
   const [docs, setDocs] = useState<DocRow[]>(initialDocs);
   const [newDoc, setNewDoc] = useState({
@@ -98,9 +143,20 @@ export function VehicleEditorClient({
     referenceNo: '',
     expiresOn: '',
   });
+
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const branchOptions: SelectOption[] = useMemo(
+    () => branches.map((b) => ({ id: String(b.id), label: b.name })),
+    [branches],
+  );
+
+  const ratePlanOptions: SelectOption[] = useMemo(
+    () => ratePlans.map((rp) => ({ id: String(rp.id), label: rp.name })),
+    [ratePlans],
+  );
 
   function toggleFeature(id: number) {
     setFeatureIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
@@ -116,14 +172,34 @@ export function VehicleEditorClient({
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...form,
+          make: form.make.trim(),
+          model: form.model.trim(),
+          variant: form.variant.trim() || undefined,
+          year: Number(form.year),
+          plate: form.plate.trim().toUpperCase(),
+          homeBranchId: Number(form.homeBranchId),
+          currentBranchId: Number(form.currentBranchId),
+          category: form.category,
+          transmission: form.transmission,
+          fuelType: form.fuelType,
+          seats: Number(form.seats),
+          luggageLiters: Number(form.luggageLiters) || null,
+          paintName: form.paintName.trim(),
+          paintHex: form.paintHex,
+          ratePlanId: Number(form.ratePlanId),
+          depositMinor: Math.round(Number(form.depositMinor) * 100),
           kmPerDay: Number(form.kmPerDay) > 0 ? Number(form.kmPerDay) : null,
+          extraKmMinor: Math.round(Number(form.extraKmMinor) * 100),
+          odometerKm: Number(form.odometerKm),
+          lifecycle: form.lifecycle,
+          opsState: form.opsState,
+          description: form.description.trim() || undefined,
           featureIds,
         }),
       });
       const data = (await res.json()) as { error?: string };
       if (!res.ok) throw new Error(data.error ?? 'Failed to save vehicle');
-      setMessage('Vehicle details updated.');
+      setMessage('Vehicle specifications successfully updated.');
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Save failed');
@@ -140,20 +216,20 @@ export function VehicleEditorClient({
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         kind: newDoc.kind,
-        referenceNo: newDoc.referenceNo || null,
+        referenceNo: newDoc.referenceNo.trim() || null,
         expiresOn: newDoc.expiresOn || null,
       }),
     });
     const data = (await res.json()) as { id?: number; error?: string };
     if (!res.ok || !data.id) {
-      setError(data.error ?? 'Could not add document');
+      setError(data.error ?? 'Could not add compliance document');
       return;
     }
     setDocs((prev) => [
       {
         id: data.id as number,
         kind: newDoc.kind,
-        reference_no: newDoc.referenceNo || null,
+        reference_no: newDoc.referenceNo.trim() || null,
         issued_on: null,
         expires_on: newDoc.expiresOn || null,
       },
@@ -172,6 +248,7 @@ export function VehicleEditorClient({
   }
 
   async function handleArchive() {
+    if (!confirm('Are you sure you want to archive this vehicle from the fleet?')) return;
     const res = await fetch(`/api/admin/vehicles/${vehicle.id}`, { method: 'DELETE' });
     const data = (await res.json()) as { error?: string };
     if (!res.ok) {
@@ -183,202 +260,244 @@ export function VehicleEditorClient({
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      {/* Top Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           <Link
             href="/admin/fleet"
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-ink-muted hover:text-ink"
+            className="inline-flex items-center gap-1.5 text-body-s font-medium text-text-3 hover:text-text-1 transition-colors"
           >
-            <ArrowLeft className="h-3.5 w-3.5" /> Back to fleet
+            <ArrowLeft size={16} weight="bold" />
+            <span>Back to Fleet Inventory</span>
           </Link>
           <div className="flex flex-wrap items-center gap-3">
-            <h1 className="font-display text-2xl font-bold tracking-tight text-ink">
+            <h1 className="font-display text-h3 font-bold text-text-1">
               {vehicle.year} {vehicle.make} {vehicle.model}
             </h1>
-            <Plate code={vehicle.plate} paintHex={vehicle.paint_hex} />
+            <Plate code={vehicle.plate} size="md" />
             <StatusBadge status={vehicle.lifecycle} />
+            <StatusBadge status={vehicle.ops_state} />
           </div>
         </div>
+
         {canArchive && (
           <Button type="button" variant="danger" size="sm" onClick={() => void handleArchive()}>
-            <Trash2 className="h-4 w-4" /> Archive vehicle
+            <Trash size={16} weight="bold" />
+            <span>Archive Vehicle</span>
           </Button>
         )}
       </div>
 
       {message && (
-        <p className="rounded-s border border-go-600 bg-go-100 px-3 py-2 text-sm text-petrol-800">
-          {message}
-        </p>
-      )}
-      {error && (
-        <p className="rounded-s border border-stop-600 bg-stop-100 px-3 py-2 text-sm text-stop-600">
-          {error}
-        </p>
+        <div className="rounded-xs border border-success/30 bg-surface p-3 text-body-s text-text-1 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-success" />
+          <span>{message}</span>
+        </div>
       )}
 
-      <section className="rounded-m border border-line bg-surface p-5">
+      {error && (
+        <div className="rounded-xs border border-danger/30 bg-danger-subtle p-3 text-body-s text-danger">
+          {error}
+        </div>
+      )}
+
+      {/* Studio Image & Asset Gallery */}
+      <section className="rounded-m border border-border bg-surface p-5 space-y-4 shadow-e0">
+        <div>
+          <h2 className="text-h4 font-display font-semibold text-text-1">
+            Studio Frames & Asset Gallery
+          </h2>
+          <p className="text-body-s text-text-3">
+            Pure white studio plates and angle views. First image is used as the primary showroom
+            card.
+          </p>
+        </div>
         <ImageManager vehicleId={vehicle.id} initialImages={images} />
       </section>
 
-      <form onSubmit={handleSave} className="space-y-5 rounded-m border border-line bg-surface p-5">
-        <h2 className="text-base font-semibold text-ink">Vehicle specifications & pricing</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <label className="space-y-1 text-xs font-medium text-ink">
-            <span>Make</span>
-            <input
-              value={form.make}
-              onChange={(e) => setForm({ ...form, make: e.target.value })}
-              className="h-9 w-full rounded-s border border-line bg-surface-subtle px-3 text-sm"
-            />
-          </label>
-          <label className="space-y-1 text-xs font-medium text-ink">
-            <span>Model</span>
-            <input
-              value={form.model}
-              onChange={(e) => setForm({ ...form, model: e.target.value })}
-              className="h-9 w-full rounded-s border border-line bg-surface-subtle px-3 text-sm"
-            />
-          </label>
-          <label className="space-y-1 text-xs font-medium text-ink">
-            <span>Variant</span>
-            <input
-              value={form.variant}
-              onChange={(e) => setForm({ ...form, variant: e.target.value })}
-              className="h-9 w-full rounded-s border border-line bg-surface-subtle px-3 text-sm"
-            />
-          </label>
-          <label className="space-y-1 text-xs font-medium text-ink">
-            <span>Plate</span>
-            <input
-              value={form.plate}
-              onChange={(e) => setForm({ ...form, plate: e.target.value })}
-              className="h-9 w-full rounded-s border border-line bg-surface-subtle px-3 font-mono text-sm"
-            />
-          </label>
-          <label className="space-y-1 text-xs font-medium text-ink">
-            <span>Current branch</span>
-            <select
-              value={form.currentBranchId}
-              onChange={(e) => setForm({ ...form, currentBranchId: Number(e.target.value) })}
-              className="h-9 w-full rounded-s border border-line bg-surface-subtle px-3 text-sm"
-            >
-              {branches.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="space-y-1 text-xs font-medium text-ink">
-            <span>Rate plan</span>
-            <select
-              value={form.ratePlanId}
-              onChange={(e) => setForm({ ...form, ratePlanId: Number(e.target.value) })}
-              className="h-9 w-full rounded-s border border-line bg-surface-subtle px-3 text-sm"
-            >
-              {ratePlans.map((rp) => (
-                <option key={rp.id} value={rp.id}>
-                  {rp.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="space-y-1 text-xs font-medium text-ink">
-            <span>Lifecycle</span>
-            <select
-              value={form.lifecycle}
-              onChange={(e) => setForm({ ...form, lifecycle: e.target.value })}
-              className="h-9 w-full rounded-s border border-line bg-surface-subtle px-3 text-sm"
-            >
-              <option value="draft">Draft (hidden)</option>
-              <option value="active">Active (bookable)</option>
-              <option value="retired">Retired</option>
-            </select>
-          </label>
-          <label className="space-y-1 text-xs font-medium text-ink">
-            <span>Ops readiness</span>
-            <select
-              value={form.opsState}
-              onChange={(e) => setForm({ ...form, opsState: e.target.value })}
-              className="h-9 w-full rounded-s border border-line bg-surface-subtle px-3 text-sm"
-            >
-              <option value="ready">Ready</option>
-              <option value="cleaning">Cleaning</option>
-              <option value="inspection">Inspection</option>
-              <option value="hold">Hold</option>
-            </select>
-          </label>
-          <label className="space-y-1 text-xs font-medium text-ink">
-            <span>Odometer (km)</span>
-            <input
-              type="number"
-              value={form.odometerKm}
-              onChange={(e) => setForm({ ...form, odometerKm: Number(e.target.value) })}
-              className="h-9 w-full rounded-s border border-line bg-surface-subtle px-3 text-sm tabular-nums"
-            />
-          </label>
-          <label className="space-y-1 text-xs font-medium text-ink">
-            <span>Deposit (paise)</span>
-            <input
-              type="number"
-              value={form.depositMinor}
-              onChange={(e) => setForm({ ...form, depositMinor: Number(e.target.value) })}
-              className="h-9 w-full rounded-s border border-line bg-surface-subtle px-3 text-sm tabular-nums"
-            />
-          </label>
-          <label className="space-y-1 text-xs font-medium text-ink">
-            <span>Daily km allowance (0 = unlimited)</span>
-            <input
-              type="number"
-              value={form.kmPerDay}
-              onChange={(e) => setForm({ ...form, kmPerDay: Number(e.target.value) })}
-              className="h-9 w-full rounded-s border border-line bg-surface-subtle px-3 text-sm tabular-nums"
-            />
-          </label>
-          <label className="space-y-1 text-xs font-medium text-ink">
-            <span>Paint name & hex</span>
-            <div className="flex gap-2">
-              <input
-                value={form.paintName}
-                onChange={(e) => setForm({ ...form, paintName: e.target.value })}
-                className="h-9 flex-1 rounded-s border border-line bg-surface-subtle px-3 text-sm"
-              />
+      {/* Specifications & Pricing Configuration */}
+      <form
+        onSubmit={handleSave}
+        className="space-y-6 rounded-m border border-border bg-surface p-5 shadow-e0"
+      >
+        <div className="border-b border-border pb-3">
+          <h2 className="text-h4 font-display font-semibold text-text-1">
+            Vehicle Specifications & Pricing
+          </h2>
+          <p className="text-body-s text-text-3">
+            Hardware details, daily rate schedule, and branch assignment.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <TextField
+            label="Make"
+            value={form.make}
+            onChange={(val) => setForm((prev) => ({ ...prev, make: val }))}
+            required
+          />
+          <TextField
+            label="Model"
+            value={form.model}
+            onChange={(val) => setForm((prev) => ({ ...prev, model: val }))}
+            required
+          />
+          <TextField
+            label="Variant"
+            value={form.variant}
+            onChange={(val) => setForm((prev) => ({ ...prev, variant: val }))}
+          />
+          <TextField
+            label="Model Year"
+            type="number"
+            value={form.year}
+            onChange={(val) => setForm((prev) => ({ ...prev, year: val }))}
+            required
+          />
+          <TextField
+            label="Registration Plate"
+            value={form.plate}
+            onChange={(val) => setForm((prev) => ({ ...prev, plate: val.toUpperCase() }))}
+            required
+          />
+          <Select
+            label="Category"
+            selectedKey={form.category}
+            onSelectionChange={(key) => setForm((prev) => ({ ...prev, category: String(key) }))}
+            options={CATEGORY_OPTIONS}
+          />
+          <Select
+            label="Transmission"
+            selectedKey={form.transmission}
+            onSelectionChange={(key) => setForm((prev) => ({ ...prev, transmission: String(key) }))}
+            options={TRANSMISSION_OPTIONS}
+          />
+          <Select
+            label="Fuel Type"
+            selectedKey={form.fuelType}
+            onSelectionChange={(key) => setForm((prev) => ({ ...prev, fuelType: String(key) }))}
+            options={FUEL_OPTIONS}
+          />
+          <TextField
+            label="Seating Capacity"
+            type="number"
+            value={form.seats}
+            onChange={(val) => setForm((prev) => ({ ...prev, seats: val }))}
+            required
+          />
+          <TextField
+            label="Luggage Capacity (Liters)"
+            type="number"
+            value={form.luggageLiters}
+            onChange={(val) => setForm((prev) => ({ ...prev, luggageLiters: val }))}
+          />
+          <Select
+            label="Home Branch"
+            selectedKey={form.homeBranchId}
+            onSelectionChange={(key) => setForm((prev) => ({ ...prev, homeBranchId: String(key) }))}
+            options={branchOptions}
+          />
+          <Select
+            label="Current Location Branch"
+            selectedKey={form.currentBranchId}
+            onSelectionChange={(key) =>
+              setForm((prev) => ({ ...prev, currentBranchId: String(key) }))
+            }
+            options={branchOptions}
+          />
+          <Select
+            label="Rate Plan"
+            selectedKey={form.ratePlanId}
+            onSelectionChange={(key) => setForm((prev) => ({ ...prev, ratePlanId: String(key) }))}
+            options={ratePlanOptions}
+          />
+          <Select
+            label="Lifecycle State"
+            selectedKey={form.lifecycle}
+            onSelectionChange={(key) => setForm((prev) => ({ ...prev, lifecycle: String(key) }))}
+            options={LIFECYCLE_OPTIONS}
+          />
+          <Select
+            label="Operational Readiness"
+            selectedKey={form.opsState}
+            onSelectionChange={(key) => setForm((prev) => ({ ...prev, opsState: String(key) }))}
+            options={OPS_STATE_OPTIONS}
+          />
+          <TextField
+            label="Odometer (km)"
+            type="number"
+            value={form.odometerKm}
+            onChange={(val) => setForm((prev) => ({ ...prev, odometerKm: val }))}
+            required
+          />
+          <TextField
+            label="Security Deposit (₹)"
+            type="number"
+            value={form.depositMinor}
+            onChange={(val) => setForm((prev) => ({ ...prev, depositMinor: val }))}
+            required
+          />
+          <TextField
+            label="Daily Included Km (0 = unlimited)"
+            type="number"
+            value={form.kmPerDay}
+            onChange={(val) => setForm((prev) => ({ ...prev, kmPerDay: val }))}
+            required
+          />
+          <TextField
+            label="Extra Km Rate (₹)"
+            type="number"
+            value={form.extraKmMinor}
+            onChange={(val) => setForm((prev) => ({ ...prev, extraKmMinor: val }))}
+            required
+          />
+          <TextField
+            label="Paint Finish Name"
+            value={form.paintName}
+            onChange={(val) => setForm((prev) => ({ ...prev, paintName: val }))}
+            required
+          />
+          <div className="flex flex-col gap-1.5">
+            <span className="text-caption font-medium text-text-2">Paint Color Swatch</span>
+            <div className="flex items-center gap-3 h-10">
               <input
                 type="color"
                 value={form.paintHex}
-                onChange={(e) => setForm({ ...form, paintHex: e.target.value })}
-                className="h-9 w-12 rounded-s border border-line bg-surface p-0.5"
+                onChange={(e) => setForm((prev) => ({ ...prev, paintHex: e.target.value }))}
+                className="h-10 w-16 rounded-xs border border-border bg-surface p-1 cursor-pointer"
               />
+              <span className="text-body-s tabular-nums text-text-2">{form.paintHex}</span>
             </div>
-          </label>
+          </div>
         </div>
 
-        <label className="block space-y-1 text-xs font-medium text-ink">
-          <span>Customer-facing notes</span>
-          <textarea
-            rows={2}
+        <div>
+          <TextField
+            label="Customer-Facing Notes / Highlights"
             value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
-            className="w-full rounded-s border border-line bg-surface-subtle p-2.5 text-sm"
+            onChange={(val) => setForm((prev) => ({ ...prev, description: val }))}
+            placeholder="Key highlights, special package features, or vehicle history..."
           />
-        </label>
+        </div>
 
+        {/* Feature Pills */}
         <div className="space-y-2">
-          <div className="text-xs font-medium text-ink">Features</div>
+          <span className="text-caption font-medium text-text-2 block">
+            Standard Equipment & Features
+          </span>
           <div className="flex flex-wrap gap-2">
             {allFeatures.map((f) => {
-              const checked = featureIds.includes(f.id);
+              const active = featureIds.includes(f.id);
               return (
                 <button
                   key={f.id}
                   type="button"
                   onClick={() => toggleFeature(f.id)}
-                  className={`rounded-s border px-3 py-1.5 text-xs font-medium ${
-                    checked
-                      ? 'border-petrol-600 bg-petrol-100 text-petrol-800'
-                      : 'border-line bg-surface-subtle text-ink-muted'
+                  className={`rounded-xs border px-3 py-1.5 text-body-s font-medium transition-colors cursor-pointer ${
+                    active
+                      ? 'border-accent bg-accent-subtle text-accent'
+                      : 'border-border bg-surface-sunken text-text-2 hover:text-text-1'
                   }`}
                 >
                   {f.label}
@@ -389,83 +508,90 @@ export function VehicleEditorClient({
         </div>
 
         {canEdit && (
-          <div className="flex justify-end">
-            <Button type="submit" disabled={saving}>
-              <Save className="h-4 w-4" />
-              {saving ? 'Saving...' : 'Save changes'}
+          <div className="flex justify-end pt-3 border-t border-border">
+            <Button type="submit" disabled={saving} className="gap-2">
+              <FloppyDisk size={16} weight="bold" />
+              <span>{saving ? 'Saving changes...' : 'Save Changes'}</span>
             </Button>
           </div>
         )}
       </form>
 
-      <section className="space-y-4 rounded-m border border-line bg-surface p-5">
-        <h2 className="text-base font-semibold text-ink">Compliance documents</h2>
+      {/* Compliance Documents Desk */}
+      <section className="space-y-4 rounded-m border border-border bg-surface p-5 shadow-e0">
+        <div>
+          <h2 className="text-h4 font-display font-semibold text-text-1">
+            Compliance & Statutory Documents
+          </h2>
+          <p className="text-body-s text-text-3">
+            Track RC, Commercial Insurance, Road Tax, and PUC expiries.
+          </p>
+        </div>
+
         <form
           onSubmit={handleAddDoc}
-          className="grid gap-3 sm:grid-cols-[1fr_1fr_1fr_auto] sm:items-end"
+          className="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end p-4 rounded-xs border border-border-subtle bg-surface-sunken"
         >
-          <label className="space-y-1 text-xs font-medium text-ink">
-            <span>Document type</span>
-            <select
-              value={newDoc.kind}
-              onChange={(e) => setNewDoc({ ...newDoc, kind: e.target.value })}
-              className="h-9 w-full rounded-s border border-line bg-surface-subtle px-2.5 text-sm"
-            >
-              <option value="registration">Registration (RC)</option>
-              <option value="insurance">Insurance</option>
-              <option value="road_tax">Road tax</option>
-              <option value="emissions">Emissions (PUC)</option>
-              <option value="permit">Permit</option>
-            </select>
-          </label>
-          <label className="space-y-1 text-xs font-medium text-ink">
-            <span>Reference no.</span>
-            <input
-              value={newDoc.referenceNo}
-              onChange={(e) => setNewDoc({ ...newDoc, referenceNo: e.target.value })}
-              placeholder="INS-KA03..."
-              className="h-9 w-full rounded-s border border-line bg-surface-subtle px-2.5 text-sm"
-            />
-          </label>
-          <label className="space-y-1 text-xs font-medium text-ink">
-            <span>Expires on</span>
-            <input
-              type="date"
-              value={newDoc.expiresOn}
-              onChange={(e) => setNewDoc({ ...newDoc, expiresOn: e.target.value })}
-              className="h-9 w-full rounded-s border border-line bg-surface-subtle px-2.5 text-sm"
-            />
-          </label>
-          <Button type="submit" size="sm">
-            <FilePlus2 className="h-4 w-4" /> Add record
+          <Select
+            label="Document Type"
+            selectedKey={newDoc.kind}
+            onSelectionChange={(key) => setNewDoc((prev) => ({ ...prev, kind: String(key) }))}
+            options={DOC_TYPE_OPTIONS}
+          />
+          <TextField
+            label="Reference No."
+            placeholder="e.g. INS-KA03-998811"
+            value={newDoc.referenceNo}
+            onChange={(val) => setNewDoc((prev) => ({ ...prev, referenceNo: val }))}
+          />
+          <TextField
+            label="Expires On"
+            type="date"
+            value={newDoc.expiresOn}
+            onChange={(val) => setNewDoc((prev) => ({ ...prev, expiresOn: val }))}
+          />
+          <Button type="submit" size="sm" className="gap-1.5">
+            <FilePlus size={16} weight="bold" />
+            <span>Add Record</span>
           </Button>
         </form>
 
-        <div className="divide-y divide-line rounded-s border border-line">
-          {docs.map((d) => (
-            <div key={d.id} className="flex items-center justify-between px-3 py-2 text-sm">
-              <div>
-                <span className="font-medium capitalize text-ink">{d.kind.replace('_', ' ')}</span>
-                {d.reference_no && (
-                  <span className="ml-2 font-mono text-xs text-ink-muted">{d.reference_no}</span>
-                )}
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="font-mono text-xs text-ink-muted">
-                  Expires: {d.expires_on ?? 'N/A'}
-                </span>
-                {canEdit && (
-                  <button
-                    type="button"
-                    onClick={() => void handleDeleteDoc(d.id)}
-                    className="text-xs text-stop-600 hover:underline"
-                  >
-                    Remove
-                  </button>
-                )}
-              </div>
+        <div className="divide-y divide-border-subtle rounded-xs border border-border overflow-hidden">
+          {docs.length === 0 ? (
+            <div className="p-6 text-center text-body-s text-text-3">
+              No compliance documents registered for this vehicle.
             </div>
-          ))}
+          ) : (
+            docs.map((d) => (
+              <div key={d.id} className="flex items-center justify-between px-4 py-3 text-body-s">
+                <div className="flex items-center gap-2.5">
+                  <span className="font-semibold capitalize text-text-1">
+                    {d.kind.replace('_', ' ')}
+                  </span>
+                  {d.reference_no && (
+                    <span className="tabular-nums text-label-s text-text-3 bg-surface-sunken px-2 py-0.5 rounded-2xs border border-border-subtle">
+                      {d.reference_no}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-4">
+                  <span className="text-label-s text-text-3">
+                    Expires:{' '}
+                    <span className="font-semibold text-text-1">{d.expires_on ?? 'N/A'}</span>
+                  </span>
+                  {canEdit && (
+                    <button
+                      type="button"
+                      onClick={() => void handleDeleteDoc(d.id)}
+                      className="text-label-s text-danger hover:underline cursor-pointer transition-colors"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </section>
     </div>
