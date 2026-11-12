@@ -86,7 +86,7 @@ export function KycClient({
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="font-display text-h3 font-bold text-text-1">Driver Licence KYC Desk</h1>
+        <h1 className="font-display text-h3 font-bold text-text-1">Driver licence KYC queue</h1>
         <p className="text-body-s text-text-3">
           Licence numbers remain masked until explicit review. Revealing a full registration number
           logs an immutable audit event.

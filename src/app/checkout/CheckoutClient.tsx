@@ -243,7 +243,6 @@ export function CheckoutClient({
         if (res.error) throw new Error(res.error.message ?? 'Sign-in failed');
       }
       setIsSignedIn(true);
-      setStep(1);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Authentication failed');

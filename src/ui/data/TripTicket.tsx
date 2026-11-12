@@ -6,6 +6,7 @@ export interface TripTicketData {
   code: string;
   vehicleTitle: string;
   vehiclePlate?: string;
+  imageSrc?: string;
   pickupLabel: string;
   returnLabel: string;
   branchName: string;
@@ -33,22 +34,31 @@ export function TripTicket({
       className={`relative overflow-hidden rounded-m border border-border bg-surface shadow-e1 ${className}`.trim()}
     >
       <div className="flex flex-col justify-between gap-4 p-5 sm:flex-row sm:items-center">
-        <div className="space-y-1.5">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="font-display text-label-s font-bold text-accent">#{trip.code}</span>
-            <StatusBadge status={trip.status} />
-            {trip.vehiclePlate && (
-              <span className="rounded-xs border border-border-subtle bg-surface-sunken px-2 py-0.5 text-label-s text-text-2">
-                {trip.vehiclePlate}
-              </span>
-            )}
+        <div className="flex items-start gap-4">
+          {trip.imageSrc && (
+            <img
+              src={trip.imageSrc}
+              alt={trip.vehicleTitle}
+              className="h-16 w-24 shrink-0 rounded-xs border border-border-subtle bg-plate object-contain p-1"
+            />
+          )}
+          <div className="space-y-1.5">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-display text-label-s font-bold text-accent">#{trip.code}</span>
+              <StatusBadge status={trip.status} />
+              {trip.vehiclePlate && (
+                <span className="rounded-xs border border-border-subtle bg-surface-sunken px-2 py-0.5 text-label-s text-text-2">
+                  {trip.vehiclePlate}
+                </span>
+              )}
+            </div>
+
+            <h3 className="font-display text-h4 font-semibold text-text-1">{trip.vehicleTitle}</h3>
+
+            <p className="text-body-s text-text-2">
+              {trip.pickupLabel} to {trip.returnLabel} · {trip.branchName}
+            </p>
           </div>
-
-          <h3 className="font-display text-h4 font-semibold text-text-1">{trip.vehicleTitle}</h3>
-
-          <p className="text-body-s text-text-2">
-            {trip.pickupLabel} to {trip.returnLabel} · {trip.branchName}
-          </p>
         </div>
 
         <div className="flex items-center justify-between gap-4 sm:flex-col sm:items-end">

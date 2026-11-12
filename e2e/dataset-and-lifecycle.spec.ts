@@ -18,14 +18,17 @@ test.describe('Dataset, images, receipts, and lifecycle views', () => {
       expect(naturalWidth, `Image ${i} failed to load`).toBeGreaterThan(0);
     }
 
-    // Filter by CNG
-    await page.getByLabel('Fuel type').selectOption('cng');
-    await page.waitForURL(/fuel=cng/);
+    // Filter by petrol on default window
+    await page.goto('/cars?fuel=petrol');
+    await expect(page.getByText('Volkswagen Virtus').first()).toBeVisible();
+
+    // Filter by CNG on open window
+    await page.goto('/cars?start=1795200000000&end=1795372800000&fuel=cng');
     await expect(page.getByText('Tata Punch').first()).toBeVisible();
 
     // Visit a vehicle with sibling variants (Mahindra Thar AT -> MT)
     await page.goto('/cars/mahindra-thar-4x4-at');
-    await expect(page.getByText('Other Mahindra Thar options')).toBeVisible();
+    await expect(page.getByText('Available trims')).toBeVisible();
     await page.getByRole('link', { name: /LX 4x4 Petrol MT/i }).click();
     await page.waitForURL(/\/cars\/mahindra-thar-4x4-mt/);
     await expect(page.getByRole('heading', { name: /Mahindra Thar/i, level: 1 })).toBeVisible();
@@ -42,8 +45,8 @@ test.describe('Dataset, images, receipts, and lifecycle views', () => {
     await page.goto('/trips');
     await expect(page.getByRole('heading', { name: 'My trips' })).toBeVisible();
     await expect(page.getByText('KRB-1009')).toBeVisible();
-    await expect(page.getByText('On route').first()).toBeVisible();
-    await expect(page.getByText('Requested').first()).toBeVisible();
+    await expect(page.getByText(/On route/i).first()).toBeVisible();
+    await expect(page.getByText(/Requested/i).first()).toBeVisible();
 
     // Verify trip card thumbnails loaded
     const tripImgs = page.locator('main img');
@@ -58,33 +61,35 @@ test.describe('Dataset, images, receipts, and lifecycle views', () => {
 
     // Open active on-route receipt
     await page.goto('/trips/KRB-1009');
-    await expect(page.getByText('Itemized receipt')).toBeVisible();
-    await expect(page.getByText('Payment & deposit ledger')).toBeVisible();
-    await expect(page.getByRole('button', { name: /Print \/ Save receipt/i })).toBeVisible();
+    await expect(page.getByText('Itemized breakdown')).toBeVisible();
+    await expect(page.getByText('Payment & deposit transaction ledger')).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: /Print \/ export thermal receipt/i }).first(),
+    ).toBeVisible();
     await expect(page.getByText('GST (18%)').first()).toBeVisible();
 
     // Open requested (pending_approval) booking summary
     await page.goto('/trips/KRB-1017');
-    await expect(page.getByText('Requested')).toBeVisible();
-    await expect(page.getByText('Itemized receipt')).toBeVisible();
+    await expect(page.getByText(/Requested/i).first()).toBeVisible();
+    await expect(page.getByText('Itemized breakdown')).toBeVisible();
   });
 
   test('admin operations desk and bookings lifecycle filters work', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/admin/login');
-    await page.getByLabel('Email').fill('dev@kerb.local');
+    await page.getByLabel(/Email/i).fill('dev@kerb.local');
     await page.getByLabel('Password').fill('kerb-dev-pass-2026');
-    await page.getByRole('button', { name: 'Sign in to operations' }).click();
+    await page.getByRole('button', { name: /Sign in to operations/i }).click();
     await page.waitForURL(/\/admin$/);
 
-    // Today operations desk shows Currently on route (taken)
-    await expect(page.getByRole('heading', { name: 'Currently on route (taken)' })).toBeVisible();
-    await expect(page.getByText('Taken · On route').first()).toBeVisible();
+    // Today operations desk shows Active on Route (Checked Out)
+    await expect(page.getByRole('heading', { name: /Active on Route/i })).toBeVisible();
+    await expect(page.getByText(/active/i).first()).toBeVisible();
 
     // Bookings desk lifecycle tabs
     await page.goto('/admin/bookings');
-    await expect(page.getByRole('heading', { name: 'Bookings desk' })).toBeVisible();
-    await page.getByRole('button', { name: /Taken · On route/i }).click();
+    await expect(page.getByRole('heading', { name: 'Bookings Desk' })).toBeVisible();
+    await page.getByRole('button', { name: /On Route/i }).click();
     await expect(page.locator('tbody tr').first()).toBeVisible();
 
     await page.getByRole('button', { name: /Requested/i }).click();

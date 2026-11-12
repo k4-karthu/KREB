@@ -61,7 +61,7 @@ export function LicenceUploadClient() {
             value={licenceNumber}
             onChange={(e) => setLicenceNumber(e.target.value)}
             placeholder="KA0320220012345"
-            className="h-10 w-full rounded-s border border-line bg-surface-subtle px-3 font-mono text-sm"
+            className="h-10 w-full rounded-s border border-line bg-surface-subtle px-3 tabular-nums text-sm"
           />
         </label>
         <label className="space-y-1 text-xs font-medium text-ink">

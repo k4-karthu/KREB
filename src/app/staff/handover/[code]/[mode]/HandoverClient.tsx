@@ -115,7 +115,7 @@ export function HandoverClient({
             min={defaultOdometerKm}
             value={odometerKm}
             onChange={(e) => setOdometerKm(Number(e.target.value))}
-            className="h-11 w-full rounded-s border border-line bg-surface-subtle px-3 font-mono text-base"
+            className="h-11 w-full rounded-s border border-line bg-surface-subtle px-3 tabular-nums text-base"
           />
         </label>
 
@@ -141,7 +141,7 @@ export function HandoverClient({
               key={n}
               type="button"
               onClick={() => setFuelLevel(n)}
-              className={`h-10 rounded-s border text-xs font-mono font-semibold ${
+              className={`h-10 rounded-s border text-xs tabular-nums font-semibold ${
                 fuelLevel === n
                   ? 'border-petrol-600 bg-petrol-800 text-surface'
                   : 'border-line bg-surface-subtle text-ink'

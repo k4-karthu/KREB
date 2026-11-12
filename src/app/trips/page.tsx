@@ -135,6 +135,9 @@ export default async function MyTripsPage() {
                       code: t.code,
                       vehicleTitle: `${t.year} ${t.make} ${t.model}${t.variant ? ` ${t.variant}` : ''}`,
                       vehiclePlate: t.plate,
+                      imageSrc: t.image_key
+                        ? `/api/uploads/public/${t.image_key}-640.webp`
+                        : undefined,
                       pickupLabel: fmt(t.start_at),
                       returnLabel: fmt(t.end_at),
                       branchName: branchDisplay,

@@ -133,7 +133,7 @@ export default async function AdminTodayPage() {
       {/* Top Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="font-display text-h3 font-bold text-text-1">Operations Overview</h1>
+          <h1 className="font-display text-h3 font-bold text-text-1">Today operations desk</h1>
           <p className="text-body-s text-text-3">
             Real-time telemetry, bay readiness, and operational exception flags.
           </p>

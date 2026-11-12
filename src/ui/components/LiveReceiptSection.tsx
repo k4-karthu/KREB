@@ -70,7 +70,7 @@ export function LiveReceiptSection() {
                     onClick={() => setSelectedId(p.id)}
                   >
                     <span>{p.name}</span>
-                    <span className="opacity-75">({p.subtitle})</span>
+                    <span className="opacity-95">({p.subtitle})</span>
                   </Button>
                 );
               })}

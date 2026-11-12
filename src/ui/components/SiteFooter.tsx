@@ -7,15 +7,15 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:grid-cols-3 sm:px-6">
         <div className="space-y-2">
           <div className="font-display text-body-l font-bold text-text-1">{BRAND.name}</div>
-          <p className="max-w-xs text-body-s text-text-3">{BRAND.tagline}</p>
-          <p className="text-caption text-text-3">
+          <p className="max-w-xs text-body-s text-text-2">{BRAND.tagline}</p>
+          <p className="text-caption text-text-2">
             {BRAND.supportPhone} | {BRAND.supportEmail}
           </p>
         </div>
 
         <div className="space-y-2 text-body-s">
           <div className="font-semibold text-text-1">Pickup hubs</div>
-          <ul className="space-y-1.5 text-text-3">
+          <ul className="space-y-1.5 text-text-2">
             <li>
               <Link
                 href="/branches#indiranagar-hub"
@@ -45,7 +45,7 @@ export function SiteFooter() {
 
         <div className="space-y-2 text-body-s">
           <div className="font-semibold text-text-1">Policies & Desk</div>
-          <ul className="space-y-1.5 text-text-3">
+          <ul className="space-y-1.5 text-text-2">
             <li>
               <Link href="/policies/cancellation" className="hover:text-text-1 transition-colors">
                 Cancellation & refunds
@@ -69,7 +69,7 @@ export function SiteFooter() {
           </ul>
         </div>
       </div>
-      <div className="border-t border-border py-4 text-center text-caption text-text-3">
+      <div className="border-t border-border py-4 text-center text-caption text-text-2">
         {BRAND.legalName} — {BRAND.defaultCity}
       </div>
     </footer>

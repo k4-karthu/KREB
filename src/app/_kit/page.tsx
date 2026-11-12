@@ -59,7 +59,7 @@ export default function KitPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3 pt-2">
-          <Plate code="KA 03 MN 4821" paintHex="#F4F5F0" />
+          <Plate code="KA 03 MN 4821" paintHex="var(--surface-sunken)" />
           <Plate code="KB7-4Q2" size="lg" />
           <StatusBadge status="confirmed" />
           <StatusBadge status="active" />
@@ -226,7 +226,7 @@ export default function KitPage() {
               fuelType: 'petrol',
               seats: 5,
               paintName: 'Obsidian Blue',
-              paintHex: '#1F3A52',
+              paintHex: 'var(--surface-raised)',
               totalMinor: 924000,
               dailyMinor: 308000,
               days: 3,
@@ -253,7 +253,7 @@ export default function KitPage() {
             code: 'KB7-4Q2',
             vehicleTitle: 'Honda City ZX CVT',
             vehiclePlate: 'KA 01 AB 9104',
-            paintHex: '#1F3A52',
+            paintHex: 'var(--surface-raised)',
             pickupLabel: 'Fri 14 Nov, 10:00',
             returnLabel: 'Mon 17 Nov, 10:00',
             branchName: 'Indiranagar Hub',

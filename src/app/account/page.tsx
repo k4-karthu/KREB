@@ -52,7 +52,9 @@ export default async function AccountPage() {
             <div className="space-y-1 text-sm text-ink-muted">
               <div>
                 Ending in{' '}
-                <span className="font-mono font-semibold text-ink">{licence.licence_no_last4}</span>
+                <span className="tabular-nums font-semibold text-ink">
+                  {licence.licence_no_last4}
+                </span>
                 , expires {licence.expires_on}
               </div>
               {licence.reject_reason && (

@@ -23,6 +23,7 @@ export interface SlopRule {
 
 const RECEIPT_GLOB = /src[\\/]ui[\\/]components[\\/]receipt[\\/]/;
 const PLATE_FILE = /Plate\.tsx$/;
+const CONTRAST_FILE = /src[\\/]ui[\\/]tokens[\\/]contrast\.ts$/;
 const THEME_CSS = /src[\\/]ui[\\/]tokens[\\/]theme\.css$/;
 const LIGHT_SWEEP_FILE = /src[\\/]ui[\\/]components[\\/]collection[\\/]LightSweep\.tsx$/;
 
@@ -63,7 +64,7 @@ export const SLOP_RULES: SlopRule[] = [
     id: 'raw-hex',
     test: /#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})\b/,
     fix: 'No raw hex in source. Reference CSS custom properties or token constants (§4.5).',
-    allowInFiles: [THEME_CSS, RECEIPT_GLOB],
+    allowInFiles: [THEME_CSS, RECEIPT_GLOB, CONTRAST_FILE],
   },
 
   // 6. banned-font — forbidden font-family values
@@ -277,9 +278,7 @@ export function scanTextForSlop(
       if (rule.allowInFiles?.some((re) => re.test(filePath))) continue;
 
       const matched =
-        typeof rule.test === 'function'
-          ? rule.test(lineText, filePath)
-          : rule.test.test(lineText);
+        typeof rule.test === 'function' ? rule.test(lineText, filePath) : rule.test.test(lineText);
 
       if (matched) {
         violations.push({

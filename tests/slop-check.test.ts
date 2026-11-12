@@ -4,27 +4,27 @@ import { RECEIPT_RULES, SLOP_RULES, scanTextForSlop } from '../scripts/slop-chec
 describe('slop-check firewall v3 (§Part2 §15 + §Part3 §11)', () => {
   it('catches all 23 v3 Part 2 §15 rules on dirty samples', () => {
     const dirtySamples: Array<[string, string]> = [
-      ['gradient',         '<div className="bg-gradient-to-r from-blue-500 to-sky-400" />'],
-      ['gradient-text',    '<h1 className="bg-clip-text text-transparent">Title</h1>'],
-      ['violet-drift',     '<button className="bg-indigo-600">Go</button>'],
-      ['green-surface',    '<div className="bg-green-100 text-emerald-700" />'],
-      ['banned-font',      'body { font-family: Inter, sans-serif; }'],
-      ['default-radius',   '<div className="rounded-2xl" />'],
-      ['default-shadow',   '<div className="shadow-md" />'],
-      ['glass',            '<header className="backdrop-blur-md" />'],
-      ['caps-eyebrow',     '<span className="uppercase tracking-widest">Fleet</span>'],
-      ['uppercase-any',    '<span className="uppercase">Tag</span>'],
-      ['arrow-glyph',      '<a href="/cars">See cars →</a>'],
-      ['emoji',            '<span>🚗 Book now</span>'],
-      ['middot',           '<p>Petrol · Automatic · 5 seats</p>'],
-      ['banned-copy',      '<p>Seamless effortless next-gen rental.</p>'],
-      ['generic-cta',      '<button>Get Started</button>'],
-      ['hover-lift',       '<div className="hover:-translate-y-1" />'],
-      ['scroll-reveal',    '<motion.div whileInView={{ opacity: 1 }} />'],
-      ['bounce',           '<div className="animate-bounce" />'],
-      ['arbitrary',        '<div className="w-[347px]" />'],
-      ['img-no-alt',       '<img src="/car.jpg" />'],
-      ['default-title',    '<title>Create Next App</title>'],
+      ['gradient', '<div className="bg-gradient-to-r from-blue-500 to-sky-400" />'],
+      ['gradient-text', '<h1 className="bg-clip-text text-transparent">Title</h1>'],
+      ['violet-drift', '<button className="bg-indigo-600">Go</button>'],
+      ['green-surface', '<div className="bg-green-100 text-emerald-700" />'],
+      ['banned-font', 'body { font-family: Inter, sans-serif; }'],
+      ['default-radius', '<div className="rounded-2xl" />'],
+      ['default-shadow', '<div className="shadow-md" />'],
+      ['glass', '<header className="backdrop-blur-md" />'],
+      ['caps-eyebrow', '<span className="uppercase tracking-widest">Fleet</span>'],
+      ['uppercase-any', '<span className="uppercase">Tag</span>'],
+      ['arrow-glyph', '<a href="/cars">See cars →</a>'],
+      ['emoji', '<span>🚗 Book now</span>'],
+      ['middot', '<p>Petrol · Automatic · 5 seats</p>'],
+      ['banned-copy', '<p>Seamless effortless next-gen rental.</p>'],
+      ['generic-cta', '<button>Get Started</button>'],
+      ['hover-lift', '<div className="hover:-translate-y-1" />'],
+      ['scroll-reveal', '<motion.div whileInView={{ opacity: 1 }} />'],
+      ['bounce', '<div className="animate-bounce" />'],
+      ['arbitrary', '<div className="w-[347px]" />'],
+      ['img-no-alt', '<img src="/car.jpg" />'],
+      ['default-title', '<title>Create Next App</title>'],
     ];
 
     for (const [ruleId, sample] of dirtySamples) {
@@ -56,8 +56,8 @@ describe('slop-check firewall v3 (§Part2 §15 + §Part3 §11)', () => {
 
   it('catches Part 3 §11 RECEIPT_RULES on dirty receipt samples', () => {
     const receiptDirty: Array<[string, string]> = [
-      ['grocery-words',      '<p>Add to cart</p>'],
-      ['receipt-colour',     '<div className="bg-accent text-success" />'],
+      ['grocery-words', '<p>Add to cart</p>'],
+      ['receipt-colour', '<div className="bg-accent text-success" />'],
     ];
 
     for (const [ruleId, sample] of receiptDirty) {

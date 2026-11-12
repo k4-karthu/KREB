@@ -4,33 +4,33 @@
 /* ─── v3 §4.5 — Light (default) ──────────────────────────────────────────── */
 :root {
   color-scheme: light;
-  --canvas: #F3F4F6;
-  --surface: #FFFFFF;
-  --surface-raised: #FFFFFF;
-  --surface-sunken: #EBEDF1;
-  --plate: #FFFFFF;
+  --canvas: #f3f4f6;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --surface-sunken: #ebedf1;
+  --plate: #ffffff;
 
-  --text-1: #0E1116;
-  --text-2: #444C59;
-  --text-3: #6A7380;
-  --text-disabled: #A3AAB5;
+  --text-1: #0e1116;
+  --text-2: #444c59;
+  --text-3: #6a7380;
+  --text-disabled: #a3aab5;
 
-  --border-subtle: #E6E8EC;
-  --border: #D5D9DF;
-  --border-strong: #AEB5C0;
+  --border-subtle: #e6e8ec;
+  --border: #d5d9df;
+  --border-strong: #aeb5c0;
 
-  --accent: #2250F4;
-  --accent-hover: #1A40D6;
-  --accent-press: #1433B0;
-  --accent-subtle: #E7ECFE;
-  --on-accent: #FFFFFF;
+  --accent: #2250f4;
+  --accent-hover: #1a40d6;
+  --accent-press: #1433b0;
+  --accent-subtle: #e7ecfe;
+  --on-accent: #ffffff;
 
-  --success: #1F9D63;
-  --success-subtle: #E6F5EE;
-  --warning: #A86400;
-  --warning-subtle: #FFF1D6;
-  --danger: #D2342A;
-  --danger-subtle: #FDE9E7;
+  --success: #1f9d63;
+  --success-subtle: #e6f5ee;
+  --warning: #a86400;
+  --warning-subtle: #fff1d6;
+  --danger: #d2342a;
+  --danger-subtle: #fde9e7;
 
   --shadow-ink: 15 17 22;
 
@@ -45,40 +45,40 @@
   /* Elevation shadows (§4.5) */
   --e0: none;
   --e1: 0 1px 3px rgb(var(--shadow-ink) / 0.08), 0 1px 2px rgb(var(--shadow-ink) / 0.04);
-  --e2: 0 4px 12px rgb(var(--shadow-ink) / 0.10), 0 2px 4px rgb(var(--shadow-ink) / 0.06);
+  --e2: 0 4px 12px rgb(var(--shadow-ink) / 0.1), 0 2px 4px rgb(var(--shadow-ink) / 0.06);
   --e3: 0 12px 32px rgb(var(--shadow-ink) / 0.14), 0 4px 10px rgb(var(--shadow-ink) / 0.08);
 }
 
 /* ─── v3 §4.5 — Dark override ────────────────────────────────────────────── */
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --canvas: #0C0D10;
-  --surface: #14161A;
-  --surface-raised: #1B1E23;
+  --canvas: #0c0d10;
+  --surface: #14161a;
+  --surface-raised: #1b1e23;
   --surface-sunken: #101216;
-  --plate: #FFFFFF;
+  --plate: #ffffff;
 
-  --text-1: #F3F4F6;
-  --text-2: #B4BAC5;
-  --text-3: #8A92A0;
-  --text-disabled: #565D69;
+  --text-1: #f3f4f6;
+  --text-2: #b4bac5;
+  --text-3: #8a92a0;
+  --text-disabled: #565d69;
 
-  --border-subtle: #22262C;
-  --border: #2E333B;
-  --border-strong: #454C57;
+  --border-subtle: #22262c;
+  --border: #2e333b;
+  --border-strong: #454c57;
 
-  --accent: #6F8DFF;
-  --accent-hover: #8AA3FF;
-  --accent-press: #5878F0;
-  --accent-subtle: #1B2547;
-  --on-accent: #0B0F24;
+  --accent: #6f8dff;
+  --accent-hover: #8aa3ff;
+  --accent-press: #5878f0;
+  --accent-subtle: #1b2547;
+  --on-accent: #0b0f24;
 
-  --success: #3DD68C;
-  --success-subtle: #12261D;
-  --warning: #F2B24A;
-  --warning-subtle: #2B2111;
-  --danger: #FF6B5E;
-  --danger-subtle: #2D1613;
+  --success: #3dd68c;
+  --success-subtle: #12261d;
+  --warning: #f2b24a;
+  --warning-subtle: #2b2111;
+  --danger: #ff6b5e;
+  --danger-subtle: #2d1613;
 
   --shadow-ink: 0 0 0;
 
@@ -93,7 +93,7 @@
   /* Elevation shadows (§4.5) */
   --e0: none;
   --e1: 0 1px 3px rgb(var(--shadow-ink) / 0.16), 0 1px 2px rgb(var(--shadow-ink) / 0.08);
-  --e2: 0 4px 12px rgb(var(--shadow-ink) / 0.20), 0 2px 4px rgb(var(--shadow-ink) / 0.12);
+  --e2: 0 4px 12px rgb(var(--shadow-ink) / 0.2), 0 2px 4px rgb(var(--shadow-ink) / 0.12);
   --e3: 0 12px 32px rgb(var(--shadow-ink) / 0.28), 0 4px 10px rgb(var(--shadow-ink) / 0.16);
 }
 
@@ -182,7 +182,7 @@
   /* ─── Elevation shadows (§4.5) ─────────────────────────────────────────── */
   --shadow-e0: none;
   --shadow-e1: 0 1px 3px rgb(var(--shadow-ink) / 0.08), 0 1px 2px rgb(var(--shadow-ink) / 0.04);
-  --shadow-e2: 0 4px 12px rgb(var(--shadow-ink) / 0.10), 0 2px 4px rgb(var(--shadow-ink) / 0.06);
+  --shadow-e2: 0 4px 12px rgb(var(--shadow-ink) / 0.1), 0 2px 4px rgb(var(--shadow-ink) / 0.06);
   --shadow-e3: 0 12px 32px rgb(var(--shadow-ink) / 0.14), 0 4px 10px rgb(var(--shadow-ink) / 0.08);
 
   /* ─── Motion easings ───────────────────────────────────────────────────── */
@@ -213,7 +213,9 @@ body {
 .font-plate {
   /* Plate: Archivo-style condensed condensed (§5.3) */
   font-family: var(--font-display);
-  font-variation-settings: "wdth" 75, "wght" 700;
+  font-variation-settings:
+    "wdth" 75,
+    "wght" 700;
   letter-spacing: 0.04em;
 }
 
@@ -244,8 +246,12 @@ body {
 
 /* ─── Utility keyframes ───────────────────────────────────────────────────── */
 @keyframes kb-lane-march {
-  from { stroke-dashoffset: 0; }
-  to { stroke-dashoffset: -24; }
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -24;
+  }
 }
 
 .kb-lane-march {
