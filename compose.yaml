@@ -1,0 +1,39 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_PATH: /data/kerb.db
+      UPLOADS_PATH: /data
+    volumes:
+      - kerb-data:/data
+    ports:
+      - "3000:3000"
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - kerb-data:/data:ro
+      - caddy-data:/data/caddy
+
+  litestream:
+    image: litestream/litestream:0.3
+    restart: unless-stopped
+    depends_on:
+      - app
+    volumes:
+      - kerb-data:/data
+      - ./litestream.yml:/etc/litestream.yml:ro
+
+volumes:
+  kerb-data:
+  caddy-data:
+

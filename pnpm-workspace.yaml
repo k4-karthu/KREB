@@ -1,0 +1,6 @@
+allowBuilds:
+  better-sqlite3: true
+  "@node-rs/argon2": true
+  sharp: true
+  esbuild: true
+  lefthook: true

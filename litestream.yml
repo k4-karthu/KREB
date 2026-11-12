@@ -1,0 +1,11 @@
+dbs:
+  - path: /data/kerb.db
+    replicas:
+      - type: s3
+        bucket: ${LITESTREAM_BUCKET}
+        path: kerb.db
+        endpoint: ${LITESTREAM_ENDPOINT}
+        sync-interval: 10s
+        retention: 168h
+        snapshot-interval: 24h
+

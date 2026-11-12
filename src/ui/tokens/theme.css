@@ -1,0 +1,253 @@
+@import "tailwindcss";
+@import "./fonts.css";
+
+/* ─── v3 §4.5 — Light (default) ──────────────────────────────────────────── */
+:root {
+  color-scheme: light;
+  --canvas: #F3F4F6;
+  --surface: #FFFFFF;
+  --surface-raised: #FFFFFF;
+  --surface-sunken: #EBEDF1;
+  --plate: #FFFFFF;
+
+  --text-1: #0E1116;
+  --text-2: #444C59;
+  --text-3: #6A7380;
+  --text-disabled: #A3AAB5;
+
+  --border-subtle: #E6E8EC;
+  --border: #D5D9DF;
+  --border-strong: #AEB5C0;
+
+  --accent: #2250F4;
+  --accent-hover: #1A40D6;
+  --accent-press: #1433B0;
+  --accent-subtle: #E7ECFE;
+  --on-accent: #FFFFFF;
+
+  --success: #1F9D63;
+  --success-subtle: #E6F5EE;
+  --warning: #A86400;
+  --warning-subtle: #FFF1D6;
+  --danger: #D2342A;
+  --danger-subtle: #FDE9E7;
+
+  --shadow-ink: 15 17 22;
+
+  /* Concentric radii (§4.5) */
+  --r-xs: 6px;
+  --r-s: 10px;
+  --r-m: 16px;
+  --r-l: 24px;
+  --r-xl: 32px;
+  --r-full: 9999px;
+
+  /* Elevation shadows (§4.5) */
+  --e0: none;
+  --e1: 0 1px 3px rgb(var(--shadow-ink) / 0.08), 0 1px 2px rgb(var(--shadow-ink) / 0.04);
+  --e2: 0 4px 12px rgb(var(--shadow-ink) / 0.10), 0 2px 4px rgb(var(--shadow-ink) / 0.06);
+  --e3: 0 12px 32px rgb(var(--shadow-ink) / 0.14), 0 4px 10px rgb(var(--shadow-ink) / 0.08);
+}
+
+/* ─── v3 §4.5 — Dark override ────────────────────────────────────────────── */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --canvas: #0C0D10;
+  --surface: #14161A;
+  --surface-raised: #1B1E23;
+  --surface-sunken: #101216;
+  --plate: #FFFFFF;
+
+  --text-1: #F3F4F6;
+  --text-2: #B4BAC5;
+  --text-3: #8A92A0;
+  --text-disabled: #565D69;
+
+  --border-subtle: #22262C;
+  --border: #2E333B;
+  --border-strong: #454C57;
+
+  --accent: #6F8DFF;
+  --accent-hover: #8AA3FF;
+  --accent-press: #5878F0;
+  --accent-subtle: #1B2547;
+  --on-accent: #0B0F24;
+
+  --success: #3DD68C;
+  --success-subtle: #12261D;
+  --warning: #F2B24A;
+  --warning-subtle: #2B2111;
+  --danger: #FF6B5E;
+  --danger-subtle: #2D1613;
+
+  --shadow-ink: 0 0 0;
+
+  /* Concentric radii (§4.5) */
+  --r-xs: 6px;
+  --r-s: 10px;
+  --r-m: 16px;
+  --r-l: 24px;
+  --r-xl: 32px;
+  --r-full: 9999px;
+
+  /* Elevation shadows (§4.5) */
+  --e0: none;
+  --e1: 0 1px 3px rgb(var(--shadow-ink) / 0.16), 0 1px 2px rgb(var(--shadow-ink) / 0.08);
+  --e2: 0 4px 12px rgb(var(--shadow-ink) / 0.20), 0 2px 4px rgb(var(--shadow-ink) / 0.12);
+  --e3: 0 12px 32px rgb(var(--shadow-ink) / 0.28), 0 4px 10px rgb(var(--shadow-ink) / 0.16);
+}
+
+/* ─── Tailwind v4 @theme bridge ──────────────────────────────────────────── */
+@theme inline {
+  /* Reset Tailwind defaults so only our tokens are available */
+  --color-*: initial;
+  --font-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+  --text-*: initial;
+  --ease-*: initial;
+  --animate-*: initial;
+  --blur-*: initial;
+  --drop-shadow-*: initial;
+
+  /* Surfaces */
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-sunken: var(--surface-sunken);
+  --color-plate: var(--plate);
+
+  /* Text */
+  --color-text-1: var(--text-1);
+  --color-t1: var(--text-1);
+  --color-text-2: var(--text-2);
+  --color-t2: var(--text-2);
+  --color-text-3: var(--text-3);
+  --color-t3: var(--text-3);
+  --color-text-disabled: var(--text-disabled);
+  --color-tdis: var(--text-disabled);
+
+  /* Borders */
+  --color-border-subtle: var(--border-subtle);
+  --color-line-subtle: var(--border-subtle);
+  --color-border: var(--border);
+  --color-line: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-line-strong: var(--border-strong);
+
+  /* Accent (Cobalt) */
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-press: var(--accent-press);
+  --color-accent-subtle: var(--accent-subtle);
+  --color-on-accent: var(--on-accent);
+
+  /* Semantic */
+  --color-success: var(--success);
+  --color-success-subtle: var(--success-subtle);
+  --color-warning: var(--warning);
+  --color-warning-subtle: var(--warning-subtle);
+  --color-danger: var(--danger);
+  --color-danger-subtle: var(--danger-subtle);
+
+  /* Utility */
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  /* ─── Typography ───────────────────────────────────────────────────────── */
+  /* §5.3 — Display: Bricolage Grotesque, UI/Body: Albert Sans */
+  --font-display: "Bricolage Grotesque Variable", "Bricolage Grotesque", sans-serif;
+  --font-text: "Albert Sans Variable", "Albert Sans", sans-serif;
+  --font-mono: "IBM Plex Mono", "Courier Prime", monospace;
+
+  /* ─── 8pt spacing grid ─────────────────────────────────────────────────── */
+  --spacing: 4px;
+
+  /* ─── Concentric radii (§4.5) ──────────────────────────────────────────── */
+  --radius-xs: 6px;
+  --radius-s: 10px;
+  --radius-m: 16px;
+  --radius-l: 24px;
+  --radius-xl: 32px;
+  --radius-full: 9999px;
+  --radius-r-xs: 6px;
+  --radius-r-s: 10px;
+  --radius-r-m: 16px;
+  --radius-r-l: 24px;
+  --radius-r-xl: 32px;
+  --radius-r-full: 9999px;
+
+  /* ─── Elevation shadows (§4.5) ─────────────────────────────────────────── */
+  --shadow-e0: none;
+  --shadow-e1: 0 1px 3px rgb(var(--shadow-ink) / 0.08), 0 1px 2px rgb(var(--shadow-ink) / 0.04);
+  --shadow-e2: 0 4px 12px rgb(var(--shadow-ink) / 0.10), 0 2px 4px rgb(var(--shadow-ink) / 0.06);
+  --shadow-e3: 0 12px 32px rgb(var(--shadow-ink) / 0.14), 0 4px 10px rgb(var(--shadow-ink) / 0.08);
+
+  /* ─── Motion easings ───────────────────────────────────────────────────── */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .kerb-studio-plate:hover .kerb-studio-img {
+    transform: translateY(-6px);
+  }
+}
+
+/* ─── Base styles ─────────────────────────────────────────────────────────── */
+body {
+  background: var(--canvas);
+  color: var(--text-1);
+  font-family: var(--font-text, "Albert Sans Variable", sans-serif);
+  font-optical-sizing: auto;
+  line-height: 1.55;
+}
+
+/* ─── Font utility helpers ────────────────────────────────────────────────── */
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-plate {
+  /* Plate: Archivo-style condensed condensed (§5.3) */
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 75, "wght" 700;
+  letter-spacing: 0.04em;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Focus ring ──────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px var(--accent-subtle);
+}
+
+/* ─── Reduced motion ──────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    /* biome-ignore lint/complexity/noImportantStyles: required reduced-motion override */
+    animation-duration: 0.01ms !important;
+    /* biome-ignore lint/complexity/noImportantStyles: required reduced-motion override */
+    transition-duration: 0.12ms !important;
+    /* biome-ignore lint/complexity/noImportantStyles: required reduced-motion override */
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ─── Utility keyframes ───────────────────────────────────────────────────── */
+@keyframes kb-lane-march {
+  from { stroke-dashoffset: 0; }
+  to { stroke-dashoffset: -24; }
+}
+
+.kb-lane-march {
+  animation: kb-lane-march 600ms linear infinite;
+}
