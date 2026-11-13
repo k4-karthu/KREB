@@ -43,23 +43,23 @@ function LoginForm() {
   return (
     <main id="main-content" className="mx-auto max-w-md px-4 py-16">
       <div className="mb-8">
-        <Link href="/" className="font-display-wide text-2 text-petrol-800">
+        <Link href="/" className="font-display text-h3 font-bold text-accent">
           {BRAND.name}
         </Link>
-        <h1 className="mt-4 font-display-wide text-3 text-petrol-800">Sign in to your account</h1>
-        <p className="mt-1 text-0 text-stone-500">
+        <h1 className="mt-4 font-display text-h1 font-bold text-text-1">Sign in to your account</h1>
+        <p className="mt-1 text-body-s text-text-2">
           Manage upcoming trips, upload your driving licence, and view receipts.
         </p>
       </div>
 
       <form
         onSubmit={onSubmit}
-        className="space-y-4 rounded-m border border-stone-200 bg-sheet p-6"
+        className="space-y-4 rounded-l border border-border bg-surface p-8 shadow-e2"
       >
         {error && (
           <div
             role="alert"
-            className="rounded-m border border-stop-600 bg-stop-100 px-3 py-2 text-m1 text-stop-600"
+            className="rounded-s border border-danger bg-danger-subtle px-3 py-2 text-caption text-danger"
           >
             {error}
           </div>
@@ -92,11 +92,11 @@ function LoginForm() {
           Sign in
         </Button>
 
-        <div className="flex items-center justify-between pt-2 text-m1 text-stone-500">
-          <Link href="/signup" className="text-petrol-600 underline underline-offset-4">
+        <div className="flex items-center justify-between pt-2 text-caption text-text-2">
+          <Link href="/signup" className="text-accent hover:underline">
             Create an account
           </Link>
-          <Link href="/admin/login" className="text-petrol-600 underline underline-offset-4">
+          <Link href="/admin/login" className="text-accent hover:underline">
             Staff sign in
           </Link>
         </div>
@@ -107,7 +107,13 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="mx-auto max-w-md px-4 py-16 text-0">Loading...</div>}>
+    <Suspense
+      fallback={
+        <main className="mx-auto max-w-md px-4 py-16">
+          <div className="h-64 rounded-l border border-border bg-surface p-8 shadow-e2" />
+        </main>
+      }
+    >
       <LoginForm />
     </Suspense>
   );

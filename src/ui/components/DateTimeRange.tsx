@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowRight, Calendar, MapPin } from 'lucide-react';
+import { ArrowRight, Calendar, MapPin } from '@phosphor-icons/react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Button } from '@/ui/primitives/Button';
@@ -59,16 +59,16 @@ export function DateTimeRange({
   return (
     <form
       onSubmit={handleSearch}
-      className="grid gap-3 rounded-m border border-line bg-surface p-3 sm:grid-cols-[1.2fr_1fr_1fr_auto] sm:items-end"
+      className="grid gap-3 rounded-m border border-border bg-surface p-3 sm:grid-cols-[1.2fr_1fr_1fr_auto] sm:items-end"
     >
-      <label className="space-y-1 text-xs font-medium text-ink">
-        <span className="inline-flex items-center gap-1.5 text-ink-muted">
-          <MapPin className="h-3.5 w-3.5" /> Pick-up hub
+      <label className="space-y-1 text-xs font-medium text-text-1">
+        <span className="inline-flex items-center gap-1.5 text-text-2">
+          <MapPin size={14} /> Pick-up hub
         </span>
         <select
           value={branchId}
           onChange={(e) => setBranchId(e.target.value)}
-          className="h-11 w-full rounded-s border border-line bg-surface-subtle px-3 text-sm text-ink"
+          className="h-11 w-full rounded-s border border-border bg-surface-sunken px-3 text-sm text-text-1"
         >
           <option value="all">All Bengaluru hubs</option>
           {branches.map((b) => (
@@ -79,35 +79,35 @@ export function DateTimeRange({
         </select>
       </label>
 
-      <label className="space-y-1 text-xs font-medium text-ink">
-        <span className="inline-flex items-center gap-1.5 text-ink-muted">
-          <Calendar className="h-3.5 w-3.5" /> Pick-up
+      <label className="space-y-1 text-xs font-medium text-text-1">
+        <span className="inline-flex items-center gap-1.5 text-text-2">
+          <Calendar size={14} /> Pick-up
         </span>
         <input
           type="datetime-local"
           required
           value={startStr}
           onChange={(e) => setStartStr(e.target.value)}
-          className="h-11 w-full rounded-s border border-line bg-surface-subtle px-3 text-sm text-ink tabular-nums"
+          className="h-11 w-full rounded-s border border-border bg-surface-sunken px-3 text-sm text-text-1 tabular-nums"
         />
       </label>
 
-      <label className="space-y-1 text-xs font-medium text-ink">
-        <span className="inline-flex items-center gap-1.5 text-ink-muted">
-          <Calendar className="h-3.5 w-3.5" /> Return
+      <label className="space-y-1 text-xs font-medium text-text-1">
+        <span className="inline-flex items-center gap-1.5 text-text-2">
+          <Calendar size={14} /> Return
         </span>
         <input
           type="datetime-local"
           required
           value={endStr}
           onChange={(e) => setEndStr(e.target.value)}
-          className="h-11 w-full rounded-s border border-line bg-surface-subtle px-3 text-sm text-ink tabular-nums"
+          className="h-11 w-full rounded-s border border-border bg-surface-sunken px-3 text-sm text-text-1 tabular-nums"
         />
       </label>
 
       <Button type="submit" size="lg" className="h-11 px-5">
         <span>{actionLabel}</span>
-        <ArrowRight className="h-4 w-4" />
+        <ArrowRight size={16} />
       </Button>
     </form>
   );

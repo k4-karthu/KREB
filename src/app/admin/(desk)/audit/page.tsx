@@ -1,6 +1,5 @@
 import { getReadConnection } from '@/db/client';
 import { requireStaffPage } from '@/server/auth';
-import { Plate } from '@/ui/data/Plate';
 
 export default async function AdminAuditPage() {
   await requireStaffPage('audit.view');
@@ -66,7 +65,11 @@ export default async function AdminAuditPage() {
                     <span className="font-medium text-text-1">
                       {l.actor_name ?? 'Automated System'}
                     </span>
-                    {l.actor_role && <Plate code={l.actor_role} size="sm" />}
+                    {l.actor_role && (
+                      <span className="font-technical text-label-s px-2 py-0.5 rounded-xs border border-border bg-surface-sunken text-text-2">
+                        {l.actor_role}
+                      </span>
+                    )}
                   </div>
                 </td>
                 <td className="px-4 py-3 tabular-nums text-label-s font-bold text-accent">

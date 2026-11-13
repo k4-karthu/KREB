@@ -2,8 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { Price } from '@/ui/data/Price';
 import { Button } from '@/ui/primitives/Button';
-import { MoneyText } from '@/ui/primitives/MoneyText';
 
 const ZONES = [
   { id: 'front_bumper', label: 'Front bumper' },
@@ -85,13 +85,13 @@ export function HandoverClient({
 
   if (extraChargesMinor !== null) {
     return (
-      <div className="space-y-4 rounded-m border border-line bg-surface p-6">
-        <h2 className="font-display text-xl font-bold text-ink">Check-in recorded</h2>
-        <p className="text-sm text-ink-muted">
+      <div className="space-y-4 rounded-m border border-border bg-surface p-6 shadow-e1">
+        <h2 className="font-display text-h2 font-bold text-text-1">Check-in recorded</h2>
+        <p className="text-body-s text-text-2">
           Computed extra charges (late/fuel):{' '}
-          <MoneyText amountMinor={extraChargesMinor} className="font-bold text-ink" />
+          <Price amountMinor={extraChargesMinor} size="lg" className="font-bold text-text-1" />
         </p>
-        <Button type="button" onClick={() => router.push('/staff')}>
+        <Button type="button" variant="primary" onClick={() => router.push('/staff')}>
           Back to bay queue
         </Button>
       </div>
@@ -99,15 +99,18 @@ export function HandoverClient({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 rounded-m border border-line bg-surface p-5">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-6 rounded-m border border-border bg-surface p-5 shadow-e1"
+    >
       {error && (
-        <p className="rounded-s border border-stop-600 bg-stop-100 px-3 py-2 text-xs text-stop-600">
+        <p className="rounded-s border border-danger bg-danger-subtle px-3 py-2 text-caption text-danger">
           {error}
         </p>
       )}
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <label className="space-y-1 text-xs font-medium text-ink">
+        <label className="space-y-1 text-caption font-medium text-text-1">
           <span>Odometer reading (km)</span>
           <input
             type="number"
@@ -115,16 +118,16 @@ export function HandoverClient({
             min={defaultOdometerKm}
             value={odometerKm}
             onChange={(e) => setOdometerKm(Number(e.target.value))}
-            className="h-11 w-full rounded-s border border-line bg-surface-subtle px-3 tabular-nums text-base"
+            className="h-11 w-full rounded-s border border-border bg-surface-sunken px-3 tabular-nums text-body text-text-1 focus:border-accent focus:outline-none"
           />
         </label>
 
-        <label className="space-y-1 text-xs font-medium text-ink">
+        <label className="space-y-1 text-caption font-medium text-text-1">
           <span>Cleanliness</span>
           <select
             value={cleanliness}
             onChange={(e) => setCleanliness(e.target.value as 'clean' | 'acceptable' | 'dirty')}
-            className="h-11 w-full rounded-s border border-line bg-surface-subtle px-3 text-sm"
+            className="h-11 w-full rounded-s border border-border bg-surface-sunken px-3 text-body-s text-text-1 focus:border-accent focus:outline-none"
           >
             <option value="clean">Clean</option>
             <option value="acceptable">Acceptable</option>
@@ -134,17 +137,19 @@ export function HandoverClient({
       </div>
 
       <div className="space-y-2">
-        <div className="text-xs font-medium text-ink">Fuel gauge (eighths: {fuelLevel}/8)</div>
+        <div className="text-caption font-medium text-text-1">
+          Fuel gauge (eighths: {fuelLevel}/8)
+        </div>
         <div className="grid grid-cols-9 gap-1">
           {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
             <button
               key={n}
               type="button"
               onClick={() => setFuelLevel(n)}
-              className={`h-10 rounded-s border text-xs tabular-nums font-semibold ${
+              className={`h-10 rounded-s border text-caption tabular-nums font-semibold transition-colors ${
                 fuelLevel === n
-                  ? 'border-petrol-600 bg-petrol-800 text-surface'
-                  : 'border-line bg-surface-subtle text-ink'
+                  ? 'border-accent bg-accent text-on-accent'
+                  : 'border-border bg-surface-sunken text-text-1 hover:border-border-strong'
               }`}
             >
               {n}/8
@@ -154,14 +159,16 @@ export function HandoverClient({
       </div>
 
       <div className="space-y-2">
-        <div className="text-xs font-medium text-ink">Tap a zone to log a new mark (if any)</div>
+        <div className="text-caption font-medium text-text-1">
+          Tap a zone to log a new mark (if any)
+        </div>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {ZONES.map((z) => (
             <button
               key={z.id}
               type="button"
               onClick={() => addMark(z.id)}
-              className="rounded-s border border-line bg-surface-subtle px-3 py-2 text-left text-xs font-medium text-ink hover:border-petrol-600"
+              className="rounded-s border border-border bg-surface-sunken px-3 py-2 text-left text-caption font-medium text-text-1 hover:border-accent transition-colors"
             >
               + {z.label}
             </button>
@@ -172,7 +179,7 @@ export function HandoverClient({
             {marks.map((m, idx) => (
               <div
                 key={`${m.zone}-${idx}`}
-                className="flex items-center justify-between rounded-s border border-amber-600 bg-amber-100 px-3 py-2 text-xs text-petrol-950"
+                className="flex items-center justify-between rounded-s border border-warning bg-warning-subtle px-3 py-2 text-caption text-text-1"
               >
                 <span>
                   {m.zone.replace('_', ' ')} ({m.kind}, severity {m.severity})
@@ -180,7 +187,7 @@ export function HandoverClient({
                 <button
                   type="button"
                   onClick={() => setMarks((prev) => prev.filter((_, i) => i !== idx))}
-                  className="underline"
+                  className="underline text-caption text-text-2 hover:text-text-1"
                 >
                   Remove
                 </button>
@@ -190,18 +197,18 @@ export function HandoverClient({
         )}
       </div>
 
-      <label className="block space-y-1 text-xs font-medium text-ink">
+      <label className="block space-y-1 text-caption font-medium text-text-1">
         <span>Handover notes</span>
         <textarea
           rows={2}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           placeholder="Spare wheel, jack, FASTag and cabin verified with driver."
-          className="w-full rounded-s border border-line bg-surface-subtle p-2.5 text-sm"
+          className="w-full rounded-s border border-border bg-surface-sunken p-2.5 text-body-s text-text-1 focus:border-accent focus:outline-none"
         />
       </label>
 
-      <Button type="submit" size="lg" className="w-full" disabled={submitting}>
+      <Button type="submit" size="lg" className="w-full" disabled={submitting} loading={submitting}>
         {submitting
           ? 'Saving inspection...'
           : mode === 'checkout'

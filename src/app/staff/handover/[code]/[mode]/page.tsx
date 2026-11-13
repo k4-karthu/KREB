@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getReadConnection } from '@/db/client';
 import { requireStaffPage } from '@/server/auth';
-import { Plate } from '@/ui/primitives/Plate';
+import { Plate } from '@/ui/data/Plate';
 import { HandoverClient } from './HandoverClient';
 
 export default async function StaffHandoverPage({
@@ -51,10 +51,10 @@ export default async function StaffHandoverPage({
     .get(booking.id) as { fuel_level: number } | undefined;
 
   return (
-    <div className="min-h-screen bg-canvas text-ink">
-      <header className="border-b border-line bg-surface px-4 py-4">
+    <div className="min-h-screen bg-canvas text-text-1">
+      <header className="border-b border-border bg-surface px-4 py-4 shadow-e1">
         <div className="mx-auto flex max-w-2xl items-center justify-between">
-          <Link href="/staff" className="text-xs font-medium text-ink-muted hover:text-ink">
+          <Link href="/staff" className="text-caption font-medium text-text-2 hover:text-text-1">
             Back to bay queue
           </Link>
           <Plate code={booking.code} paintHex={booking.paint_hex} size="sm" />
@@ -63,10 +63,10 @@ export default async function StaffHandoverPage({
 
       <main className="mx-auto max-w-2xl space-y-5 px-4 py-6">
         <div>
-          <h1 className="font-display text-2xl font-bold text-ink">
+          <h1 className="font-display text-h1 font-bold text-text-1">
             {mode === 'out' ? 'Pick-up check-out' : 'Return check-in'}
           </h1>
-          <p className="text-sm text-ink-muted">
+          <p className="text-body-s text-text-2">
             {booking.make} {booking.model} ({booking.plate}) — Driver: {booking.customer_name}
           </p>
         </div>

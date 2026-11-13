@@ -2,7 +2,7 @@ import { getReadConnection } from '@/db/client';
 import { formatMinutesAsClock } from '@/domain/shared/time';
 import { SiteFooter } from '@/ui/components/SiteFooter';
 import { SiteHeader } from '@/ui/components/SiteHeader';
-import { MoneyText } from '@/ui/primitives/MoneyText';
+import { Price } from '@/ui/data/Price';
 
 export const dynamic = 'force-dynamic';
 
@@ -36,14 +36,14 @@ export default function BranchesPage() {
   }>;
 
   return (
-    <div className="min-h-screen flex flex-col bg-canvas text-ink">
+    <div className="min-h-screen flex flex-col bg-canvas text-text-1">
       <SiteHeader />
       <main className="mx-auto w-full max-w-5xl flex-1 space-y-8 px-4 py-10 sm:px-6">
         <div className="space-y-2">
-          <h1 className="font-display text-3xl font-bold tracking-tight text-ink">
+          <h1 className="font-display text-h1 font-bold tracking-tight text-text-1">
             Bengaluru pick-up & return hubs
           </h1>
-          <p className="text-sm text-ink-muted">
+          <p className="text-body-s text-text-2">
             Walk-up handover bays with dedicated inspection lighting and after-hours lockboxes at
             BLR Airport.
           </p>
@@ -56,28 +56,28 @@ export default function BranchesPage() {
               <section
                 key={b.id}
                 id={b.slug}
-                className="rounded-m border border-line bg-surface p-6 space-y-4"
+                className="rounded-m border border-border bg-surface p-6 space-y-4 shadow-e1"
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <h2 className="font-display text-xl font-bold text-ink">{b.name}</h2>
-                    <p className="text-sm text-ink-muted">{b.address}</p>
+                    <h2 className="font-display text-h2 font-bold text-text-1">{b.name}</h2>
+                    <p className="text-body-s text-text-2">{b.address}</p>
                   </div>
                   {b.allows_after_hours === 1 && (
-                    <span className="rounded-s border border-go-600 bg-go-100 px-3 py-1 text-xs font-medium text-petrol-800">
-                      After-hours fee: <MoneyText amountMinor={b.after_hours_fee_minor} />
+                    <span className="rounded-s border border-success bg-success-subtle px-3 py-1 text-caption font-medium text-success inline-flex items-center gap-1">
+                      After-hours fee: <Price amountMinor={b.after_hours_fee_minor} size="sm" />
                     </span>
                   )}
                 </div>
 
-                <div className="grid gap-2 text-xs sm:grid-cols-7">
+                <div className="grid gap-2 text-caption sm:grid-cols-7">
                   {hrs.map((h) => (
                     <div
                       key={h.weekday}
-                      className="rounded-s border border-line bg-surface-subtle p-2 text-center"
+                      className="rounded-s border border-border bg-surface-sunken p-2 text-center"
                     >
-                      <div className="font-semibold text-ink">{WEEKDAYS[h.weekday]}</div>
-                      <div className="mt-0.5 tabular-nums text-ink-muted">
+                      <div className="font-semibold text-text-1">{WEEKDAYS[h.weekday]}</div>
+                      <div className="mt-0.5 tabular-nums text-text-2">
                         {formatMinutesAsClock(h.opens_minute)} -{' '}
                         {formatMinutesAsClock(h.closes_minute)}
                       </div>

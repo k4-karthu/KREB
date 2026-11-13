@@ -58,6 +58,8 @@ const CATEGORY_OPTIONS: SelectOption[] = [
   { id: 'suv', label: 'SUV' },
   { id: 'luxury', label: 'Luxury' },
   { id: 'ev', label: 'EV' },
+  { id: 'muv', label: 'MUV' },
+  { id: 'van', label: 'Van' },
 ];
 
 const LIFECYCLE_OPTIONS: SelectOption[] = [
@@ -73,6 +75,8 @@ const CREATE_CATEGORIES: SelectOption[] = [
   { id: 'suv', label: 'SUV' },
   { id: 'luxury', label: 'Luxury' },
   { id: 'ev', label: 'EV' },
+  { id: 'muv', label: 'MUV' },
+  { id: 'van', label: 'Van' },
 ];
 
 const CREATE_TRANSMISSIONS: SelectOption[] = [
@@ -85,6 +89,7 @@ const CREATE_FUELS: SelectOption[] = [
   { id: 'diesel', label: 'Diesel' },
   { id: 'electric', label: 'Electric' },
   { id: 'hybrid', label: 'Hybrid' },
+  { id: 'cng', label: 'CNG' },
 ];
 
 const columnHelper = createAppColumnHelper<FleetRow>();

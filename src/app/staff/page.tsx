@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { getReadConnection } from '@/db/client';
 import { requireStaffPage } from '@/server/auth';
-import { Plate } from '@/ui/primitives/Plate';
-import { StatusBadge } from '@/ui/primitives/StatusBadge';
+import { Plate } from '@/ui/data/Plate';
+import { StatusBadge } from '@/ui/data/StatusBadge';
 
 export default async function StaffBayQueuePage() {
   await requireStaffPage('handover.perform');
@@ -53,14 +53,14 @@ export default async function StaffBayQueuePage() {
   }>;
 
   return (
-    <div className="min-h-screen bg-canvas text-ink">
-      <header className="border-b border-line bg-surface px-4 py-4">
+    <div className="min-h-screen bg-canvas text-text-1">
+      <header className="border-b border-border bg-surface px-4 py-4 shadow-e1">
         <div className="mx-auto flex max-w-2xl items-center justify-between">
           <div>
-            <div className="font-display text-lg font-bold text-ink">Kerb Bay Handover</div>
-            <div className="text-xs text-ink-muted">Mobile tablet inspection desk</div>
+            <div className="font-display text-h3 font-bold text-text-1">Kerb Bay Handover</div>
+            <div className="text-caption text-text-2">Mobile tablet inspection desk</div>
           </div>
-          <Link href="/admin" className="text-xs font-medium text-petrol-700 hover:underline">
+          <Link href="/admin" className="text-caption font-medium text-accent hover:underline">
             Admin desk
           </Link>
         </div>
@@ -68,20 +68,20 @@ export default async function StaffBayQueuePage() {
 
       <main className="mx-auto max-w-2xl space-y-8 px-4 py-6">
         <section className="space-y-3">
-          <h1 className="font-display text-xl font-bold text-ink">Ready for check-out</h1>
+          <h1 className="font-display text-h2 font-bold text-text-1">Ready for check-out</h1>
           <div className="space-y-2.5">
             {pickups.map((p) => (
               <Link
                 key={p.code}
                 href={`/staff/handover/${p.code}/out`}
-                className="flex items-center justify-between rounded-m border border-line bg-surface p-4 hover:border-petrol-600"
+                className="flex items-center justify-between rounded-m border border-border bg-surface p-4 hover:border-accent transition-colors shadow-e1"
               >
                 <div className="space-y-1">
                   <Plate code={p.code} paintHex={p.paint_hex} size="sm" />
-                  <div className="font-semibold text-ink">
+                  <div className="font-semibold text-text-1">
                     {p.make} {p.model} ({p.plate})
                   </div>
-                  <div className="text-xs text-ink-muted">{p.customer_name}</div>
+                  <div className="text-caption text-text-2">{p.customer_name}</div>
                 </div>
                 <StatusBadge status="confirmed" />
               </Link>
@@ -90,20 +90,22 @@ export default async function StaffBayQueuePage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-display text-xl font-bold text-ink">On road (awaiting check-in)</h2>
+          <h2 className="font-display text-h2 font-bold text-text-1">
+            On road (awaiting check-in)
+          </h2>
           <div className="space-y-2.5">
             {returns.map((r) => (
               <Link
                 key={r.code}
                 href={`/staff/handover/${r.code}/in`}
-                className="flex items-center justify-between rounded-m border border-line bg-surface p-4 hover:border-petrol-600"
+                className="flex items-center justify-between rounded-m border border-border bg-surface p-4 hover:border-accent transition-colors shadow-e1"
               >
                 <div className="space-y-1">
                   <Plate code={r.code} paintHex={r.paint_hex} size="sm" />
-                  <div className="font-semibold text-ink">
+                  <div className="font-semibold text-text-1">
                     {r.make} {r.model} ({r.plate})
                   </div>
-                  <div className="text-xs text-ink-muted">{r.customer_name}</div>
+                  <div className="text-caption text-text-2">{r.customer_name}</div>
                 </div>
                 <StatusBadge status="active" />
               </Link>

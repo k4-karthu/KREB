@@ -512,35 +512,37 @@ export function VehicleDetailClient({
             className="w-full"
           />
 
-          {estimateMode === 'quote' ? (
-            <QuotePanel
-              rentalDays={currentQuote.billableDays}
-              dailyRateMinor={Math.round(
-                currentQuote.baseTotalMinor / Math.max(1, currentQuote.billableDays),
-              )}
-              addOns={quotePanelAddOns}
-              taxesMinor={currentQuote.taxMinor}
-              depositMinor={currentQuote.depositMinor}
-              action={actionButton}
-            />
-          ) : (
-            <div className="flex flex-col items-center rounded-l border border-border bg-surface p-5 shadow-e1">
-              <div className="mb-4 text-center">
-                <h3 className="font-display text-h4 font-semibold text-text-1">
-                  Interactive quote slip
-                </h3>
-                <p className="text-caption text-text-3">
-                  Live verified rate slip with simulated thermal paper & barcode
-                </p>
-              </div>
+          <div className="flex flex-col justify-between" style={{ minHeight: 540 }}>
+            {estimateMode === 'quote' ? (
+              <QuotePanel
+                rentalDays={currentQuote.billableDays}
+                dailyRateMinor={Math.round(
+                  currentQuote.baseTotalMinor / Math.max(1, currentQuote.billableDays),
+                )}
+                addOns={quotePanelAddOns}
+                taxesMinor={currentQuote.taxMinor}
+                depositMinor={currentQuote.depositMinor}
+                action={actionButton}
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-between rounded-l border border-border bg-surface p-5 shadow-e1 h-full">
+                <div className="mb-4 text-center">
+                  <h3 className="font-display text-h4 font-semibold text-text-1">
+                    Interactive quote slip
+                  </h3>
+                  <p className="text-caption text-text-3">
+                    Live verified rate slip with simulated thermal paper & barcode
+                  </p>
+                </div>
 
-              <div className="w-full flex justify-center overflow-x-auto py-1">
-                <ReceiptPaper slip={quoteSlip} tornTop={true} tornBottom={true} />
-              </div>
+                <div className="w-full flex justify-center overflow-x-auto py-1">
+                  <ReceiptPaper slip={quoteSlip} tornTop={true} tornBottom={true} />
+                </div>
 
-              <div className="mt-6 w-full">{actionButton}</div>
-            </div>
-          )}
+                <div className="mt-6 w-full">{actionButton}</div>
+              </div>
+            )}
+          </div>
         </aside>
       </div>
     </div>

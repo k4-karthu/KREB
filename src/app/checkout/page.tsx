@@ -56,6 +56,7 @@ export default async function CheckoutPage({
         <SiteHeader />
         <main className="mx-auto max-w-xl flex-1 px-4 py-20 flex items-center justify-center">
           <EmptyState
+            iconName="receipt"
             heading="Quote not found or expired"
             description="Signed price quotes remain valid for 15 minutes. Pick your rental dates again in our vehicle catalog to lock a fresh quote."
             action={

@@ -26,7 +26,7 @@ export function Plate({ code, size = 'md', className = '' }: PlateProps) {
     <div
       role="img"
       aria-label={`Registration plate ${code}`}
-      className={`inline-flex items-center overflow-hidden rounded-xs border border-border-strong bg-plate font-mono uppercase tabular-nums shadow-e0 select-none ${SIZE_CONTAINER[size]} ${className}`.trim()}
+      className={`inline-flex shrink-0 items-center overflow-hidden whitespace-nowrap rounded-xs border border-border-strong bg-plate font-mono uppercase tabular-nums shadow-e0 select-none ${SIZE_CONTAINER[size]} ${className}`.trim()}
     >
       {/* Blue left IND international strip */}
       <div

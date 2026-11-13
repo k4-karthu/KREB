@@ -1,4 +1,3 @@
-import { Car } from '@phosphor-icons/react/dist/ssr';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getReadConnection } from '@/db/client';
@@ -100,7 +99,7 @@ export default async function MyTripsPage() {
 
         {trips.length === 0 ? (
           <EmptyState
-            icon={Car}
+            iconName="car"
             heading="No trips booked yet"
             description="You have no active or completed rentals. Explore our verified vehicle catalog to reserve your first ride."
             action={

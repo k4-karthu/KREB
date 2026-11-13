@@ -77,21 +77,21 @@ export default async function PolicyPage({ params }: { params: Promise<{ slug: s
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-canvas text-ink">
+    <div className="min-h-screen flex flex-col bg-canvas text-text-1">
       <SiteHeader />
       <main className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-12 sm:px-6">
-        <div className="space-y-2 border-b border-line pb-5">
-          <h1 className="font-display text-3xl font-bold tracking-tight text-ink">
+        <div className="space-y-2 border-b border-border pb-5">
+          <h1 className="font-display text-h1 font-bold tracking-tight text-text-1">
             {policy.title}
           </h1>
-          <p className="text-sm text-ink-muted">{policy.summary}</p>
+          <p className="text-body-s text-text-2">{policy.summary}</p>
         </div>
 
         <div className="space-y-5">
           {policy.sections.map(([heading, body]) => (
             <section key={heading} className="space-y-1.5">
-              <h2 className="text-base font-semibold text-ink">{heading}</h2>
-              <p className="text-sm leading-relaxed text-ink-muted">{body}</p>
+              <h2 className="text-body font-semibold text-text-1">{heading}</h2>
+              <p className="text-body-s leading-relaxed text-text-2">{body}</p>
             </section>
           ))}
         </div>

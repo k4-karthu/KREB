@@ -109,25 +109,25 @@ const FAQ_ITEMS: AccordionItemData[] = [
 
 const SERVICE_STEPS = [
   {
-    number: '01',
+    code: '01 RESERVE',
     title: 'Lock a signed quote',
     description:
       'Hold your exact car for 15 minutes while you review details and complete KYC. Zero price movement.',
   },
   {
-    number: '02',
+    code: '02 VERIFY KYC',
     title: 'Verify your licence once',
     description:
       'Verified drivers skip document queues on every future trip with secure encrypted storage.',
   },
   {
-    number: '03',
-    title: 'Walk-around together',
+    code: '03 BAY HANDOVER',
+    title: 'Bay walk-around together',
     description:
       'Odometer, fuel level by eighths, and existing marks are confirmed and signed digitally in 60 seconds.',
   },
   {
-    number: '04',
+    code: '04 RETURN & RELEASE',
     title: 'Automated deposit release',
     description:
       'On-time returns with matching fuel trigger an automatic security deposit release within 5 working days.',
@@ -206,29 +206,29 @@ export default async function HomePage() {
       <SiteHeader />
 
       <main className="flex-1">
-        {/* Hero Section: 12-column grid, display-xl Bricolage Grotesque typography, zero native controls */}
+        {/* Section 01: Hero Section with exposed hairline container */}
         <section className="mx-auto max-w-6xl px-4 pt-12 pb-16 sm:px-6 sm:pt-20 sm:pb-24">
           <div className="space-y-6 max-w-4xl">
-            <div className="inline-flex items-center gap-2 rounded-xs border border-border bg-surface px-3 py-1 text-caption font-medium text-text-3">
-              <span>Bengaluru verified self-drive fleet</span>
-              <span aria-hidden="true">|</span>
-              <span>18 inspected cars</span>
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="text-label-s font-technical font-semibold text-text-3">
+                {'01 // SELF-DRIVE DISPATCH'}
+              </span>
+              <div className="inline-flex items-center gap-2 rounded-xs border border-border bg-surface px-3 py-1 text-caption font-medium text-text-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-success" />
+                <span className="font-technical">
+                  {rawVehicles.length} active units {'//'} BLR
+                </span>
+              </div>
             </div>
 
-            <h1
-              className="font-display font-bold text-text-1"
-              style={{
-                fontSize: 'clamp(2.5rem, 5.5vw, 4.75rem)',
-                lineHeight: 1.02,
-                letterSpacing: '-0.02em',
-              }}
-            >
+            <h1 className="font-display text-display-xl font-bold text-text-1">
               Cars that are genuinely free on your dates, priced to the last rupee.
             </h1>
 
             <p className="max-w-2xl text-body-l text-text-2">
               Every vehicle shown is verified against live bay schedules and turnaround buffers. The
-              figure on the result card is the exact amount you pay.
+              figure on the result card is the exact amount you pay. Zero deposit surprises,
+              90-minute sanitized bay turnaround, instant thermal receipt.
             </p>
           </div>
 
@@ -237,11 +237,13 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Showroom Hall: Flagship collection hall with category rail and car studio plate presentation */}
+        {/* Section 02: Curated Showroom Hall */}
         <section className="border-t border-border bg-surface py-16 sm:py-20">
           <div className="mx-auto max-w-6xl px-4 sm:px-6 space-y-8">
             <div className="space-y-3 max-w-2xl">
-              <span className="text-caption font-semibold text-accent">Fleet showroom</span>
+              <span className="text-caption font-semibold text-accent font-technical">
+                {'02 // FLEET SHOWROOM'}
+              </span>
               <h2 className="font-display text-h1 font-bold tracking-tight text-text-1">
                 Explore the Bengaluru fleet
               </h2>
@@ -255,14 +257,16 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Live Interactive Receipt Preview Section: Thermal quote slip with live calculations */}
+        {/* Section 03: Live Interactive Receipt Preview Section */}
         <LiveReceiptSection />
 
-        {/* Service Steps: Editorial sequence from curb to ignition */}
+        {/* Section 04: 4-Step Dispatch Protocol */}
         <section className="border-t border-border bg-surface py-16 sm:py-20">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <div className="space-y-3 max-w-2xl mb-12">
-              <span className="text-caption font-semibold text-accent">Rental sequence</span>
+              <span className="text-caption font-semibold text-accent font-technical">
+                {'04 // DISPATCH PROTOCOL'}
+              </span>
               <h2 className="font-display text-h1 font-bold tracking-tight text-text-1">
                 Four minutes from curb to ignition
               </h2>
@@ -272,15 +276,13 @@ export default async function HomePage() {
               </p>
             </div>
 
-            <div className="grid gap-8 md:grid-cols-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 border border-border rounded-m divide-y md:divide-y-0 md:divide-x divide-border bg-surface shadow-e1">
               {SERVICE_STEPS.map((step) => (
-                <div key={step.number} className="space-y-3 border-t-2 border-accent pt-4">
-                  <span className="font-display text-caption font-bold text-accent">
-                    Step {step.number}
+                <div key={step.code} className="p-6 space-y-3">
+                  <span className="font-technical text-label-s font-bold text-accent block">
+                    {step.code}
                   </span>
-                  <h3 className="font-display text-body-l font-semibold text-text-1">
-                    {step.title}
-                  </h3>
+                  <h3 className="font-display text-h4 font-semibold text-text-1">{step.title}</h3>
                   <p className="text-body-s text-text-2">{step.description}</p>
                 </div>
               ))}
@@ -288,11 +290,13 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Branch Locations Section: Three Bengaluru hubs with clean calm typography */}
+        {/* Section 05: Branch Locations Section */}
         <section className="border-t border-border bg-surface-sunken py-16 sm:py-20">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <div className="space-y-3 max-w-2xl mb-12">
-              <span className="text-caption font-semibold text-accent">Pickup network</span>
+              <span className="text-caption font-semibold text-accent font-technical">
+                {'05 // BENGALURU HUB NETWORK'}
+              </span>
               <h2 className="font-display text-h1 font-bold tracking-tight text-text-1">
                 Three Bengaluru hubs
               </h2>
@@ -306,10 +310,17 @@ export default async function HomePage() {
               {branches.map((b) => (
                 <div
                   key={b.id}
-                  className="rounded-m border border-border bg-surface p-6 flex flex-col justify-between"
+                  className="rounded-m border border-border bg-surface p-6 flex flex-col justify-between shadow-e1"
                 >
                   <div className="space-y-3">
-                    <h3 className="font-display text-h3 font-semibold text-text-1">{b.name}</h3>
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-display text-h3 font-semibold text-text-1">{b.name}</h3>
+                      {b.allows_after_hours === 1 && (
+                        <span className="rounded-xs border border-success bg-success-subtle px-2 py-0.5 text-label-s font-medium text-success">
+                          Lockbox ready
+                        </span>
+                      )}
+                    </div>
                     <p className="text-body-s text-text-2">{b.address}</p>
                   </div>
 
@@ -317,10 +328,10 @@ export default async function HomePage() {
                     <div>
                       Operating hours:{' '}
                       {b.allows_after_hours === 1
-                        ? '24/7 (After-hours ready)'
+                        ? '24/7 (After-hours lockbox)'
                         : '06:00 – 23:00 daily'}
                     </div>
-                    <div>Dedicated handover bays</div>
+                    <div>Dedicated inspection bays</div>
                   </div>
                 </div>
               ))}
@@ -328,11 +339,13 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* FAQ Section: Accordion with plain-language rules */}
+        {/* Section 06: FAQ Section with Accordion */}
         <section className="border-t border-border bg-surface py-16 sm:py-20">
           <div className="mx-auto max-w-4xl px-4 sm:px-6">
             <div className="space-y-3 max-w-2xl mb-10">
-              <span className="text-caption font-semibold text-accent">Plain-language rules</span>
+              <span className="text-caption font-semibold text-accent font-technical">
+                {'06 // PLAIN-LANGUAGE RULES'}
+              </span>
               <h2 className="font-display text-h1 font-bold tracking-tight text-text-1">
                 Frequently asked questions
               </h2>

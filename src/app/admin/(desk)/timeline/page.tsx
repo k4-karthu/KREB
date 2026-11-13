@@ -14,9 +14,16 @@ export default async function AdminTimelinePage() {
 
   const vehicles = sqlite
     .prepare(
-      "SELECT id, make, model, plate, paint_hex FROM vehicles WHERE lifecycle = 'active' AND deleted_at IS NULL ORDER BY id ASC",
+      "SELECT id, make, model, category, plate, paint_hex FROM vehicles WHERE lifecycle = 'active' AND deleted_at IS NULL ORDER BY id ASC",
     )
-    .all() as Array<{ id: number; make: string; model: string; plate: string; paint_hex: string }>;
+    .all() as Array<{
+    id: number;
+    make: string;
+    model: string;
+    category: string;
+    plate: string;
+    paint_hex: string;
+  }>;
 
   const blocks = sqlite
     .prepare(
@@ -49,10 +56,13 @@ export default async function AdminTimelinePage() {
       </div>
 
       <div className="overflow-x-auto rounded-m border border-border bg-surface p-5 shadow-e0">
-        <div className="space-y-3" style={{ minWidth: '820px' }}>
+        <div className="space-y-3" style={{ minWidth: '960px' }}>
           {/* Header Time Axis */}
-          <div className="grid grid-cols-[220px_1fr] items-center border-b border-border pb-3 text-label-s font-semibold text-text-3">
-            <div>Vehicle</div>
+          <div
+            className="grid items-center border-b border-border pb-3 text-label-s font-semibold text-text-3 gap-4"
+            style={{ gridTemplateColumns: '280px 1fr' }}
+          >
+            <div>Vehicle (Model & Plate)</div>
             <div className="relative h-6">
               <span className="absolute left-0 text-text-3">-2 Days</span>
               <div
@@ -72,16 +82,20 @@ export default async function AdminTimelinePage() {
             return (
               <div
                 key={v.id}
-                className="grid grid-cols-[220px_1fr] items-center gap-4 py-2 text-body-s"
+                className="grid items-center gap-4 py-2.5 text-body-s"
+                style={{ gridTemplateColumns: '280px 1fr' }}
               >
                 <Link
                   href={`/admin/fleet/${v.id}`}
-                  className="flex items-center gap-2.5 group transition-colors"
+                  className="flex flex-col gap-1 group transition-colors min-w-0 pr-2"
                 >
-                  <Plate code={v.plate} size="sm" />
-                  <span className="truncate font-medium text-text-1 group-hover:text-accent group-hover:underline">
+                  <span className="font-sans font-medium text-body-s text-text-1 group-hover:text-accent group-hover:underline whitespace-normal">
                     {v.make} {v.model}
                   </span>
+                  <div className="flex items-center gap-2">
+                    <Plate code={v.plate} size="sm" />
+                    <span className="text-label-s text-text-3 font-technical">{v.category}</span>
+                  </div>
                 </Link>
 
                 <div className="relative h-9 rounded-xs border border-border-subtle bg-surface-sunken">

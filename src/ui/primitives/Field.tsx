@@ -17,23 +17,23 @@ interface FieldProps {
 
 export function Field({ id, label, hint, error, required, children }: FieldProps) {
   return (
-    <div className="flex flex-col gap-1">
-      <label htmlFor={id} className="text-m1 font-medium text-petrol-800">
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={id} className="text-caption font-medium text-text-1">
         {label}
         {required && (
-          <span className="text-stop-600 ml-1" aria-hidden="true">
+          <span className="text-danger ml-1" aria-hidden="true">
             *
           </span>
         )}
       </label>
       {children}
       {hint && !error && (
-        <p id={`${id}-hint`} className="text-m1 text-stone-500">
+        <p id={`${id}-hint`} className="text-caption text-text-2">
           {hint}
         </p>
       )}
       {error && (
-        <p id={`${id}-error`} role="alert" className="text-m1 text-stop-600 font-medium">
+        <p id={`${id}-error`} role="alert" className="text-caption text-danger font-medium">
           {error}
         </p>
       )}
@@ -42,7 +42,7 @@ export function Field({ id, label, hint, error, required, children }: FieldProps
 }
 
 const CONTROL_BASE =
-  'w-full rounded-m border border-stone-300 bg-sheet px-3 text-0 text-petrol-800 placeholder:text-stone-500 focus:border-petrol-800 disabled:opacity-50 disabled:cursor-not-allowed';
+  'w-full rounded-s border border-border bg-surface-sunken px-3 text-body-s text-text-1 placeholder:text-text-disabled focus:border-accent focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors';
 
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(
   function Input({ className = '', ...rest }, ref) {
@@ -63,13 +63,8 @@ export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSel
 export const Textarea = forwardRef<
   HTMLTextAreaElement,
   TextareaHTMLAttributes<HTMLTextAreaElement>
->(function Textarea({ className = '', rows = 3, ...rest }, ref) {
+>(function Textarea({ className = '', ...rest }, ref) {
   return (
-    <textarea
-      ref={ref}
-      rows={rows}
-      className={`${CONTROL_BASE} py-2 ${className}`.trim()}
-      {...rest}
-    />
+    <textarea ref={ref} className={`${CONTROL_BASE} min-h-24 p-3 ${className}`.trim()} {...rest} />
   );
 });

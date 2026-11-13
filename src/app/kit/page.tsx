@@ -2,23 +2,22 @@
 
 import { useState } from 'react';
 import { formatMoney } from '@/domain/shared/money';
-import { ProtectionCards } from '@/ui/components/ProtectionCards';
-import { SpecSheet } from '@/ui/components/SpecSheet';
-import { Stepper } from '@/ui/components/Stepper';
-import { ThemeToggle } from '@/ui/components/ThemeToggle';
-import { TripTicket } from '@/ui/components/TripTicket';
-import { VehicleTile } from '@/ui/components/VehicleTile';
+import { Plate } from '@/ui/data/Plate';
+import { Price } from '@/ui/data/Price';
+import { ProtectionCards } from '@/ui/data/ProtectionCards';
+import { Skeleton } from '@/ui/data/Skeleton';
+import { SpecSheet } from '@/ui/data/SpecSheet';
+import { StatusBadge } from '@/ui/data/StatusBadge';
+import { Stepper } from '@/ui/data/Stepper';
+import { TripTicket } from '@/ui/data/TripTicket';
+import { VehicleTile } from '@/ui/data/VehicleTile';
 import { LaneLine } from '@/ui/motion/LaneLine';
 import { useReducedMotionToggle } from '@/ui/motion/MotionProvider';
 import { PlateStamp } from '@/ui/motion/PlateStamp';
 import { RollingNumber } from '@/ui/motion/RollingNumber';
+import { Dialog } from '@/ui/overlays/Dialog';
 import { Button } from '@/ui/primitives/Button';
-import { Dialog } from '@/ui/primitives/Dialog';
 import { Field, Input, Select } from '@/ui/primitives/Field';
-import { MoneyText } from '@/ui/primitives/MoneyText';
-import { Plate } from '@/ui/primitives/Plate';
-import { Skeleton } from '@/ui/primitives/Skeleton';
-import { StatusBadge } from '@/ui/primitives/StatusBadge';
 
 export default function KitPage() {
   const { forcedReduced, setForcedReduced } = useReducedMotionToggle();
@@ -29,23 +28,22 @@ export default function KitPage() {
 
   return (
     <main id="main-content" className="mx-auto max-w-6xl px-4 py-12 space-y-12">
-      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-stone-200 pb-6">
+      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-6">
         <div>
-          <h1 className="font-display-wide text-4 text-petrol-800">Kerb Design Kit</h1>
-          <p className="text-0 text-stone-500 mt-1">
-            Living token and component reference built against §11.
+          <h1 className="font-display text-h1 font-bold text-text-1">Kerb Design Kit</h1>
+          <p className="text-body-s text-text-2 mt-1">
+            Living token and component reference built against Swiss minimalism standards.
           </p>
         </div>
         <div className="flex items-center gap-3">
           <Button variant="secondary" size="sm" onClick={() => setForcedReduced(!forcedReduced)}>
             {forcedReduced ? 'Reduced motion: On' : 'Reduced motion: Off'}
           </Button>
-          <ThemeToggle />
         </div>
       </header>
 
       <section aria-labelledby="kit-buttons" className="space-y-4">
-        <h2 id="kit-buttons" className="text-2 font-bold text-petrol-800">
+        <h2 id="kit-buttons" className="text-h2 font-bold text-text-1">
           Buttons, Plates & Status
         </h2>
         <div className="flex flex-wrap items-center gap-3">
@@ -70,21 +68,21 @@ export default function KitPage() {
       </section>
 
       <section aria-labelledby="kit-motion" className="space-y-4">
-        <h2 id="kit-motion" className="text-2 font-bold text-petrol-800">
-          Motion Moments (§11.8)
+        <h2 id="kit-motion" className="text-h2 font-bold text-text-1">
+          Motion Moments
         </h2>
-        <div className="space-y-4 rounded-m border border-stone-200 bg-sheet p-6">
+        <div className="space-y-4 rounded-m border border-border bg-surface p-6 shadow-e1">
           <div>
-            <p className="text-m1 text-stone-500 mb-2">LaneLine draw-in reveal</p>
+            <p className="text-caption text-text-2 mb-2">LaneLine draw-in reveal</p>
             <LaneLine mode="reveal" />
           </div>
           <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
             <div>
-              <p className="text-m1 text-stone-500">Rolling tabular figure</p>
+              <p className="text-caption text-text-2">Rolling tabular figure</p>
               <RollingNumber
                 value={rollingPrice}
                 format={(n) => formatMoney(n, 'INR', 'en-IN')}
-                className="font-display text-3 font-bold text-petrol-800"
+                className="font-display text-h3 font-bold text-text-1"
               />
             </div>
             <Button
@@ -96,7 +94,7 @@ export default function KitPage() {
             </Button>
           </div>
           <div>
-            <p className="text-m1 text-stone-500 mb-2">Confirmation PlateStamp</p>
+            <p className="text-caption text-text-2 mb-2">Confirmation PlateStamp</p>
             <PlateStamp>
               <Plate code="KB9-2X7" size="lg" />
             </PlateStamp>
@@ -105,7 +103,7 @@ export default function KitPage() {
       </section>
 
       <section aria-labelledby="kit-forms" className="space-y-4">
-        <h2 id="kit-forms" className="text-2 font-bold text-petrol-800">
+        <h2 id="kit-forms" className="text-h2 font-bold text-text-1">
           Form Fields, Stepper & Overlays
         </h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -134,7 +132,7 @@ export default function KitPage() {
               { id: 'you', label: 'You' },
               { id: 'pay', label: 'Pay' },
             ]}
-            currentIndex={stepIdx}
+            currentStep={stepIdx}
           />
           <div className="flex gap-2">
             <Button
@@ -163,74 +161,71 @@ export default function KitPage() {
           title="Fuel and mileage rules"
           description="Return the vehicle with the same fuel level shown at check-out."
         >
-          <p className="text-0 text-petrol-800">
+          <p className="text-body-s text-text-1">
             Includes 250 km per day. Extra distance is billed at ₹14 per km at check-in.
           </p>
         </Dialog>
       </section>
 
       <section aria-labelledby="kit-rental" className="space-y-6">
-        <h2 id="kit-rental" className="text-2 font-bold text-petrol-800">
+        <h2 id="kit-rental" className="text-h2 font-bold text-text-1">
           Rental Components
         </h2>
 
         <ProtectionCards
-          selectedPublicId={selectedPlan}
-          onChange={setSelectedPlan}
-          plans={[
+          selectedTierId={selectedPlan}
+          onSelectTier={setSelectedPlan}
+          tiers={[
             {
-              publicId: 'basic',
-              tier: 1,
+              id: 'basic',
               name: 'Basic Protection',
               summary: 'Standard third-party and collision cover.',
-              covered: 'Theft, major collision above excess',
-              notCovered: 'Tyres, glass, underbody',
-              perDayMinor: 0,
+              dailyMinor: 0,
               excessMinor: 1500000,
+              features: [
+                { text: 'Theft & major collision', included: true },
+                { text: 'Glass and tyres covered', included: false },
+              ],
             },
             {
-              publicId: 'standard',
-              tier: 2,
+              id: 'standard',
               name: 'Reduced Excess',
               summary: 'Covers minor scratches and dents.',
-              covered: 'Body panels, collision above reduced excess',
-              notCovered: 'Underbody and misfuelling',
-              perDayMinor: 35000,
+              dailyMinor: 35000,
               excessMinor: 500000,
+              features: [
+                { text: 'Theft & major collision', included: true },
+                { text: 'Minor scratches and dents', included: true },
+              ],
             },
             {
-              publicId: 'premium',
-              tier: 3,
+              id: 'premium',
               name: 'Zero Excess',
               summary: 'Complete peace of mind with roadside help.',
-              covered: 'Zero excess, glass, tyres, 24/7 assist',
-              notCovered: 'Negligence or DUI',
-              perDayMinor: 75000,
+              dailyMinor: 75000,
               excessMinor: 0,
+              features: [
+                { text: 'Zero customer liability', included: true },
+                { text: '24/7 roadside assistance', included: true },
+              ],
             },
           ]}
         />
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <VehicleTile
-            href="/_kit"
+            href="/kit"
             vehicle={{
               slug: 'honda-city-zx',
               make: 'Honda',
               model: 'City',
               variant: 'ZX CVT',
-              year: 2025,
-              plate: 'KA 01 AB 9104',
               category: 'sedan',
               transmission: 'automatic',
               fuelType: 'petrol',
               seats: 5,
-              paintName: 'Obsidian Blue',
-              paintHex: 'var(--surface-raised)',
-              totalMinor: 924000,
               dailyMinor: 308000,
-              days: 3,
-              availabilityLabel: 'Free for dates',
+              status: 'ready',
             }}
           />
 
@@ -243,7 +238,7 @@ export default function KitPage() {
                 { label: 'Sample total', value: formatMoney(1175988, 'INR', 'en-IN') },
               ]}
             />
-            <MoneyText amountMinor={1175988} size="large" className="text-3 text-petrol-800" />
+            <Price amountMinor={1175988} size="xl" className="text-text-1" />
             <Skeleton className="h-10 w-48" />
           </div>
         </div>
@@ -253,7 +248,6 @@ export default function KitPage() {
             code: 'KB7-4Q2',
             vehicleTitle: 'Honda City ZX CVT',
             vehiclePlate: 'KA 01 AB 9104',
-            paintHex: 'var(--surface-raised)',
             pickupLabel: 'Fri 14 Nov, 10:00',
             returnLabel: 'Mon 17 Nov, 10:00',
             branchName: 'Indiranagar Hub',

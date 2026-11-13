@@ -4,6 +4,7 @@ import useEmblaCarousel from 'embla-carousel-react';
 import { AnimatePresence, m } from 'motion/react';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Plate } from '../../data/Plate';
 import { useReducedMotionSafe } from '../../motion/MotionProvider';
 import { Button } from '../../primitives/Button';
 import { DUR, EASE } from '../../tokens/motion';
@@ -680,6 +681,7 @@ export function VehicleCard({
   vehicle: ShowroomVehicle;
   onReserve?: (vehicle: ShowroomVehicle) => void;
 }) {
+  const [isHovered, setIsHovered] = useState(false);
   const categoryMeta = SHOWROOM_CATEGORIES.find(
     (c) => c.id.toLowerCase() === vehicle.category.toLowerCase(),
   );
@@ -687,12 +689,33 @@ export function VehicleCard({
 
   return (
     <article
-      className="flex h-full flex-col justify-between overflow-hidden rounded-m border border-border bg-surface"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onFocus={() => setIsHovered(true)}
+      onBlur={() => setIsHovered(false)}
+      className="flex h-full flex-col justify-between overflow-hidden rounded-m border border-border bg-surface transition-colors duration-200"
       data-testid={`vehicle-card-${vehicle.slug}`}
     >
       <div>
+        <div className="flex items-center justify-between border-b border-border-subtle px-3 py-2 bg-surface-sunken">
+          <div className="flex items-center gap-2">
+            <span className="text-label-s font-semibold text-text-3 font-technical">
+              {categoryLabel}
+            </span>
+            <span className="inline-flex items-center gap-1 text-label-s text-success font-medium">
+              <span className="h-1.5 w-1.5 rounded-full bg-success" />
+              <span>Ready</span>
+            </span>
+          </div>
+          {vehicle.plate && <Plate code={vehicle.plate} size="sm" />}
+        </div>
+
         <div className="relative aspect-3/2 w-full overflow-hidden bg-plate">
-          <LightSweep active triggerKey={vehicle.slug} maskImageUrl={vehicle.primaryImageUrl}>
+          <LightSweep
+            active={isHovered}
+            triggerKey={vehicle.slug}
+            maskImageUrl={vehicle.primaryImageUrl}
+          >
             {vehicle.primaryImageUrl ? (
               <CarStudioImage
                 src={vehicle.primaryImageUrl}
@@ -704,7 +727,7 @@ export function VehicleCard({
                 <span className="font-display text-lg font-bold text-text-1">
                   {vehicle.make} {vehicle.model}
                 </span>
-                <span className="text-xs text-text-3">Studio profile</span>
+                <span className="text-caption text-text-3">Studio profile</span>
               </div>
             )}
           </LightSweep>
@@ -712,16 +735,15 @@ export function VehicleCard({
 
         <div className="space-y-3 p-4">
           <div>
-            <span className="text-xs font-medium text-text-3">{categoryLabel}</span>
-            <h3 className="font-display text-lg font-bold text-text-1">
+            <h3 className="font-display text-h3 font-bold text-text-1">
               {vehicle.make} {vehicle.model}
               {vehicle.variant ? (
-                <span className="text-sm font-normal text-text-3"> {vehicle.variant}</span>
+                <span className="text-body-s font-normal text-text-3"> {vehicle.variant}</span>
               ) : null}
             </h3>
           </div>
 
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-text-2">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-caption text-text-2 font-technical tabular-nums">
             <span>{vehicle.seats} seats</span>
             <span>{vehicle.transmission}</span>
             <span>
@@ -729,16 +751,17 @@ export function VehicleCard({
                 ? `${vehicle.specs.rangeKm} km range`
                 : vehicle.fuelType}
             </span>
+            <span>250 km/day</span>
           </div>
         </div>
       </div>
 
       <div className="flex items-baseline justify-between border-t border-border-subtle p-4">
         <div>
-          <span className="font-display text-xl font-bold tabular-nums text-text-1">
+          <span className="font-display text-h3 font-bold tabular-nums text-text-1">
             {formatRupees(vehicle.dailyMinor)}
           </span>
-          <span className="ml-1 text-xs text-text-3">/ day</span>
+          <span className="ml-1 text-caption text-text-3">/ day</span>
         </div>
 
         {onReserve ? (

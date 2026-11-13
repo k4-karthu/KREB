@@ -1,6 +1,6 @@
 'use client';
 
-import { Upload } from 'lucide-react';
+import { CheckCircle, FileImage, ShieldCheck, UploadSimple } from '@phosphor-icons/react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Button } from '@/ui/primitives/Button';
@@ -47,70 +47,125 @@ export function LicenceUploadClient() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-m border border-line bg-surface p-6">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-6 rounded-m border border-border bg-surface p-6 shadow-e1"
+    >
+      <div className="flex items-center gap-3 border-b border-border pb-4">
+        <div className="flex h-10 w-10 items-center justify-center rounded-s bg-accent-subtle text-accent">
+          <ShieldCheck size={22} weight="bold" />
+        </div>
+        <div>
+          <h2 className="text-body font-semibold text-text-1">Driving licence verification</h2>
+          <p className="text-caption text-text-2">
+            Encrypted client-side with AES-256-GCM before dispatch to verification bay
+          </p>
+        </div>
+      </div>
+
       {error && (
-        <p className="rounded-s border border-stop-600 bg-stop-100 px-3 py-2 text-xs text-stop-600">
+        <div className="rounded-s border border-danger bg-danger-subtle px-3 py-2 text-caption text-danger">
           {error}
-        </p>
+        </div>
       )}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="space-y-1 text-xs font-medium text-ink">
-          <span>Driving licence number</span>
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <label className="space-y-1.5 text-caption font-medium text-text-1">
+          <span>Licence number</span>
           <input
             required
             value={licenceNumber}
             onChange={(e) => setLicenceNumber(e.target.value)}
             placeholder="KA0320220012345"
-            className="h-10 w-full rounded-s border border-line bg-surface-subtle px-3 tabular-nums text-sm"
+            className="h-11 w-full rounded-s border border-border bg-surface-sunken px-3 text-body-s text-text-1 tabular-nums focus:border-accent focus:outline-none"
           />
         </label>
-        <label className="space-y-1 text-xs font-medium text-ink">
+        <label className="space-y-1.5 text-caption font-medium text-text-1">
           <span>Issuing RTO / State</span>
           <input
             required
             value={issuingRegion}
             onChange={(e) => setIssuingRegion(e.target.value)}
-            className="h-10 w-full rounded-s border border-line bg-surface-subtle px-3 text-sm"
+            className="h-11 w-full rounded-s border border-border bg-surface-sunken px-3 text-body-s text-text-1 focus:border-accent focus:outline-none"
           />
         </label>
-        <label className="space-y-1 text-xs font-medium text-ink">
+        <label className="space-y-1.5 text-caption font-medium text-text-1">
           <span>Expiry date</span>
           <input
             type="date"
             required
             value={expiresOn}
             onChange={(e) => setExpiresOn(e.target.value)}
-            className="h-10 w-full rounded-s border border-line bg-surface-subtle px-3 text-sm"
+            className="h-11 w-full rounded-s border border-border bg-surface-sunken px-3 text-body-s text-text-1 tabular-nums focus:border-accent focus:outline-none"
           />
         </label>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <label className="block space-y-1 text-xs font-medium text-ink">
-          <span>Front photo (JPEG/PNG/WebP)</span>
-          <input
-            type="file"
-            accept="image/*"
-            required
-            onChange={(e) => setFrontFile(e.target.files?.[0] ?? null)}
-            className="block w-full text-xs text-ink-muted"
-          />
-        </label>
-        <label className="block space-y-1 text-xs font-medium text-ink">
-          <span>Back photo (optional)</span>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setBackFile(e.target.files?.[0] ?? null)}
-            className="block w-full text-xs text-ink-muted"
-          />
-        </label>
+        <div className="space-y-1.5">
+          <span className="text-caption font-medium text-text-1">Front photo (required)</span>
+          <label className="flex flex-col items-center justify-center gap-2 rounded-m border border-dashed border-border-strong bg-surface-sunken p-5 text-center cursor-pointer hover:border-accent transition-colors">
+            {frontFile ? (
+              <div className="flex items-center gap-2 text-success">
+                <CheckCircle size={20} weight="fill" />
+                <span className="text-caption font-medium truncate max-w-xs">{frontFile.name}</span>
+              </div>
+            ) : (
+              <>
+                <FileImage size={28} className="text-text-3" />
+                <span className="text-caption text-text-2">Upload front of licence</span>
+                <span className="text-caption text-text-3">JPEG, PNG, or WebP</span>
+              </>
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              required
+              onChange={(e) => setFrontFile(e.target.files?.[0] ?? null)}
+              className="sr-only"
+            />
+          </label>
+        </div>
+
+        <div className="space-y-1.5">
+          <span className="text-caption font-medium text-text-1">Back photo (optional)</span>
+          <label className="flex flex-col items-center justify-center gap-2 rounded-m border border-dashed border-border-strong bg-surface-sunken p-5 text-center cursor-pointer hover:border-accent transition-colors">
+            {backFile ? (
+              <div className="flex items-center gap-2 text-success">
+                <CheckCircle size={20} weight="fill" />
+                <span className="text-caption font-medium truncate max-w-xs">{backFile.name}</span>
+              </div>
+            ) : (
+              <>
+                <FileImage size={28} className="text-text-3" />
+                <span className="text-caption text-text-2">Upload back of licence</span>
+                <span className="text-caption text-text-3">Optional secondary check</span>
+              </>
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setBackFile(e.target.files?.[0] ?? null)}
+              className="sr-only"
+            />
+          </label>
+        </div>
       </div>
 
-      <Button type="submit" disabled={submitting}>
-        <Upload className="h-4 w-4" />
-        {submitting ? 'Encrypting & uploading...' : 'Submit for verification'}
-      </Button>
+      <div className="flex justify-end pt-2">
+        <Button
+          type="submit"
+          variant="primary"
+          size="md"
+          disabled={submitting}
+          loading={submitting}
+        >
+          <UploadSimple size={16} weight="bold" />
+          <span>
+            {submitting ? 'Encrypting and uploading...' : 'Submit licence for verification'}
+          </span>
+        </Button>
+      </div>
     </form>
   );
 }

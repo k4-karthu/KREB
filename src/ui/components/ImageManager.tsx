@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowDown, ArrowUp, Check, ImagePlus, Star, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, Check, ImageSquare, Star, Trash } from '@phosphor-icons/react';
 import { useState } from 'react';
 import { Button } from '@/ui/primitives/Button';
 
@@ -149,10 +149,10 @@ export function ImageManager({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
         <div>
-          <h3 className="text-base font-semibold text-ink">Gallery & Shot Coverage</h3>
-          <p className="text-xs text-ink-muted">
+          <h3 className="text-base font-semibold text-text-1">Gallery & Shot Coverage</h3>
+          <p className="text-xs text-text-2">
             JPEG, PNG, or WebP up to 12 MB. Processed locally to 1600/800/400 WebP.
           </p>
         </div>
@@ -164,11 +164,11 @@ export function ImageManager({
                 key={shot}
                 className={`inline-flex items-center gap-1 rounded-s border px-2 py-0.5 text-xs ${
                   has
-                    ? 'border-go-600 bg-go-100 text-petrol-800'
-                    : 'border-line bg-surface-subtle text-ink-muted'
+                    ? 'border-success bg-success-subtle text-success'
+                    : 'border-border bg-surface-sunken text-text-2'
                 }`}
               >
-                {has && <Check className="h-3 w-3" />}
+                {has && <Check size={12} />}
                 {SHOT_TYPES.find((s) => s.value === shot)?.label}
               </span>
             );
@@ -176,13 +176,13 @@ export function ImageManager({
         </div>
       </div>
 
-      <div className="grid gap-3 rounded-m border border-dashed border-line-strong bg-surface-subtle p-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
-        <label className="space-y-1 text-xs font-medium text-ink">
+      <div className="grid gap-3 rounded-m border border-dashed border-border-strong bg-surface-sunken p-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+        <label className="space-y-1 text-xs font-medium text-text-1">
           <span>Shot type</span>
           <select
             value={shotType}
             onChange={(e) => setShotType(e.target.value)}
-            className="h-10 w-full rounded-s border border-line bg-surface px-3 text-sm text-ink"
+            className="h-10 w-full rounded-s border border-border bg-surface px-3 text-sm text-text-1"
           >
             {SHOT_TYPES.map((s) => (
               <option key={s.value} value={s.value}>
@@ -191,18 +191,18 @@ export function ImageManager({
             ))}
           </select>
         </label>
-        <label className="space-y-1 text-xs font-medium text-ink">
+        <label className="space-y-1 text-xs font-medium text-text-1">
           <span>Alt description</span>
           <input
             type="text"
             value={altText}
             onChange={(e) => setAltText(e.target.value)}
             placeholder="e.g. Front three-quarter studio view"
-            className="h-10 w-full rounded-s border border-line bg-surface px-3 text-sm text-ink"
+            className="h-10 w-full rounded-s border border-border bg-surface px-3 text-sm text-text-1"
           />
         </label>
-        <label className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-s bg-ink px-4 text-sm font-medium text-surface hover:opacity-90">
-          <ImagePlus className="h-4 w-4" />
+        <label className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-s bg-text-1 px-4 text-sm font-medium text-surface hover:opacity-90">
+          <ImageSquare size={16} />
           <span>{uploading ? 'Processing...' : 'Upload photos'}</span>
           <input
             type="file"
@@ -216,13 +216,13 @@ export function ImageManager({
       </div>
 
       {error && (
-        <p className="rounded-s border border-stop-600 bg-stop-100 px-3 py-2 text-xs text-stop-600">
+        <p className="rounded-s border border-danger bg-danger-subtle px-3 py-2 text-xs text-danger">
           {error}
         </p>
       )}
 
       {images.length === 0 ? (
-        <div className="rounded-m border border-line bg-surface-subtle p-6 text-center text-sm text-ink-muted">
+        <div className="rounded-m border border-border bg-surface-sunken p-6 text-center text-sm text-text-2">
           No photographs uploaded yet. Public cards will show the studio paint swatch until a
           primary photo is uploaded.
         </div>
@@ -231,17 +231,17 @@ export function ImageManager({
           {images.map((img, idx) => (
             <div
               key={img.id}
-              className="flex flex-col overflow-hidden rounded-m border border-line bg-surface"
+              className="flex flex-col overflow-hidden rounded-m border border-border bg-surface"
             >
-              <div className="relative aspect-[3/2] bg-surface-subtle">
+              <div className="relative aspect-[3/2] bg-surface-sunken">
                 <img
                   src={`/api/uploads/public/${img.file_key}-640.webp`}
                   alt={img.alt_text}
                   className="h-full w-full object-cover"
                 />
                 {img.is_primary === 1 && (
-                  <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-s bg-ink px-2 py-0.5 text-xs font-medium text-surface">
-                    <Star className="h-3 w-3 fill-current" /> Primary
+                  <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-s bg-text-1 px-2 py-0.5 text-xs font-medium text-surface">
+                    <Star size={12} weight="fill" /> Primary
                   </span>
                 )}
               </div>
@@ -255,7 +255,7 @@ export function ImageManager({
                     }
                   }}
                   aria-label="Image alt text"
-                  className="h-8 rounded-s border border-line bg-surface-subtle px-2 text-xs text-ink"
+                  className="h-8 rounded-s border border-border bg-surface-sunken px-2 text-xs text-text-1"
                 />
                 <div className="flex items-center justify-between gap-2 pt-1">
                   <div className="flex items-center gap-1">
@@ -267,7 +267,7 @@ export function ImageManager({
                       onClick={() => void moveImage(idx, -1)}
                       aria-label="Move image earlier"
                     >
-                      <ArrowUp className="h-3.5 w-3.5" />
+                      <ArrowUp size={14} />
                     </Button>
                     <Button
                       type="button"
@@ -277,7 +277,7 @@ export function ImageManager({
                       onClick={() => void moveImage(idx, 1)}
                       aria-label="Move image later"
                     >
-                      <ArrowDown className="h-3.5 w-3.5" />
+                      <ArrowDown size={14} />
                     </Button>
                   </div>
                   <div className="flex items-center gap-1">
@@ -298,7 +298,7 @@ export function ImageManager({
                       onClick={() => void removeImage(img.id)}
                       aria-label="Delete image"
                     >
-                      <Trash2 className="h-3.5 w-3.5 text-stop-600" />
+                      <Trash size={14} className="text-danger" />
                     </Button>
                   </div>
                 </div>

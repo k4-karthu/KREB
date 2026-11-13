@@ -1,4 +1,4 @@
-import { VehicleTile, type VehicleTileData } from './VehicleTile';
+import { VehicleTile, type VehicleTileData } from '@/ui/data/VehicleTile';
 
 export function AvailabilityLane({
   vehicles,

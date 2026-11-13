@@ -1,10 +1,21 @@
 'use client';
 
-import { MagnifyingGlass } from '@phosphor-icons/react';
-import type { ComponentType, ReactNode } from 'react';
+import { Calendar, Car, MagnifyingGlass, Receipt, Ticket } from '@phosphor-icons/react';
+import React, { type ElementType, type ReactNode } from 'react';
+
+export type EmptyStateIconName = 'car' | 'magnifying-glass' | 'receipt' | 'calendar' | 'ticket';
+
+const ICON_MAP: Record<EmptyStateIconName, ElementType> = {
+  car: Car,
+  'magnifying-glass': MagnifyingGlass,
+  receipt: Receipt,
+  calendar: Calendar,
+  ticket: Ticket,
+};
 
 export interface EmptyStateProps {
-  icon?: ComponentType<{ size?: number; className?: string }> | ReactNode;
+  icon?: ElementType | ReactNode;
+  iconName?: EmptyStateIconName;
   heading: ReactNode;
   description?: ReactNode;
   action?:
@@ -18,25 +29,36 @@ export interface EmptyStateProps {
 }
 
 export function EmptyState({
-  icon: IconComponent = MagnifyingGlass,
+  icon,
+  iconName,
   heading,
   description,
   action,
   className = '',
 }: EmptyStateProps) {
-  // Render icon whether it is a component or React element
   const renderIcon = () => {
-    if (!IconComponent) return null;
-    if (typeof IconComponent === 'function') {
-      const Component = IconComponent;
-      return <Component size={28} className="text-text-3" />;
+    if (iconName && ICON_MAP[iconName]) {
+      const ResolvedIcon = ICON_MAP[iconName];
+      return <ResolvedIcon size={28} className="text-text-3" />;
     }
-    return IconComponent;
+
+    if (React.isValidElement(icon)) {
+      return icon;
+    }
+
+    if (
+      typeof icon === 'function' ||
+      (typeof icon === 'object' && icon !== null && '$$typeof' in icon)
+    ) {
+      return React.createElement(icon as ElementType, { size: 28, className: 'text-text-3' });
+    }
+
+    return <MagnifyingGlass size={28} className="text-text-3" />;
   };
 
   return (
     <div
-      className={`flex flex-col items-center justify-center rounded-m border border-border-subtle bg-surface p-8 text-center ${className}`.trim()}
+      className={`flex flex-col items-center justify-center rounded-m border border-border-subtle bg-surface p-8 text-center shadow-e0 ${className}`.trim()}
     >
       <div
         aria-hidden="true"
@@ -51,9 +73,7 @@ export function EmptyState({
 
       {action && (
         <div className="mt-5">
-          {typeof action === 'object' &&
-          'label' in (action as Record<string, unknown>) &&
-          'onClick' in (action as Record<string, unknown>)
+          {typeof action === 'object' && action !== null && 'label' in action && 'onClick' in action
             ? (() => {
                 const act = action as {
                   label: string;
@@ -64,7 +84,7 @@ export function EmptyState({
                   <button
                     type="button"
                     onClick={act.onClick}
-                    className="inline-flex items-center justify-center gap-2 rounded-s bg-accent px-4 py-2 text-label-m font-medium text-on-accent transition-colors hover:bg-accent-hover cursor-pointer"
+                    className="inline-flex items-center justify-center gap-2 rounded-s bg-accent px-4 py-2 text-label-m font-medium text-on-accent transition-colors hover:bg-accent-hover cursor-pointer shadow-e1"
                   >
                     {act.icon}
                     <span>{act.label}</span>

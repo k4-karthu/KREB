@@ -12,6 +12,7 @@ import { useId, useState } from 'react';
 import type { QuoteLineItem } from '@/domain/pricing/pricing';
 import { authClient } from '@/server/auth-client';
 import { Plate } from '@/ui/data/Plate';
+import { Price } from '@/ui/data/Price';
 import { ProtectionCards, type ProtectionTier } from '@/ui/data/ProtectionCards';
 import { QuotePanel } from '@/ui/data/QuotePanel';
 import { StatusBadge } from '@/ui/data/StatusBadge';
@@ -666,6 +667,35 @@ export function CheckoutClient({
                   </p>
                 </div>
               )}
+
+              {/* Commercial payment separation */}
+              <div className="rounded-s border border-border bg-surface-sunken p-4 space-y-2.5">
+                <div className="flex items-center justify-between text-body-s">
+                  <span className="font-semibold text-text-1">
+                    Payable now (Rental + 18% GST + Protection)
+                  </span>
+                  <Price
+                    amountMinor={taxableSubtotalMinor + taxesMinor}
+                    size="sm"
+                    className="font-bold text-accent"
+                  />
+                </div>
+                <div className="flex items-center justify-between text-caption border-t border-border-subtle pt-2">
+                  <span className="text-text-2">Refundable security pre-auth hold</span>
+                  <span className="text-text-1">
+                    <Price
+                      amountMinor={currentDepositMinor}
+                      size="sm"
+                      className="font-semibold text-text-1 mr-1"
+                    />
+                    (held on card)
+                  </span>
+                </div>
+                <p className="text-caption text-text-3">
+                  The security deposit is authorized as a temporary pre-auth hold and released
+                  automatically within 5 working days upon clean return walkaround.
+                </p>
+              </div>
 
               {/* Rental Terms and Hold Authorization */}
               <div className="rounded-s border border-border-subtle bg-surface p-3.5">

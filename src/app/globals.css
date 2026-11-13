@@ -1,6 +1,28 @@
-@import "@fontsource-variable/archivo/standard.css";
-@import "@fontsource/atkinson-hyperlegible-next/latin-400.css";
-@import "@fontsource/atkinson-hyperlegible-next/latin-500.css";
-@import "@fontsource/atkinson-hyperlegible-next/latin-600.css";
-@import "@fontsource/atkinson-hyperlegible-next/latin-700.css";
 @import "../ui/tokens/theme.css";
+
+/* ─── Dedicated print isolation for thermal receipt ─────────────────────── */
+@media print {
+  body {
+    /* biome-ignore lint/complexity/noImportantStyles: Print isolation requires override */
+    background: transparent !important;
+  }
+  body * {
+    visibility: hidden;
+  }
+  .receipt-paper-print-target,
+  .receipt-paper-print-target * {
+    visibility: visible;
+  }
+  .receipt-paper-print-target {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    /* biome-ignore lint/complexity/noImportantStyles: Print isolation requires override */
+    filter: none !important;
+  }
+  @page {
+    margin: 10mm;
+    size: portrait;
+  }
+}

@@ -113,7 +113,7 @@ export function ReceiptPaper({
 
   return (
     <div
-      className={`w-full ${className}`}
+      className={`w-full receipt-paper-print-target ${className}`}
       style={{
         maxWidth: `${RECEIPT_MAX_WIDTH}px`,
         filter: 'drop-shadow(0 14px 20px rgb(var(--shadow-ink) / 0.16))',

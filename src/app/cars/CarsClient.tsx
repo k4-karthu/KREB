@@ -1,7 +1,7 @@
 'use client';
 
 import { CalendarDate, type DateValue } from '@internationalized/date';
-import { ArrowClockwise, ArrowRight, Car, EnvelopeSimple } from '@phosphor-icons/react';
+import { ArrowClockwise, ArrowRight, EnvelopeSimple } from '@phosphor-icons/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useMemo, useState, useTransition } from 'react';
 import { EmptyState } from '@/ui/data/EmptyState';
@@ -34,6 +34,7 @@ const CATEGORIES = [
   { id: 'sedan', label: 'Sedan' },
   { id: 'hatchback', label: 'Hatchback' },
   { id: 'muv', label: 'MUV' },
+  { id: 'van', label: 'Van / 9S' },
 ];
 
 export function CarsClient({
@@ -78,6 +79,8 @@ export function CarsClient({
   }, [vehicles]);
 
   const [maxPrice, setMaxPrice] = useState<number>(() => maxAvailableDailyRupees);
+  const [seatingFilter, setSeatingFilter] = useState<'all' | '5' | '7plus'>('all');
+  const [depositFilter, setDepositFilter] = useState<'all' | 'low'>('all');
   const [waitlistEmail, setWaitlistEmail] = useState('');
   const [waitlistSent, setWaitlistSent] = useState(false);
   const [waitlistLoading, setWaitlistLoading] = useState(false);
@@ -94,9 +97,13 @@ export function CarsClient({
   const filteredVehicles = useMemo(() => {
     return vehicles.filter((v) => {
       const dailyRupees = Math.round(v.dailyMinor / 100);
-      return dailyRupees <= maxPrice;
+      if (dailyRupees > maxPrice) return false;
+      if (seatingFilter === '5' && v.seats !== 5) return false;
+      if (seatingFilter === '7plus' && (!v.seats || v.seats < 7)) return false;
+      if (depositFilter === 'low' && v.dailyMinor > 500000) return false;
+      return true;
     });
-  }, [vehicles, maxPrice]);
+  }, [vehicles, maxPrice, seatingFilter, depositFilter]);
 
   function updateFilter(key: string, value: string) {
     const next = new URLSearchParams(searchParams.toString());
@@ -134,6 +141,8 @@ export function CarsClient({
     next.set('end', String(endAt));
     if (selectedBranchId) next.set('branch', String(selectedBranchId));
     setMaxPrice(maxAvailableDailyRupees);
+    setSeatingFilter('all');
+    setDepositFilter('all');
     startTransition(() => {
       router.push(`/cars?${next.toString()}`);
     });
@@ -144,6 +153,8 @@ export function CarsClient({
     selectedTransmission !== 'all' ||
     selectedFuel !== 'all' ||
     selectedSort !== 'recommended' ||
+    seatingFilter !== 'all' ||
+    depositFilter !== 'all' ||
     maxPrice < maxAvailableDailyRupees;
 
   async function handleWaitlistSubmit() {
@@ -174,7 +185,7 @@ export function CarsClient({
       {/* Page Header */}
       <div className="space-y-2">
         <div className="flex flex-wrap items-baseline justify-between gap-3">
-          <h1 className="font-display text-h2 sm:text-h1 font-bold tracking-tight text-text-1">
+          <h1 className="font-display text-h1 font-bold tracking-tight text-text-1">
             Available fleet
           </h1>
           <span className="text-body-s font-medium text-text-3">
@@ -340,43 +351,90 @@ export function CarsClient({
             />
           </div>
         </div>
+
+        {/* Quick Commercial Filter Pills (Seating & Deposit) */}
+        <div className="flex flex-wrap items-center gap-2 border-t border-border-subtle pt-3">
+          <span className="text-label-s font-technical text-text-3 mr-1">Quick filters:</span>
+          <button
+            type="button"
+            onClick={() => setSeatingFilter(seatingFilter === '5' ? 'all' : '5')}
+            className={`rounded-xs border px-2.5 py-1 text-caption font-technical transition-colors ${
+              seatingFilter === '5'
+                ? 'border-accent bg-accent-subtle text-accent font-semibold'
+                : 'border-border bg-surface-sunken text-text-2 hover:border-border-strong'
+            }`}
+          >
+            5 Seats
+          </button>
+          <button
+            type="button"
+            onClick={() => setSeatingFilter(seatingFilter === '7plus' ? 'all' : '7plus')}
+            className={`rounded-xs border px-2.5 py-1 text-caption font-technical transition-colors ${
+              seatingFilter === '7plus'
+                ? 'border-accent bg-accent-subtle text-accent font-semibold'
+                : 'border-border bg-surface-sunken text-text-2 hover:border-border-strong'
+            }`}
+          >
+            7+ Seats
+          </button>
+          <button
+            type="button"
+            onClick={() => setDepositFilter(depositFilter === 'low' ? 'all' : 'low')}
+            className={`rounded-xs border px-2.5 py-1 text-caption font-technical transition-colors ${
+              depositFilter === 'low'
+                ? 'border-accent bg-accent-subtle text-accent font-semibold'
+                : 'border-border bg-surface-sunken text-text-2 hover:border-border-strong'
+            }`}
+          >
+            Low deposit (≤ ₹10k)
+          </button>
+        </div>
       </div>
 
       {/* Vehicles Grid / Empty State */}
       {filteredVehicles.length === 0 ? (
-        <EmptyState
-          icon={Car}
-          heading="No matching vehicles for these exact dates"
-          description="Try adjusting your body style, increasing the price range, or join our notification list to receive an instant alert if a car frees up."
-          action={
-            waitlistSent ? (
-              <div className="rounded-s border border-success/30 bg-success-subtle px-4 py-3 text-body-s font-medium text-success">
+        <div className="space-y-6">
+          <EmptyState
+            iconName="car"
+            heading="No matching vehicles for these exact dates"
+            description="Try adjusting your body style, increasing the price range, or clearing filters."
+            action={{
+              label: 'Reset all filters',
+              onClick: resetAllFilters,
+            }}
+          />
+
+          <div className="mx-auto max-w-md rounded-m border border-border bg-surface p-5 text-center shadow-e0 space-y-3">
+            <h4 className="text-body-s font-semibold text-text-1">Join vehicle alert list</h4>
+            <p className="text-caption text-text-2">
+              Receive an automated notification if a vehicle becomes available on your dates.
+            </p>
+            {waitlistSent ? (
+              <div className="rounded-s border border-success/30 bg-success-subtle px-3 py-2 text-caption font-medium text-success">
                 You are on the alert list for these trip dates.
               </div>
             ) : (
-              <div className="w-full max-w-sm space-y-2">
-                <div className="flex gap-2">
-                  <TextField
-                    aria-label="Email address"
-                    placeholder="name@example.com"
-                    value={waitlistEmail}
-                    onChange={setWaitlistEmail}
-                    prefix={<EnvelopeSimple size={16} className="text-text-3" />}
-                    className="flex-1"
-                  />
-                  <Button
-                    type="button"
-                    variant="primary"
-                    disabled={waitlistLoading || !waitlistEmail.trim()}
-                    onClick={() => void handleWaitlistSubmit()}
-                  >
-                    <span>{waitlistLoading ? 'Saving...' : 'Notify me'}</span>
-                  </Button>
-                </div>
+              <div className="flex gap-2">
+                <TextField
+                  aria-label="Email address"
+                  placeholder="name@example.com"
+                  value={waitlistEmail}
+                  onChange={setWaitlistEmail}
+                  prefix={<EnvelopeSimple size={16} className="text-text-3" />}
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  variant="primary"
+                  disabled={waitlistLoading || !waitlistEmail.trim()}
+                  onClick={() => void handleWaitlistSubmit()}
+                >
+                  <span>{waitlistLoading ? 'Saving...' : 'Notify me'}</span>
+                </Button>
               </div>
-            )
-          }
-        />
+            )}
+          </div>
+        </div>
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filteredVehicles.map((v) => (

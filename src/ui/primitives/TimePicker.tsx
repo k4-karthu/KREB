@@ -65,6 +65,7 @@ export function TimePicker<T extends TimeValue = TimeValue>({
           {(segment) => (
             <DateSegment
               segment={segment}
+              suppressHydrationWarning
               className="px-1 py-0.5 rounded-xs outline-none focus:bg-accent focus:text-on-accent tabular-nums data-[placeholder]:text-text-disabled"
             />
           )}

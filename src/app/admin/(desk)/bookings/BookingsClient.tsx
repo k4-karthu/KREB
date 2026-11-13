@@ -357,7 +357,7 @@ export function BookingsClient({
                       }}
                       className="cursor-pointer transition-colors hover:bg-surface-sunken/50"
                     >
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 whitespace-nowrap font-technical">
                         <Plate code={b.code} size="sm" />
                       </td>
                       <td className="px-4 py-3">

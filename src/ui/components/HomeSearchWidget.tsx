@@ -1,6 +1,7 @@
 'use client';
 
 import { CalendarDate, Time } from '@internationalized/date';
+import { ArrowRight, Buildings, HouseLine } from '@phosphor-icons/react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type { DateRange, DateValue, Key, TimeValue } from 'react-aria-components';
@@ -42,6 +43,13 @@ function toEpochMs(date: DateValue, time: TimeValue): number {
   return Date.UTC(date.year, date.month - 1, date.day, time.hour, time.minute, 0) - 330 * 60_000;
 }
 
+const PRESETS = [
+  { label: '24h Sprint', days: 1 },
+  { label: 'Weekend 3D', days: 3 },
+  { label: '7D Roadtrip', days: 7 },
+  { label: 'Monthly 30D', days: 30 },
+] as const;
+
 export function HomeSearchWidget({
   branches,
   defaultBranchId,
@@ -54,6 +62,7 @@ export function HomeSearchWidget({
   const startInitial = toCalendarDateAndTime(defaultStartAt);
   const endInitial = toCalendarDateAndTime(defaultEndAt);
 
+  const [deliveryMode, setDeliveryMode] = useState<'hub' | 'doorstep'>('hub');
   const [selectedBranchId, setSelectedBranchId] = useState<Key | null>(
     defaultBranchId ? String(defaultBranchId) : 'all',
   );
@@ -75,6 +84,17 @@ export function HomeSearchWidget({
     })),
   ];
 
+  function applyPreset(days: number) {
+    if (!dateRange.start) return;
+    const startEpoch = toEpochMs(dateRange.start, pickupTime);
+    const endEpoch = startEpoch + days * 86_400_000;
+    const endObj = toCalendarDateAndTime(endEpoch);
+    setDateRange({
+      start: dateRange.start,
+      end: endObj.date,
+    });
+  }
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!dateRange.start || !dateRange.end) return;
@@ -86,6 +106,9 @@ export function HomeSearchWidget({
     if (selectedBranchId && selectedBranchId !== 'all') {
       params.set('branch', String(selectedBranchId));
     }
+    if (deliveryMode === 'doorstep') {
+      params.set('delivery', 'doorstep');
+    }
     params.set('start', String(startAt));
     params.set('end', String(endAt));
 
@@ -95,12 +118,56 @@ export function HomeSearchWidget({
   return (
     <form
       onSubmit={handleSubmit}
-      className={`w-full rounded-m border border-border bg-surface p-4 md:p-6 shadow-e2 ${className}`.trim()}
+      className={`w-full rounded-m border border-border bg-surface p-4 md:p-6 shadow-e2 space-y-4 ${className}`.trim()}
     >
+      {/* Top command strip: Delivery mode toggle & duration preset pills */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
+        <div className="inline-flex rounded-s border border-border bg-surface-sunken p-0.5">
+          <button
+            type="button"
+            onClick={() => setDeliveryMode('hub')}
+            className={`inline-flex items-center gap-1.5 px-3 py-1 text-caption font-medium rounded-xs transition-colors ${
+              deliveryMode === 'hub'
+                ? 'bg-surface text-text-1 shadow-e1'
+                : 'text-text-3 hover:text-text-1'
+            }`}
+          >
+            <Buildings size={14} />
+            <span>Hub pickup</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setDeliveryMode('doorstep')}
+            className={`inline-flex items-center gap-1.5 px-3 py-1 text-caption font-medium rounded-xs transition-colors ${
+              deliveryMode === 'doorstep'
+                ? 'bg-surface text-text-1 shadow-e1'
+                : 'text-text-3 hover:text-text-1'
+            }`}
+          >
+            <HouseLine size={14} />
+            <span>Doorstep delivery</span>
+          </button>
+        </div>
+
+        <div className="flex items-center gap-1.5 overflow-x-auto">
+          <span className="text-label-s text-text-3 mr-1 font-technical">Presets:</span>
+          {PRESETS.map((p) => (
+            <button
+              key={p.label}
+              type="button"
+              onClick={() => applyPreset(p.days)}
+              className="rounded-xs border border-border bg-surface-sunken px-2.5 py-1 text-caption font-technical text-text-2 hover:border-accent hover:text-accent transition-colors"
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
         <div className="md:col-span-4">
           <Combobox
-            label="Pick-up hub"
+            label={deliveryMode === 'doorstep' ? 'Delivery region / hub base' : 'Pick-up hub'}
             placeholder="Select branch..."
             options={branchOptions}
             defaultSelectedKey={defaultBranchId ? String(defaultBranchId) : 'all'}
@@ -138,7 +205,8 @@ export function HomeSearchWidget({
 
         <div className="md:col-span-2">
           <Button type="submit" variant="primary" size="md" className="w-full">
-            Show cars
+            <span>Show cars</span>
+            <ArrowRight size={16} />
           </Button>
         </div>
       </div>

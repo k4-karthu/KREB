@@ -289,43 +289,47 @@ export default async function AdminTodayPage() {
         {onRoute.length === 0 ? (
           <p className="text-body-s text-text-3 py-4">No vehicles currently on route.</p>
         ) : (
-          <div className="divide-y divide-border-subtle">
-            {onRoute.map((r) => (
-              <div
-                key={r.code}
-                className="flex flex-wrap items-center justify-between gap-3 py-3.5 text-body-s"
-              >
-                <div className="flex items-center gap-3">
-                  <Plate code={r.code} size="sm" />
-                  <div>
-                    <div className="font-semibold text-text-1">
-                      {r.customer_name} · {r.make} {r.model} ({r.plate})
+          <div className="overflow-x-auto">
+            <div className="divide-y divide-border-subtle" style={{ minWidth: 340 }}>
+              {onRoute.map((r) => (
+                <div
+                  key={r.code}
+                  className="flex flex-wrap items-center justify-between gap-3 py-3.5 text-body-s"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="shrink-0 whitespace-nowrap font-technical">
+                      <Plate code={r.code} size="sm" />
                     </div>
-                    <div className="text-caption text-text-3">
-                      Route:{' '}
-                      {r.pickup_branch_name === r.return_branch_name
-                        ? `${r.pickup_branch_name} (Round trip)`
-                        : `${r.pickup_branch_name} → ${r.return_branch_name}`}{' '}
-                      · Due back{' '}
-                      {new Intl.DateTimeFormat('en-IN', {
-                        day: 'numeric',
-                        month: 'short',
-                        timeZone: 'Asia/Kolkata',
-                      }).format(new Date(r.end_at))}
+                    <div className="min-w-0">
+                      <div className="font-semibold text-text-1">
+                        {r.customer_name} · {r.make} {r.model} ({r.plate})
+                      </div>
+                      <div className="text-caption text-text-3">
+                        Route:{' '}
+                        {r.pickup_branch_name === r.return_branch_name
+                          ? `${r.pickup_branch_name} (Round trip)`
+                          : `${r.pickup_branch_name} → ${r.return_branch_name}`}{' '}
+                        · Due back{' '}
+                        {new Intl.DateTimeFormat('en-IN', {
+                          day: 'numeric',
+                          month: 'short',
+                          timeZone: 'Asia/Kolkata',
+                        }).format(new Date(r.end_at))}
+                      </div>
                     </div>
                   </div>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <StatusBadge status="active" />
+                    <Link
+                      href={`/staff/handover/${r.code}/in`}
+                      className="rounded-xs border border-border bg-surface px-3 py-1.5 text-label-s font-semibold text-text-1 hover:bg-surface-sunken transition-colors"
+                    >
+                      Check in
+                    </Link>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <StatusBadge status="active" />
-                  <Link
-                    href={`/staff/handover/${r.code}/in`}
-                    className="rounded-xs border border-border bg-surface px-3 py-1.5 text-label-s font-semibold text-text-1 hover:bg-surface-sunken transition-colors"
-                  >
-                    Check in
-                  </Link>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
       </section>
@@ -354,32 +358,36 @@ export default async function AdminTodayPage() {
             No scheduled collections in the next 24 hours.
           </p>
         ) : (
-          <div className="divide-y divide-border-subtle">
-            {upcomingPickups.map((p) => (
-              <div
-                key={p.code}
-                className="flex flex-wrap items-center justify-between gap-3 py-3.5 text-body-s"
-              >
-                <div className="flex items-center gap-3">
-                  <Plate code={p.code} size="sm" />
-                  <div>
-                    <div className="font-semibold text-text-1">{p.customer_name}</div>
-                    <div className="text-caption text-text-3">
-                      {p.make} {p.model} ({p.plate})
+          <div className="overflow-x-auto">
+            <div className="divide-y divide-border-subtle" style={{ minWidth: 340 }}>
+              {upcomingPickups.map((p) => (
+                <div
+                  key={p.code}
+                  className="flex flex-wrap items-center justify-between gap-3 py-3.5 text-body-s"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="shrink-0 whitespace-nowrap font-technical">
+                      <Plate code={p.code} size="sm" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="font-semibold text-text-1">{p.customer_name}</div>
+                      <div className="text-caption text-text-3">
+                        {p.make} {p.model} ({p.plate})
+                      </div>
                     </div>
                   </div>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <StatusBadge status={p.status} />
+                    <Link
+                      href={`/staff/handover/${p.code}/out`}
+                      className="rounded-xs bg-accent px-3 py-1.5 text-label-s font-semibold text-on-accent hover:opacity-90 transition-opacity"
+                    >
+                      Start Handover
+                    </Link>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <StatusBadge status={p.status} />
-                  <Link
-                    href={`/staff/handover/${p.code}/out`}
-                    className="rounded-xs bg-accent px-3 py-1.5 text-label-s font-semibold text-on-accent hover:opacity-90 transition-opacity"
-                  >
-                    Start Handover
-                  </Link>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
       </section>

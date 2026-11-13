@@ -5,8 +5,15 @@
  * ReceiptPrinter + feeding ReceiptPaper + drag/keyboard tear + post-tear actions.
  */
 
-import { Download, RotateCcw, Scissors, Share2, SkipForward } from 'lucide-react';
+import {
+  ArrowCounterClockwise,
+  DownloadSimple,
+  FastForward,
+  Scissors,
+  ShareNetwork,
+} from '@phosphor-icons/react';
 import { useCallback, useRef, useState } from 'react';
+import { toast } from 'sonner';
 import { ReceiptPrinter } from './ReceiptPrinter';
 import { ReceiptPaper } from './receipt-paper';
 import type { SlipData } from './types';
@@ -36,6 +43,39 @@ export function ReceiptAnimation({
 
   const [dragY, setDragY] = useState(0);
   const dragStartRef = useRef<number | null>(null);
+
+  const handleDownloadPdf = useCallback(() => {
+    if (onDownloadPdf) {
+      onDownloadPdf(slip);
+    } else if (typeof window !== 'undefined') {
+      window.print();
+    }
+  }, [onDownloadPdf, slip]);
+
+  const handleShare = useCallback(async () => {
+    if (onShare) {
+      onShare(slip);
+      return;
+    }
+    const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+    const shareData = {
+      title: `KERB Receipt · ${slip.referenceCode}`,
+      text: `Receipt confirmation for booking ${slip.referenceCode}`,
+      url: shareUrl,
+    };
+    if (typeof navigator !== 'undefined' && navigator.share && navigator.canShare?.(shareData)) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (err) {
+        if ((err as Error).name === 'AbortError') return;
+      }
+    }
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success('Booking link copied to clipboard');
+    }
+  }, [onShare, slip]);
 
   const isPrinting = state.phase === 'feeding' || state.phase === 'shaking';
   const canTear = state.phase === 'ready';
@@ -118,7 +158,7 @@ export function ReceiptAnimation({
                 border: '1px solid var(--border)',
               }}
             >
-              <SkipForward size={12} aria-hidden="true" />
+              <FastForward size={12} aria-hidden="true" />
               Skip
             </button>
           ) : state.phase === 'idle' ? (
@@ -192,7 +232,7 @@ export function ReceiptAnimation({
         <div className="flex flex-wrap items-center justify-center gap-2">
           <button
             type="button"
-            onClick={() => onDownloadPdf?.(slip)}
+            onClick={handleDownloadPdf}
             className="inline-flex items-center gap-1.5 px-3.5 py-2 font-medium cursor-pointer"
             style={{
               fontSize: '13px',
@@ -201,12 +241,12 @@ export function ReceiptAnimation({
               color: 'var(--on-accent)',
             }}
           >
-            <Download size={14} aria-hidden="true" />
+            <DownloadSimple size={14} aria-hidden="true" />
             Download PDF
           </button>
           <button
             type="button"
-            onClick={() => onShare?.(slip)}
+            onClick={handleShare}
             className="inline-flex items-center gap-1.5 px-3.5 py-2 font-medium cursor-pointer"
             style={{
               fontSize: '13px',
@@ -216,7 +256,7 @@ export function ReceiptAnimation({
               border: '1px solid var(--border)',
             }}
           >
-            <Share2 size={14} aria-hidden="true" />
+            <ShareNetwork size={14} aria-hidden="true" />
             Share
           </button>
           <button
@@ -234,7 +274,7 @@ export function ReceiptAnimation({
               border: '1px solid var(--border-subtle)',
             }}
           >
-            <RotateCcw size={14} aria-hidden="true" />
+            <ArrowCounterClockwise size={14} aria-hidden="true" />
             Reprint
           </button>
         </div>
