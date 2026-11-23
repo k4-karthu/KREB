@@ -43,8 +43,14 @@ function LoginForm() {
   return (
     <main id="main-content" className="mx-auto max-w-md px-4 py-16">
       <div className="mb-8">
-        <Link href="/" className="font-display text-h3 font-bold text-accent">
-          {BRAND.name}
+        <Link
+          href="/"
+          className="group inline-flex items-center gap-2 font-display text-h3 font-bold text-text-1 hover:text-racing-green transition-colors"
+        >
+          <span className="flex h-6 w-6 items-center justify-center rounded-xs bg-racing-green text-on-racing-green text-caption font-technical font-bold">
+            K
+          </span>
+          <span>{BRAND.name}</span>
         </Link>
         <h1 className="mt-4 font-display text-h1 font-bold text-text-1">Sign in to your account</h1>
         <p className="mt-1 text-body-s text-text-2">
@@ -88,15 +94,15 @@ function LoginForm() {
           />
         </Field>
 
-        <Button type="submit" variant="primary" className="w-full" loading={loading}>
+        <Button type="submit" variant="racing" className="w-full" loading={loading}>
           Sign in
         </Button>
 
         <div className="flex items-center justify-between pt-2 text-caption text-text-2">
-          <Link href="/signup" className="text-accent hover:underline">
+          <Link href="/signup" className="text-racing-green hover:underline font-medium">
             Create an account
           </Link>
-          <Link href="/admin/login" className="text-accent hover:underline">
+          <Link href="/admin/login" className="text-text-3 hover:text-text-1 hover:underline">
             Staff sign in
           </Link>
         </div>

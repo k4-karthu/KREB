@@ -27,7 +27,7 @@ export default async function CarsPage({
   const now = Date.now();
   const defaultStart =
     Math.floor((now + 86_400_000) / 86_400_000) * 86_400_000 + 4 * 3_600_000 + 1_800_000;
-  const startAt = Number(sp.start) > now ? Number(sp.start) : defaultStart;
+  const startAt = Number(sp.start) > 0 ? Number(sp.start) : defaultStart;
   const endAt = Number(sp.end) > startAt ? Number(sp.end) : startAt + 2 * 86_400_000;
 
   const branchId = sp.branch ? Number(sp.branch) : undefined;

@@ -258,7 +258,7 @@ export function VehicleDetailClient({
       )}
       <Button
         type="button"
-        variant="primary"
+        variant="racing"
         size="lg"
         disabled={!available || locking || loadingQuote}
         onClick={() => void handleReserve()}
@@ -298,7 +298,7 @@ export function VehicleDetailClient({
           <section className="space-y-3">
             <h2 className="font-display text-h3 font-semibold text-text-1">Available trims</h2>
             <div className="flex flex-wrap gap-2.5">
-              <span className="inline-flex items-center gap-2 rounded-s border border-accent bg-accent-subtle/25 px-3 py-2 text-label-s font-semibold text-accent">
+              <span className="inline-flex items-center gap-2 rounded-s border border-racing-green bg-racing-green-subtle px-3 py-2 text-label-s font-semibold text-racing-green shadow-e0">
                 <span
                   className="h-2.5 w-2.5 rounded-full border border-border-subtle shrink-0"
                   style={{ backgroundColor: vehicle.paint_hex }}
@@ -352,7 +352,7 @@ export function VehicleDetailClient({
         {/* Protection Plans Selection */}
         <section className="space-y-4">
           <div className="flex items-center gap-2">
-            <ShieldCheck size={22} weight="bold" className="text-accent" />
+            <ShieldCheck size={22} weight="bold" className="text-racing-green" />
             <h2 className="font-display text-h3 font-semibold text-text-1">
               Choose protection cover
             </h2>

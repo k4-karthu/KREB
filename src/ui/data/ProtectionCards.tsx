@@ -47,12 +47,12 @@ export function ProtectionCards({
         <AriaRadio
           key={tier.id}
           value={tier.id}
-          className="group relative flex cursor-pointer flex-col justify-between rounded-m border border-border-subtle bg-surface p-5 shadow-e0 transition-all duration-200 hover:border-border hover:shadow-e1 focus-visible:outline-2 focus-visible:outline-accent data-[selected]:border-accent data-[selected]:bg-accent-subtle/20 data-[selected]:shadow-e1 data-[selected]:ring-2 data-[selected]:ring-accent"
+          className="group relative flex cursor-pointer flex-col justify-between rounded-m border border-border-subtle bg-surface p-5 shadow-e0 transition-all duration-200 hover:border-border hover:shadow-e1 focus-visible:outline-2 focus-visible:outline-accent data-[selected]:border-racing-green data-[selected]:bg-racing-green-subtle/30 data-[selected]:shadow-e1 data-[selected]:ring-2 data-[selected]:ring-racing-green"
         >
           {({ isSelected }) => (
             <>
               {tier.recommended && (
-                <span className="absolute -top-2.5 right-4 rounded-xs bg-accent px-2 py-0.5 text-label-s font-semibold text-on-accent select-none">
+                <span className="absolute -top-2.5 right-4 rounded-xs bg-cognac px-2.5 py-0.5 text-label-s font-semibold text-on-cognac select-none shadow-e0">
                   Recommended
                 </span>
               )}
@@ -68,10 +68,10 @@ export function ProtectionCards({
                   <div
                     aria-hidden="true"
                     className={`mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
-                      isSelected ? 'border-accent' : 'border-border-strong'
+                      isSelected ? 'border-racing-green' : 'border-border-strong'
                     }`}
                   >
-                    {isSelected && <span className="h-2.5 w-2.5 rounded-full bg-accent" />}
+                    {isSelected && <span className="h-2.5 w-2.5 rounded-full bg-racing-green" />}
                   </div>
                 </div>
 

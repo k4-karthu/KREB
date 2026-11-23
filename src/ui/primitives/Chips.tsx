@@ -55,7 +55,7 @@ export function Chip({
       : 'h-11 px-4 text-body-s gap-2';
 
   const stateClasses = selected
-    ? 'bg-accent-subtle text-accent border-accent font-medium shadow-e1'
+    ? 'bg-racing-green-subtle text-racing-green border-racing-green font-semibold shadow-e0'
     : 'bg-surface text-text-2 border-border hover:text-text-1 hover:border-border-strong data-[pressed]:bg-surface-sunken';
 
   if (isRemovable) {

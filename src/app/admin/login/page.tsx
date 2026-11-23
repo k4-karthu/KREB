@@ -132,7 +132,7 @@ export default function AdminLoginPage() {
             />
           )}
 
-          <Button type="submit" variant="primary" className="w-full mt-2" disabled={loading}>
+          <Button type="submit" variant="racing" className="w-full mt-2" disabled={loading}>
             {loading ? 'Authenticating...' : needsTotp ? 'Verify Code' : 'Sign In to Operations'}
           </Button>
 

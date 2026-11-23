@@ -127,7 +127,7 @@ export function BookingConfirmedClient({
             <div className="flex flex-wrap gap-3 border-t border-border-subtle pt-4">
               <Link
                 href={`/trips/${booking.code}`}
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-s bg-accent px-5 text-label-s font-semibold text-on-accent transition-colors hover:bg-accent-hover cursor-pointer"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-s bg-racing-green px-5 text-label-s font-semibold text-on-racing-green transition-colors hover:bg-racing-green-light shadow-e1 cursor-pointer"
               >
                 <FileText size={18} weight="bold" />
                 <span>View trip details & timeline</span>

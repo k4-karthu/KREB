@@ -167,10 +167,13 @@ export function AdminShell({ actor, children, onOpenCommandPalette }: AdminShell
         <div className="flex h-14 items-center justify-between border-b border-border px-4">
           <Link
             href="/admin"
-            className="font-display font-bold tracking-tight text-text-1 hover:text-accent transition-colors"
+            className="font-display font-bold tracking-tight text-text-1 hover:text-racing-green transition-colors flex items-center gap-2"
           >
-            {BRAND.name}{' '}
-            <span className="text-caption text-text-3  font-sans font-medium">Desk</span>
+            <span className="flex h-6 w-6 items-center justify-center rounded-xs bg-racing-green text-on-racing-green text-caption font-technical font-bold">
+              K
+            </span>
+            <span>{BRAND.name}</span>
+            <span className="text-caption text-text-3 font-sans font-medium">Desk</span>
           </Link>
           <Plate code={actor.role} size="sm" />
         </div>
@@ -189,14 +192,14 @@ export function AdminShell({ actor, children, onOpenCommandPalette }: AdminShell
                 href={item.href}
                 className={`flex items-center gap-3 rounded-xs px-3 py-2 text-body-s font-medium transition-colors ${
                   active
-                    ? 'bg-accent-subtle text-accent font-semibold'
+                    ? 'bg-racing-green-subtle text-racing-green font-semibold border-l-2 border-racing-green'
                     : 'text-text-2 hover:bg-surface-sunken hover:text-text-1'
                 }`}
               >
                 <Icon
                   size={18}
                   weight={active ? 'fill' : 'regular'}
-                  className={`shrink-0 ${active ? 'text-accent' : 'text-text-3'}`}
+                  className={`shrink-0 ${active ? 'text-racing-green' : 'text-text-3'}`}
                   aria-hidden="true"
                 />
                 <span className="truncate">{item.label}</span>
@@ -253,14 +256,14 @@ export function AdminShell({ actor, children, onOpenCommandPalette }: AdminShell
                     onClick={() => setMobileOpen(false)}
                     className={`flex items-center gap-3 rounded-xs px-3 py-2.5 text-body-s font-medium transition-colors ${
                       active
-                        ? 'bg-accent-subtle text-accent font-semibold'
+                        ? 'bg-racing-green-subtle text-racing-green font-semibold'
                         : 'text-text-2 hover:bg-surface-sunken hover:text-text-1'
                     }`}
                   >
                     <Icon
                       size={20}
                       weight={active ? 'fill' : 'regular'}
-                      className={active ? 'text-accent' : 'text-text-3'}
+                      className={active ? 'text-racing-green' : 'text-text-3'}
                       aria-hidden="true"
                     />
                     <span>{item.label}</span>

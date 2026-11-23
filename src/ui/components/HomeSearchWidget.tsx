@@ -63,6 +63,7 @@ export function HomeSearchWidget({
   const endInitial = toCalendarDateAndTime(defaultEndAt);
 
   const [deliveryMode, setDeliveryMode] = useState<'hub' | 'doorstep'>('hub');
+  const [activePreset, setActivePreset] = useState<number | null>(null);
   const [selectedBranchId, setSelectedBranchId] = useState<Key | null>(
     defaultBranchId ? String(defaultBranchId) : 'all',
   );
@@ -86,6 +87,7 @@ export function HomeSearchWidget({
 
   function applyPreset(days: number) {
     if (!dateRange.start) return;
+    setActivePreset(days);
     const startEpoch = toEpochMs(dateRange.start, pickupTime);
     const endEpoch = startEpoch + days * 86_400_000;
     const endObj = toCalendarDateAndTime(endEpoch);
@@ -118,45 +120,57 @@ export function HomeSearchWidget({
   return (
     <form
       onSubmit={handleSubmit}
-      className={`w-full rounded-m border border-border bg-surface p-4 md:p-6 shadow-e2 space-y-4 ${className}`.trim()}
+      className={`w-full rounded-m border border-border bg-surface p-4 md:p-6 shadow-e2 space-y-5 ${className}`.trim()}
     >
       {/* Top command strip: Delivery mode toggle & duration preset pills */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
-        <div className="inline-flex rounded-s border border-border bg-surface-sunken p-0.5">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3.5">
+        <div className="inline-flex rounded-s border border-border bg-surface-sunken p-1 shadow-e0">
           <button
             type="button"
             onClick={() => setDeliveryMode('hub')}
-            className={`inline-flex items-center gap-1.5 px-3 py-1 text-caption font-medium rounded-xs transition-colors ${
+            className={`inline-flex items-center gap-2 px-3.5 py-1.5 text-caption font-medium rounded-xs transition-all ${
               deliveryMode === 'hub'
-                ? 'bg-surface text-text-1 shadow-e1'
+                ? 'bg-surface text-text-1 shadow-e1 border border-border-subtle'
                 : 'text-text-3 hover:text-text-1'
             }`}
           >
-            <Buildings size={14} />
+            <Buildings
+              size={15}
+              className={deliveryMode === 'hub' ? 'text-racing-cobalt' : 'text-text-3'}
+            />
             <span>Hub pickup</span>
           </button>
           <button
             type="button"
             onClick={() => setDeliveryMode('doorstep')}
-            className={`inline-flex items-center gap-1.5 px-3 py-1 text-caption font-medium rounded-xs transition-colors ${
+            className={`inline-flex items-center gap-2 px-3.5 py-1.5 text-caption font-medium rounded-xs transition-all ${
               deliveryMode === 'doorstep'
-                ? 'bg-surface text-text-1 shadow-e1'
+                ? 'bg-surface text-text-1 shadow-e1 border border-border-subtle'
                 : 'text-text-3 hover:text-text-1'
             }`}
           >
-            <HouseLine size={14} />
+            <HouseLine
+              size={15}
+              className={deliveryMode === 'doorstep' ? 'text-cognac' : 'text-text-3'}
+            />
             <span>Doorstep delivery</span>
           </button>
         </div>
 
-        <div className="flex items-center gap-1.5 overflow-x-auto">
-          <span className="text-label-s text-text-3 mr-1 font-technical">Presets:</span>
+        <div className="flex items-center gap-2 overflow-x-auto">
+          <span className="text-label-s text-text-3 mr-1 font-technical tracking-wider">
+            PRESETS:
+          </span>
           {PRESETS.map((p) => (
             <button
               key={p.label}
               type="button"
               onClick={() => applyPreset(p.days)}
-              className="rounded-xs border border-border bg-surface-sunken px-2.5 py-1 text-caption font-technical text-text-2 hover:border-accent hover:text-accent transition-colors"
+              className={`rounded-xs border px-3 py-1.5 text-caption font-technical font-medium transition-all active:scale-98 shadow-e0 ${
+                activePreset === p.days
+                  ? 'border-cognac bg-cognac-subtle text-cognac font-semibold shadow-e0'
+                  : 'border-border bg-surface-sunken text-text-2 hover:border-cognac hover:text-cognac hover:bg-surface'
+              }`}
             >
               {p.label}
             </button>
@@ -181,7 +195,10 @@ export function HomeSearchWidget({
             label="Rental dates"
             value={dateRange}
             onChange={(val) => {
-              if (val) setDateRange(val);
+              if (val) {
+                setDateRange(val);
+                setActivePreset(null);
+              }
             }}
           />
         </div>
@@ -204,7 +221,7 @@ export function HomeSearchWidget({
         </div>
 
         <div className="md:col-span-2">
-          <Button type="submit" variant="primary" size="md" className="w-full">
+          <Button type="submit" variant="racing" size="md" className="w-full">
             <span>Show cars</span>
             <ArrowRight size={16} />
           </Button>

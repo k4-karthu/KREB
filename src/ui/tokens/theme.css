@@ -4,31 +4,57 @@
 /* ─── v3 §4.5 — Light (default) ──────────────────────────────────────────── */
 :root {
   color-scheme: light;
-  --canvas: #f3f4f6;
+  --canvas: #f7f7f5;
   --surface: #ffffff;
   --surface-raised: #ffffff;
-  --surface-sunken: #ebedf1;
+  --surface-sunken: #eeeee9;
   --plate: #ffffff;
 
   --text-1: #0e1116;
-  --text-2: #444c59;
-  --text-3: #6a7380;
-  --text-disabled: #a3aab5;
+  --text-2: #3d4551;
+  --text-3: #687181;
+  --text-disabled: #a0a7b4;
 
-  --border-subtle: #e6e8ec;
-  --border: #d5d9df;
-  --border-strong: #aeb5c0;
+  --border-subtle: #eaeae5;
+  --border: #d6d6ce;
+  --border-strong: #a2a299;
 
-  --accent: #2250f4;
-  --accent-hover: #1a40d6;
-  --accent-press: #1433b0;
-  --accent-subtle: #e7ecfe;
+  --accent: #1e40af;
+  --accent-hover: #1d4ed8;
+  --accent-press: #172554;
+  --accent-subtle: #eff6ff;
   --on-accent: #ffffff;
+
+  /* Heritage: British Racing Green */
+  --racing-green: #0b2b1e;
+  --racing-green-light: #164e36;
+  --racing-green-subtle: #e8f3ed;
+  --racing-green-tint: #cce3d5;
+  --on-racing-green: #ffffff;
+
+  /* Heritage: Tuscan Saddle / Cognac */
+  --cognac: #9a3412;
+  --cognac-light: #c2410c;
+  --cognac-subtle: #ffedd5;
+  --saddle: #7c2d12;
+  --on-cognac: #ffffff;
+
+  /* Heritage: International Racing Cobalt */
+  --racing-cobalt: #1e40af;
+  --racing-cobalt-light: #2563eb;
+  --racing-cobalt-subtle: #eff6ff;
+
+  /* Metallic Neutrals: Liquid Titanium / Warm Platinum */
+  --titanium: #cbd5e1;
+  --titanium-dark: #334155;
+  --titanium-light: #e2e8f0;
+  --titanium-subtle: #f8fafc;
+  --platinum: #f1f5f9;
 
   --success: #1f9d63;
   --success-subtle: #e6f5ee;
-  --warning: #a86400;
-  --warning-subtle: #fff1d6;
+  --warning: #9a3412;
+  --warning-subtle: #ffedd5;
   --danger: #d2342a;
   --danger-subtle: #fde9e7;
 
@@ -52,31 +78,57 @@
 /* ─── v3 §4.5 — Dark override ────────────────────────────────────────────── */
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --canvas: #0c0d10;
-  --surface: #14161a;
-  --surface-raised: #1b1e23;
-  --surface-sunken: #101216;
+  --canvas: #090a0c;
+  --surface: #111317;
+  --surface-raised: #181b21;
+  --surface-sunken: #0c0e11;
   --plate: #ffffff;
 
-  --text-1: #f3f4f6;
-  --text-2: #b4bac5;
-  --text-3: #8a92a0;
-  --text-disabled: #565d69;
+  --text-1: #f4f5f7;
+  --text-2: #b1b7c2;
+  --text-3: #858c9b;
+  --text-disabled: #535a66;
 
-  --border-subtle: #22262c;
-  --border: #2e333b;
-  --border-strong: #454c57;
+  --border-subtle: #1a1e24;
+  --border: #272c35;
+  --border-strong: #3e4553;
 
-  --accent: #6f8dff;
-  --accent-hover: #8aa3ff;
-  --accent-press: #5878f0;
-  --accent-subtle: #1b2547;
-  --on-accent: #0b0f24;
+  --accent: #60a5fa;
+  --accent-hover: #93c5fd;
+  --accent-press: #3b82f6;
+  --accent-subtle: #111d33;
+  --on-accent: #090e1a;
+
+  /* Heritage: British Racing Green */
+  --racing-green: #34d399;
+  --racing-green-light: #6ee7b7;
+  --racing-green-subtle: #082b1d;
+  --racing-green-tint: #0f3d2a;
+  --on-racing-green: #03170e;
+
+  /* Heritage: Tuscan Saddle / Cognac */
+  --cognac: #fb923c;
+  --cognac-light: #fdba74;
+  --cognac-subtle: #2b1408;
+  --saddle: #ea580c;
+  --on-cognac: #1a0802;
+
+  /* Heritage: International Racing Cobalt */
+  --racing-cobalt: #60a5fa;
+  --racing-cobalt-light: #93c5fd;
+  --racing-cobalt-subtle: #111d33;
+
+  /* Metallic Neutrals: Liquid Titanium / Warm Platinum */
+  --titanium: #475569;
+  --titanium-dark: #cbd5e1;
+  --titanium-light: #334155;
+  --titanium-subtle: #1e293b;
+  --platinum: #172033;
 
   --success: #3dd68c;
   --success-subtle: #12261d;
-  --warning: #f2b24a;
-  --warning-subtle: #2b2111;
+  --warning: #fb923c;
+  --warning-subtle: #2b1408;
   --danger: #ff6b5e;
   --danger-subtle: #2d1613;
 
@@ -143,6 +195,32 @@
   --color-accent-press: var(--accent-press);
   --color-accent-subtle: var(--accent-subtle);
   --color-on-accent: var(--on-accent);
+
+  /* Heritage: British Racing Green */
+  --color-racing-green: var(--racing-green);
+  --color-racing-green-light: var(--racing-green-light);
+  --color-racing-green-subtle: var(--racing-green-subtle);
+  --color-racing-green-tint: var(--racing-green-tint);
+  --color-on-racing-green: var(--on-racing-green);
+
+  /* Heritage: Tuscan Saddle / Cognac */
+  --color-cognac: var(--cognac);
+  --color-cognac-light: var(--cognac-light);
+  --color-cognac-subtle: var(--cognac-subtle);
+  --color-saddle: var(--saddle);
+  --color-on-cognac: var(--on-cognac);
+
+  /* Heritage: International Racing Cobalt */
+  --color-racing-cobalt: var(--racing-cobalt);
+  --color-racing-cobalt-light: var(--racing-cobalt-light);
+  --color-racing-cobalt-subtle: var(--racing-cobalt-subtle);
+
+  /* Metallic Neutrals: Liquid Titanium / Warm Platinum */
+  --color-titanium: var(--titanium);
+  --color-titanium-dark: var(--titanium-dark);
+  --color-titanium-light: var(--titanium-light);
+  --color-titanium-subtle: var(--titanium-subtle);
+  --color-platinum: var(--platinum);
 
   /* Semantic */
   --color-success: var(--success);
@@ -256,9 +334,9 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .kerb-studio-plate:hover .kerb-studio-img,
+  article:hover .kerb-studio-img,
   .group:hover .kerb-studio-img,
-  article:hover .kerb-studio-img {
+  .kerb-studio-plate:hover .kerb-studio-img {
     transform: scale(1.02);
     transition: transform 250ms cubic-bezier(0.16, 1, 0.3, 1);
   }

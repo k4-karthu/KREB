@@ -210,14 +210,17 @@ export default async function HomePage() {
         <section className="mx-auto max-w-6xl px-4 pt-12 pb-16 sm:px-6 sm:pt-20 sm:pb-24">
           <div className="space-y-6 max-w-4xl">
             <div className="flex flex-wrap items-center gap-3">
-              <span className="text-label-s font-technical font-semibold text-text-3">
+              <span className="text-label-s font-technical font-semibold text-cognac">
                 {'01 // SELF-DRIVE DISPATCH'}
               </span>
-              <div className="inline-flex items-center gap-2 rounded-xs border border-border bg-surface px-3 py-1 text-caption font-medium text-text-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-success" />
-                <span className="font-technical">
-                  {rawVehicles.length} active units {'//'} BLR
+              <div className="inline-flex items-center gap-2 rounded-xs border border-border bg-surface px-3 py-1 text-caption font-medium text-text-2 shadow-e0">
+                <span className="h-2 w-2 rounded-full bg-racing-green" />
+                <span className="font-technical text-racing-green font-semibold">
+                  {rawVehicles.length} active units {'//'} BLR ATELIER
                 </span>
+              </div>
+              <div className="hidden sm:inline-flex items-center gap-1.5 rounded-xs border border-border-subtle bg-surface-sunken px-2.5 py-1 text-label-s font-technical text-text-3">
+                <span>90-min bay turnaround</span>
               </div>
             </div>
 
@@ -241,7 +244,7 @@ export default async function HomePage() {
         <section className="border-t border-border bg-surface py-16 sm:py-20">
           <div className="mx-auto max-w-6xl px-4 sm:px-6 space-y-8">
             <div className="space-y-3 max-w-2xl">
-              <span className="text-caption font-semibold text-accent font-technical">
+              <span className="text-caption font-semibold text-racing-green font-technical">
                 {'02 // FLEET SHOWROOM'}
               </span>
               <h2 className="font-display text-h1 font-bold tracking-tight text-text-1">
@@ -264,7 +267,7 @@ export default async function HomePage() {
         <section className="border-t border-border bg-surface py-16 sm:py-20">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <div className="space-y-3 max-w-2xl mb-12">
-              <span className="text-caption font-semibold text-accent font-technical">
+              <span className="text-caption font-semibold text-cognac font-technical">
                 {'04 // DISPATCH PROTOCOL'}
               </span>
               <h2 className="font-display text-h1 font-bold tracking-tight text-text-1">
@@ -278,8 +281,11 @@ export default async function HomePage() {
 
             <div className="grid grid-cols-1 md:grid-cols-4 border border-border rounded-m divide-y md:divide-y-0 md:divide-x divide-border bg-surface shadow-e1">
               {SERVICE_STEPS.map((step) => (
-                <div key={step.code} className="p-6 space-y-3">
-                  <span className="font-technical text-label-s font-bold text-accent block">
+                <div
+                  key={step.code}
+                  className="p-6 space-y-3 hover:bg-surface-sunken/40 transition-colors"
+                >
+                  <span className="font-technical text-label-s font-bold text-cognac block">
                     {step.code}
                   </span>
                   <h3 className="font-display text-h4 font-semibold text-text-1">{step.title}</h3>
@@ -294,7 +300,7 @@ export default async function HomePage() {
         <section className="border-t border-border bg-surface-sunken py-16 sm:py-20">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <div className="space-y-3 max-w-2xl mb-12">
-              <span className="text-caption font-semibold text-accent font-technical">
+              <span className="text-caption font-semibold text-racing-cobalt font-technical">
                 {'05 // BENGALURU HUB NETWORK'}
               </span>
               <h2 className="font-display text-h1 font-bold tracking-tight text-text-1">
@@ -310,13 +316,13 @@ export default async function HomePage() {
               {branches.map((b) => (
                 <div
                   key={b.id}
-                  className="rounded-m border border-border bg-surface p-6 flex flex-col justify-between shadow-e1"
+                  className="rounded-m border border-border bg-surface p-6 flex flex-col justify-between shadow-e1 hover:border-titanium-dark/30 transition-all"
                 >
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2">
                       <h3 className="font-display text-h3 font-semibold text-text-1">{b.name}</h3>
                       {b.allows_after_hours === 1 && (
-                        <span className="rounded-xs border border-success bg-success-subtle px-2 py-0.5 text-label-s font-medium text-success">
+                        <span className="rounded-xs border border-racing-green-tint bg-racing-green-subtle px-2 py-0.5 text-label-s font-medium text-racing-green">
                           Lockbox ready
                         </span>
                       )}
@@ -325,13 +331,16 @@ export default async function HomePage() {
                   </div>
 
                   <div className="pt-6 border-t border-border-subtle mt-6 space-y-1.5 text-caption text-text-3">
-                    <div>
-                      Operating hours:{' '}
-                      {b.allows_after_hours === 1
-                        ? '24/7 (After-hours lockbox)'
-                        : '06:00 – 23:00 daily'}
+                    <div className="flex items-center gap-2">
+                      <span className="h-1.5 w-1.5 rounded-full bg-racing-green" />
+                      <span>
+                        Operating hours:{' '}
+                        {b.allows_after_hours === 1
+                          ? '24/7 (After-hours lockbox)'
+                          : '06:00 – 23:00 daily'}
+                      </span>
                     </div>
-                    <div>Dedicated inspection bays</div>
+                    <div className="font-technical text-text-3">Dedicated inspection bays</div>
                   </div>
                 </div>
               ))}
@@ -343,7 +352,7 @@ export default async function HomePage() {
         <section className="border-t border-border bg-surface py-16 sm:py-20">
           <div className="mx-auto max-w-4xl px-4 sm:px-6">
             <div className="space-y-3 max-w-2xl mb-10">
-              <span className="text-caption font-semibold text-accent font-technical">
+              <span className="text-caption font-semibold text-racing-green font-technical">
                 {'06 // PLAIN-LANGUAGE RULES'}
               </span>
               <h2 className="font-display text-h1 font-bold tracking-tight text-text-1">

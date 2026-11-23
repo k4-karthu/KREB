@@ -70,7 +70,7 @@ export default async function AccountPage() {
           )}
           <Link
             href="/account/licence"
-            className="inline-flex h-9 items-center rounded-s bg-accent text-on-accent px-4 text-caption font-medium hover:bg-accent-hover transition-colors shadow-e1"
+            className="inline-flex h-9 items-center rounded-s bg-racing-green text-on-racing-green px-4 text-caption font-medium hover:bg-racing-green-light transition-colors shadow-e1"
           >
             {licence ? 'Update driving licence' : 'Upload driving licence'}
           </Link>

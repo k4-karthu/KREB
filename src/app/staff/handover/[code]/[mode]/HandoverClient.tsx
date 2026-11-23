@@ -91,7 +91,7 @@ export function HandoverClient({
           Computed extra charges (late/fuel):{' '}
           <Price amountMinor={extraChargesMinor} size="lg" className="font-bold text-text-1" />
         </p>
-        <Button type="button" variant="primary" onClick={() => router.push('/staff')}>
+        <Button type="button" variant="racing" onClick={() => router.push('/staff')}>
           Back to bay queue
         </Button>
       </div>

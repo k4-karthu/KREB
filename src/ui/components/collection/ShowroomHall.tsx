@@ -485,7 +485,7 @@ export function ShowroomHall({
                   <span className="ml-1 text-sm text-text-3">/ day</span>
                 </div>
                 <Button
-                  variant="primary"
+                  variant="racing"
                   onClick={() => onReserve?.(selectedVehicle)}
                   data-testid="stage-reserve-cta"
                 >
@@ -547,10 +547,10 @@ export function ShowroomHall({
                     key={vehicle.slug}
                     type="button"
                     onClick={() => setSelectedSlug(vehicle.slug)}
-                    className={`flex shrink-0 items-center gap-3 rounded-s border p-2 text-left transition-colors duration-150 ${
+                    className={`flex shrink-0 items-center gap-3 rounded-s border p-2 text-left transition-all duration-150 ${
                       isCurrent
-                        ? 'border-accent bg-surface-raised shadow-e1'
-                        : 'border-border-subtle bg-surface hover:border-border'
+                        ? 'border-racing-green bg-racing-green-subtle/50 text-text-1 shadow-e1 ring-1 ring-racing-green/40'
+                        : 'border-border-subtle bg-surface hover:border-border hover:bg-surface-sunken'
                     }`}
                     aria-pressed={isCurrent}
                   >
@@ -658,10 +658,10 @@ function CategoryRail({
             key={cat.id}
             type="button"
             onClick={() => onSelectCategory(cat.id)}
-            className={`rounded-s px-3 py-1.5 text-sm font-medium transition-colors duration-150 ${
+            className={`rounded-s px-3.5 py-1.5 text-caption font-technical font-medium transition-all duration-150 ${
               isSelected
-                ? 'border border-border bg-surface text-text-1 shadow-e1'
-                : 'border border-transparent text-text-3 hover:bg-surface-sunken hover:text-text-1'
+                ? 'border border-racing-green bg-racing-green-subtle text-racing-green font-semibold shadow-e0'
+                : 'border border-border-subtle bg-surface-sunken text-text-2 hover:border-border-strong hover:bg-surface hover:text-text-1'
             }`}
             aria-pressed={isSelected}
             data-testid={`category-tab-${cat.id}`}
@@ -699,11 +699,11 @@ export function VehicleCard({
       <div>
         <div className="flex items-center justify-between border-b border-border-subtle px-3 py-2 bg-surface-sunken">
           <div className="flex items-center gap-2">
-            <span className="text-label-s font-semibold text-text-3 font-technical">
+            <span className="text-label-s font-semibold text-cognac font-technical">
               {categoryLabel}
             </span>
-            <span className="inline-flex items-center gap-1 text-label-s text-success font-medium">
-              <span className="h-1.5 w-1.5 rounded-full bg-success" />
+            <span className="inline-flex items-center gap-1 text-label-s text-racing-green font-semibold">
+              <span className="h-1.5 w-1.5 rounded-full bg-racing-green" />
               <span>Ready</span>
             </span>
           </div>
@@ -766,7 +766,7 @@ export function VehicleCard({
 
         {onReserve ? (
           <Button
-            variant="primary"
+            variant="racing"
             size="sm"
             onClick={() => onReserve(vehicle)}
             data-testid={`reserve-cta-${vehicle.slug}`}
@@ -775,7 +775,7 @@ export function VehicleCard({
           </Button>
         ) : (
           <Link href={`/cars/${vehicle.slug}`}>
-            <Button variant="primary" size="sm" data-testid={`reserve-cta-${vehicle.slug}`}>
+            <Button variant="racing" size="sm" data-testid={`reserve-cta-${vehicle.slug}`}>
               Reserve {vehicle.model}
             </Button>
           </Link>

@@ -4,7 +4,15 @@ import { CircleNotch } from '@phosphor-icons/react';
 import { forwardRef, type ReactNode } from 'react';
 import { Button as RACButton, type ButtonProps as RACButtonProps } from 'react-aria-components';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'link' | 'tertiary';
+export type ButtonVariant =
+  | 'primary'
+  | 'secondary'
+  | 'ghost'
+  | 'danger'
+  | 'link'
+  | 'tertiary'
+  | 'racing'
+  | 'cognac';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 export interface ButtonProps extends Omit<RACButtonProps, 'children'> {
@@ -25,6 +33,10 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
     'bg-transparent text-text-2 hover:text-text-1 hover:bg-surface-sunken border-transparent',
   danger:
     'bg-danger text-on-accent hover:opacity-90 data-[pressed]:opacity-100 border-transparent shadow-e1',
+  racing:
+    'bg-racing-green text-on-racing-green hover:bg-racing-green-light data-[pressed]:bg-racing-green border-racing-green-light/30 shadow-e1',
+  cognac:
+    'bg-cognac text-on-cognac hover:bg-cognac-light data-[pressed]:bg-cognac border-cognac-light/30 shadow-e1',
   link: 'bg-transparent text-accent hover:underline border-transparent p-0 min-h-11 inline-flex items-center',
 };
 

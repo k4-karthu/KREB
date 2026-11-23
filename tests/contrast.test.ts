@@ -22,6 +22,10 @@ const LIGHT = {
   warningSubtle: '#FFF1D6',
   danger: '#D2342A',
   dangerSubtle: '#FDE9E7',
+  racingGreen: '#0B2B1E',
+  onRacingGreen: '#FFFFFF',
+  cognac: '#9A3412',
+  onCognac: '#FFFFFF',
 };
 
 /**
@@ -44,6 +48,10 @@ const DARK = {
   warningSubtle: '#2B2111',
   danger: '#FF6B5E',
   dangerSubtle: '#2D1613',
+  racingGreen: '#34D399',
+  onRacingGreen: '#03170E',
+  cognac: '#FB923C',
+  onCognac: '#1A0802',
 };
 
 describe('v3 §4.5 Colour contrast — WCAG AA compliance', () => {
@@ -55,6 +63,8 @@ describe('v3 §4.5 Colour contrast — WCAG AA compliance', () => {
       ['text-2 on canvas', LIGHT.text2, LIGHT.canvas],
       ['text-2 on surface', LIGHT.text2, LIGHT.surface],
       ['on-accent on accent', LIGHT.onAccent, LIGHT.accent],
+      ['on-racing-green on racing-green', LIGHT.onRacingGreen, LIGHT.racingGreen],
+      ['on-cognac on cognac', LIGHT.onCognac, LIGHT.cognac],
     ];
 
     for (const [label, fg, bg] of lightPairs) {
@@ -93,6 +103,8 @@ describe('v3 §4.5 Colour contrast — WCAG AA compliance', () => {
       ['warning on warning-subtle', DARK.warning, DARK.warningSubtle],
       ['success on success-subtle', DARK.success, DARK.successSubtle],
       ['on-accent on accent', DARK.onAccent, DARK.accent],
+      ['on-racing-green on racing-green', DARK.onRacingGreen, DARK.racingGreen],
+      ['on-cognac on cognac', DARK.onCognac, DARK.cognac],
     ];
 
     for (const [label, fg, bg] of darkPairs) {

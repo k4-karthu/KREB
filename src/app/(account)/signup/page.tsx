@@ -46,8 +46,14 @@ export default function SignupPage() {
   return (
     <main id="main-content" className="mx-auto max-w-md px-4 py-16">
       <div className="mb-8">
-        <Link href="/" className="font-display text-h3 font-bold text-accent">
-          {BRAND.name}
+        <Link
+          href="/"
+          className="group inline-flex items-center gap-2 font-display text-h3 font-bold text-text-1 hover:text-racing-green transition-colors"
+        >
+          <span className="flex h-6 w-6 items-center justify-center rounded-xs bg-racing-green text-on-racing-green text-caption font-technical font-bold">
+            K
+          </span>
+          <span>{BRAND.name}</span>
         </Link>
         <h1 className="mt-4 font-display text-h1 font-bold text-text-1">Create your account</h1>
         <p className="mt-1 text-body-s text-text-2">
@@ -103,13 +109,13 @@ export default function SignupPage() {
           />
         </Field>
 
-        <Button type="submit" variant="primary" className="w-full" loading={loading}>
+        <Button type="submit" variant="racing" className="w-full" loading={loading}>
           Create account
         </Button>
 
         <div className="pt-2 text-center text-caption text-text-2">
           Already have an account?{' '}
-          <Link href="/login" className="text-accent hover:underline">
+          <Link href="/login" className="text-racing-green hover:underline font-medium">
             Sign in
           </Link>
         </div>

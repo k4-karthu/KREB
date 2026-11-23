@@ -233,7 +233,7 @@ export function CarsClient({
           <div className="md:col-span-3">
             <Button
               type="button"
-              variant="primary"
+              variant="racing"
               size="md"
               disabled={isPending}
               onClick={applyDateAndBranch}
@@ -358,10 +358,10 @@ export function CarsClient({
           <button
             type="button"
             onClick={() => setSeatingFilter(seatingFilter === '5' ? 'all' : '5')}
-            className={`rounded-xs border px-2.5 py-1 text-caption font-technical transition-colors ${
+            className={`rounded-xs border px-3 py-1 text-caption font-technical font-medium transition-all ${
               seatingFilter === '5'
-                ? 'border-accent bg-accent-subtle text-accent font-semibold'
-                : 'border-border bg-surface-sunken text-text-2 hover:border-border-strong'
+                ? 'border-racing-green bg-racing-green-subtle text-racing-green font-semibold shadow-e0'
+                : 'border-border bg-surface-sunken text-text-2 hover:border-border-strong hover:bg-surface'
             }`}
           >
             5 Seats
@@ -369,10 +369,10 @@ export function CarsClient({
           <button
             type="button"
             onClick={() => setSeatingFilter(seatingFilter === '7plus' ? 'all' : '7plus')}
-            className={`rounded-xs border px-2.5 py-1 text-caption font-technical transition-colors ${
+            className={`rounded-xs border px-3 py-1 text-caption font-technical font-medium transition-all ${
               seatingFilter === '7plus'
-                ? 'border-accent bg-accent-subtle text-accent font-semibold'
-                : 'border-border bg-surface-sunken text-text-2 hover:border-border-strong'
+                ? 'border-racing-green bg-racing-green-subtle text-racing-green font-semibold shadow-e0'
+                : 'border-border bg-surface-sunken text-text-2 hover:border-border-strong hover:bg-surface'
             }`}
           >
             7+ Seats
@@ -380,10 +380,10 @@ export function CarsClient({
           <button
             type="button"
             onClick={() => setDepositFilter(depositFilter === 'low' ? 'all' : 'low')}
-            className={`rounded-xs border px-2.5 py-1 text-caption font-technical transition-colors ${
+            className={`rounded-xs border px-3 py-1 text-caption font-technical font-medium transition-all ${
               depositFilter === 'low'
-                ? 'border-accent bg-accent-subtle text-accent font-semibold'
-                : 'border-border bg-surface-sunken text-text-2 hover:border-border-strong'
+                ? 'border-cognac bg-cognac-subtle text-cognac font-semibold shadow-e0'
+                : 'border-border bg-surface-sunken text-text-2 hover:border-border-strong hover:bg-surface'
             }`}
           >
             Low deposit (≤ ₹10k)
@@ -410,7 +410,7 @@ export function CarsClient({
               Receive an automated notification if a vehicle becomes available on your dates.
             </p>
             {waitlistSent ? (
-              <div className="rounded-s border border-success/30 bg-success-subtle px-3 py-2 text-caption font-medium text-success">
+              <div className="rounded-s border border-racing-green-tint bg-racing-green-subtle px-3 py-2 text-caption font-medium text-racing-green">
                 You are on the alert list for these trip dates.
               </div>
             ) : (
@@ -425,7 +425,7 @@ export function CarsClient({
                 />
                 <Button
                   type="button"
-                  variant="primary"
+                  variant="racing"
                   disabled={waitlistLoading || !waitlistEmail.trim()}
                   onClick={() => void handleWaitlistSubmit()}
                 >
@@ -437,10 +437,11 @@ export function CarsClient({
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredVehicles.map((v) => (
+          {filteredVehicles.map((v, idx) => (
             <VehicleTile
               key={v.slug}
               vehicle={v}
+              priority={idx < 6}
               href={`/cars/${v.slug}?start=${startAt}&end=${endAt}`}
             />
           ))}

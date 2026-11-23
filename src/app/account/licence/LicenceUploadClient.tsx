@@ -52,7 +52,7 @@ export function LicenceUploadClient() {
       className="space-y-6 rounded-m border border-border bg-surface p-6 shadow-e1"
     >
       <div className="flex items-center gap-3 border-b border-border pb-4">
-        <div className="flex h-10 w-10 items-center justify-center rounded-s bg-accent-subtle text-accent">
+        <div className="flex h-10 w-10 items-center justify-center rounded-s bg-racing-green-subtle text-racing-green">
           <ShieldCheck size={22} weight="bold" />
         </div>
         <div>
@@ -153,13 +153,7 @@ export function LicenceUploadClient() {
       </div>
 
       <div className="flex justify-end pt-2">
-        <Button
-          type="submit"
-          variant="primary"
-          size="md"
-          disabled={submitting}
-          loading={submitting}
-        >
+        <Button type="submit" variant="racing" size="md" disabled={submitting} loading={submitting}>
           <UploadSimple size={16} weight="bold" />
           <span>
             {submitting ? 'Encrypting and uploading...' : 'Submit licence for verification'}

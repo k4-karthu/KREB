@@ -49,7 +49,9 @@ async function runTwoPassVerification() {
 
     // 2. Visit /cars?category=luxury&fuel=cng (0 matches)
     console.log(`2. Checking /cars?category=luxury&fuel=cng (0 matches)...`);
-    const emptyCarsRes = await page.goto(`${baseUrl}/cars?category=luxury&fuel=cng`, { waitUntil: 'networkidle' });
+    const emptyCarsRes = await page.goto(`${baseUrl}/cars?category=luxury&fuel=cng`, {
+      waitUntil: 'networkidle',
+    });
     if (!emptyCarsRes || emptyCarsRes.status() !== 200) {
       console.error(`FAIL: /cars?category=luxury&fuel=cng returned ${emptyCarsRes?.status()}`);
       allPassed = false;
@@ -86,9 +88,12 @@ async function runTwoPassVerification() {
     // 4. Typography Scale Verification on / and /cars
     console.log(`4. Checking Typography Scale on / and /cars...`);
     await page.goto(`${baseUrl}/`, { waitUntil: 'networkidle' });
-    const h1FontSize = await page.locator('h1').first().evaluate((el) => {
-      return parseFloat(window.getComputedStyle(el).fontSize);
-    });
+    const h1FontSize = await page
+      .locator('h1')
+      .first()
+      .evaluate((el) => {
+        return parseFloat(window.getComputedStyle(el).fontSize);
+      });
     console.log(`  Homepage h1 fontSize: ${h1FontSize}px (expected >= 30px)`);
     if (h1FontSize < 30) {
       console.error(`  FAIL: Homepage h1 fontSize is ${h1FontSize}px, below 30px!`);
@@ -96,9 +101,12 @@ async function runTwoPassVerification() {
     }
 
     await page.goto(`${baseUrl}/cars`, { waitUntil: 'networkidle' });
-    const carsH1FontSize = await page.locator('h1').first().evaluate((el) => {
-      return parseFloat(window.getComputedStyle(el).fontSize);
-    });
+    const carsH1FontSize = await page
+      .locator('h1')
+      .first()
+      .evaluate((el) => {
+        return parseFloat(window.getComputedStyle(el).fontSize);
+      });
     console.log(`  Cars catalog h1 fontSize: ${carsH1FontSize}px (expected >= 30px)`);
     if (carsH1FontSize < 30) {
       console.error(`  FAIL: Cars catalog h1 fontSize is ${carsH1FontSize}px, below 30px!`);
@@ -116,9 +124,12 @@ async function runTwoPassVerification() {
     // 5. Zero Invisible Buttons or Transparent Cards on /account, /account/licence, /login, /signup
     console.log(`5. Checking High-Contrast Elements on auth/account routes...`);
     await page.goto(`${baseUrl}/login`, { waitUntil: 'networkidle' });
-    const loginCardBg = await page.locator('form').first().evaluate((el) => {
-      return window.getComputedStyle(el).backgroundColor;
-    });
+    const loginCardBg = await page
+      .locator('form')
+      .first()
+      .evaluate((el) => {
+        return window.getComputedStyle(el).backgroundColor;
+      });
     console.log(`  /login form panel background: ${loginCardBg}`);
 
     await page.goto(`${baseUrl}/account`, { waitUntil: 'networkidle' });
@@ -139,15 +150,21 @@ async function runTwoPassVerification() {
         const scrollWidth = document.documentElement.scrollWidth;
         return { docWidth, scrollWidth, hasOverflow: scrollWidth > docWidth + 2 };
       });
-      console.log(`  ${route} (${vp.name}): clientWidth=${overflow.docWidth}, scrollWidth=${overflow.scrollWidth}, overflow=${overflow.hasOverflow}`);
+      console.log(
+        `  ${route} (${vp.name}): clientWidth=${overflow.docWidth}, scrollWidth=${overflow.scrollWidth}, overflow=${overflow.hasOverflow}`,
+      );
       if (overflow.hasOverflow) {
-        console.warn(`  WARNING: ${route} has horizontal overflow (${overflow.scrollWidth} > ${overflow.docWidth})`);
+        console.warn(
+          `  WARNING: ${route} has horizontal overflow (${overflow.scrollWidth} > ${overflow.docWidth})`,
+        );
         allPassed = false;
       }
     }
 
     // Check console errors
-    const fatalErrors = consoleErrors.filter(e => !e.includes('favicon') && !e.includes('Download the React DevTools'));
+    const fatalErrors = consoleErrors.filter(
+      (e) => !e.includes('favicon') && !e.includes('Download the React DevTools'),
+    );
     if (fatalErrors.length > 0) {
       console.error(`  Console errors on ${vp.name}:`, fatalErrors);
       allPassed = false;

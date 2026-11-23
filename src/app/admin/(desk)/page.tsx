@@ -140,7 +140,7 @@ export default async function AdminTodayPage() {
         </div>
         <Link
           href="/staff"
-          className="inline-flex h-10 items-center justify-center rounded-xs bg-accent px-4 text-body-s font-semibold text-on-accent hover:opacity-90 transition-opacity shadow-e0"
+          className="inline-flex h-10 items-center justify-center rounded-xs bg-racing-green px-4 text-body-s font-semibold text-on-racing-green hover:bg-racing-green-light transition-colors shadow-e0"
         >
           Open Bay Handover Mode
         </Link>
@@ -158,7 +158,7 @@ export default async function AdminTodayPage() {
 
         <div className="rounded-m border border-border bg-surface p-5 shadow-e0">
           <div className="text-caption font-medium  text-text-3">Currently On Road</div>
-          <div className="mt-2 font-display text-h2 font-bold tabular-nums text-accent">
+          <div className="mt-2 font-display text-h2 font-bold tabular-nums text-racing-green">
             {stats.on_road}
           </div>
           <div className="mt-1 text-label-s text-text-3">Live customer rentals</div>
@@ -380,7 +380,7 @@ export default async function AdminTodayPage() {
                     <StatusBadge status={p.status} />
                     <Link
                       href={`/staff/handover/${p.code}/out`}
-                      className="rounded-xs bg-accent px-3 py-1.5 text-label-s font-semibold text-on-accent hover:opacity-90 transition-opacity"
+                      className="rounded-xs bg-racing-green px-3 py-1.5 text-label-s font-semibold text-on-racing-green hover:bg-racing-green-light transition-colors"
                     >
                       Start Handover
                     </Link>

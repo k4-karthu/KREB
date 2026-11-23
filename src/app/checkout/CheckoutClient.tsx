@@ -349,7 +349,7 @@ export function CheckoutClient({
                     <Button
                       type="button"
                       size="sm"
-                      variant={authMode === 'signup' ? 'primary' : 'secondary'}
+                      variant={authMode === 'signup' ? 'racing' : 'secondary'}
                       onClick={() => setAuthMode('signup')}
                     >
                       New driver
@@ -357,7 +357,7 @@ export function CheckoutClient({
                     <Button
                       type="button"
                       size="sm"
-                      variant={authMode === 'login' ? 'primary' : 'secondary'}
+                      variant={authMode === 'login' ? 'racing' : 'secondary'}
                       onClick={() => setAuthMode('login')}
                     >
                       Returning driver
@@ -392,7 +392,7 @@ export function CheckoutClient({
                     onChange={setPassword}
                   />
 
-                  <Button type="submit" disabled={submitting} className="w-full">
+                  <Button type="submit" variant="racing" disabled={submitting} className="w-full">
                     {submitting ? 'Authenticating...' : 'Continue to driver credentials'}
                   </Button>
                 </form>
@@ -495,7 +495,7 @@ export function CheckoutClient({
                   </div>
 
                   <div className="flex justify-end pt-2">
-                    <Button type="button" size="lg" onClick={() => setStep(1)}>
+                    <Button type="button" variant="racing" size="lg" onClick={() => setStep(1)}>
                       Continue to protection and add-ons
                     </Button>
                   </div>
@@ -563,7 +563,7 @@ export function CheckoutClient({
                 <Button type="button" variant="secondary" onClick={() => setStep(0)}>
                   Back
                 </Button>
-                <Button type="button" size="lg" onClick={() => setStep(2)}>
+                <Button type="button" variant="racing" size="lg" onClick={() => setStep(2)}>
                   Continue to payment
                 </Button>
               </div>
@@ -713,6 +713,7 @@ export function CheckoutClient({
                 </Button>
                 <Button
                   type="button"
+                  variant="racing"
                   size="lg"
                   disabled={submitting}
                   onClick={() => void handleConfirmPayment()}
