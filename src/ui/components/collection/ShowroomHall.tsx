@@ -484,13 +484,21 @@ export function ShowroomHall({
                   </span>
                   <span className="ml-1 text-sm text-text-3">/ day</span>
                 </div>
-                <Button
-                  variant="racing"
-                  onClick={() => onReserve?.(selectedVehicle)}
-                  data-testid="stage-reserve-cta"
-                >
-                  Reserve {selectedVehicle.model}
-                </Button>
+                {onReserve ? (
+                  <Button
+                    variant="racing"
+                    onClick={() => onReserve(selectedVehicle)}
+                    data-testid="stage-reserve-cta"
+                  >
+                    Reserve {selectedVehicle.model}
+                  </Button>
+                ) : (
+                  <Link href={`/cars/${selectedVehicle.slug}`}>
+                    <Button variant="racing" data-testid="stage-reserve-cta">
+                      Reserve {selectedVehicle.model}
+                    </Button>
+                  </Link>
+                )}
               </div>
             </div>
 

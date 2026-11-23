@@ -352,12 +352,44 @@ export function CarsClient({
           </div>
         </div>
 
-        {/* Quick Commercial Filter Pills (Seating & Deposit) */}
+        {/* Quick Commercial Filter Pills (Transmission, Seating & Deposit) */}
         <div className="flex flex-wrap items-center gap-2 border-t border-border-subtle pt-3">
           <span className="text-label-s font-technical text-text-3 mr-1">Quick filters:</span>
           <button
             type="button"
+            onClick={() =>
+              updateFilter(
+                'transmission',
+                selectedTransmission === 'automatic' ? 'all' : 'automatic',
+              )
+            }
+            aria-pressed={selectedTransmission === 'automatic'}
+            className={`rounded-xs border px-3 py-1 text-caption font-technical font-medium transition-all ${
+              selectedTransmission === 'automatic'
+                ? 'border-racing-green bg-racing-green-subtle text-racing-green font-semibold shadow-e0'
+                : 'border-border bg-surface-sunken text-text-2 hover:border-border-strong hover:bg-surface'
+            }`}
+          >
+            Automatic
+          </button>
+          <button
+            type="button"
+            onClick={() =>
+              updateFilter('transmission', selectedTransmission === 'manual' ? 'all' : 'manual')
+            }
+            aria-pressed={selectedTransmission === 'manual'}
+            className={`rounded-xs border px-3 py-1 text-caption font-technical font-medium transition-all ${
+              selectedTransmission === 'manual'
+                ? 'border-racing-green bg-racing-green-subtle text-racing-green font-semibold shadow-e0'
+                : 'border-border bg-surface-sunken text-text-2 hover:border-border-strong hover:bg-surface'
+            }`}
+          >
+            Manual
+          </button>
+          <button
+            type="button"
             onClick={() => setSeatingFilter(seatingFilter === '5' ? 'all' : '5')}
+            aria-pressed={seatingFilter === '5'}
             className={`rounded-xs border px-3 py-1 text-caption font-technical font-medium transition-all ${
               seatingFilter === '5'
                 ? 'border-racing-green bg-racing-green-subtle text-racing-green font-semibold shadow-e0'
@@ -369,6 +401,7 @@ export function CarsClient({
           <button
             type="button"
             onClick={() => setSeatingFilter(seatingFilter === '7plus' ? 'all' : '7plus')}
+            aria-pressed={seatingFilter === '7plus'}
             className={`rounded-xs border px-3 py-1 text-caption font-technical font-medium transition-all ${
               seatingFilter === '7plus'
                 ? 'border-racing-green bg-racing-green-subtle text-racing-green font-semibold shadow-e0'
@@ -380,6 +413,7 @@ export function CarsClient({
           <button
             type="button"
             onClick={() => setDepositFilter(depositFilter === 'low' ? 'all' : 'low')}
+            aria-pressed={depositFilter === 'low'}
             className={`rounded-xs border px-3 py-1 text-caption font-technical font-medium transition-all ${
               depositFilter === 'low'
                 ? 'border-cognac bg-cognac-subtle text-cognac font-semibold shadow-e0'
