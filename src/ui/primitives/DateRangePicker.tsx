@@ -76,41 +76,54 @@ export function DateRangePicker<T extends DateValue = DateValue>({
       )}
 
       <RACGroup
-        className={`relative flex items-center bg-surface-sunken border rounded-s min-h-11 h-11 px-3 transition-colors duration-160 ${
+        className={`relative flex items-center bg-surface-sunken border rounded-s min-h-11 h-11 px-2.5 sm:px-3 w-full min-w-0 transition-colors duration-160 ${
           hasError
             ? 'border-danger focus-within:border-danger focus-within:ring-2 focus-within:ring-danger-subtle'
             : 'border-border focus-within:border-accent focus-within:ring-2 focus-within:ring-accent-subtle'
         }`}
       >
-        <DateInput slot="start" className="flex items-center text-body-s text-text-1">
+        <DateInput
+          slot="start"
+          className="flex items-center text-caption sm:text-body-s text-text-1 shrink-0"
+        >
           {(segment) => (
             <DateSegment
               segment={segment}
               suppressHydrationWarning
-              className="px-1 py-0.5 rounded-xs outline-none focus:bg-accent focus:text-on-accent tabular-nums data-[placeholder]:text-text-disabled"
+              className={`rounded-xs outline-none focus:bg-accent focus:text-on-accent tabular-nums data-[placeholder]:text-text-disabled ${
+                segment.type === 'literal' ? 'px-0 text-text-disabled select-none' : 'px-0.5 py-0.5'
+              }`}
             />
           )}
         </DateInput>
 
-        <span aria-hidden="true" className="px-2 text-text-3 font-medium select-none">
+        <span
+          aria-hidden="true"
+          className="px-1 sm:px-1.5 text-text-3 font-medium select-none shrink-0"
+        >
           –
         </span>
 
-        <DateInput slot="end" className="flex items-center text-body-s text-text-1">
+        <DateInput
+          slot="end"
+          className="flex items-center text-caption sm:text-body-s text-text-1 shrink-0"
+        >
           {(segment) => (
             <DateSegment
               segment={segment}
               suppressHydrationWarning
-              className="px-1 py-0.5 rounded-xs outline-none focus:bg-accent focus:text-on-accent tabular-nums data-[placeholder]:text-text-disabled"
+              className={`rounded-xs outline-none focus:bg-accent focus:text-on-accent tabular-nums data-[placeholder]:text-text-disabled ${
+                segment.type === 'literal' ? 'px-0 text-text-disabled select-none' : 'px-0.5 py-0.5'
+              }`}
             />
           )}
         </DateInput>
 
         <RACButton
           aria-label="Open calendar"
-          className="ml-auto p-1.5 rounded-xs text-text-3 hover:text-text-1 hover:bg-surface transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-accent shrink-0"
+          className="ml-auto p-1 rounded-xs text-text-3 hover:text-text-1 hover:bg-surface transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-accent shrink-0"
         >
-          <CalendarBlank size={18} aria-hidden="true" />
+          <CalendarBlank size={16} aria-hidden="true" />
         </RACButton>
       </RACGroup>
 

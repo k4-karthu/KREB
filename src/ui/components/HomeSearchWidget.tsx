@@ -157,8 +157,8 @@ export function HomeSearchWidget({
           </button>
         </div>
 
-        <div className="flex items-center gap-2 overflow-x-auto">
-          <span className="text-label-s text-text-3 mr-1 font-technical tracking-wider">
+        <div className="flex items-center gap-2 overflow-x-auto max-w-full pb-0.5">
+          <span className="text-label-s text-text-3 mr-1 font-technical tracking-wider shrink-0">
             PRESETS:
           </span>
           {PRESETS.map((p) => (
@@ -166,7 +166,7 @@ export function HomeSearchWidget({
               key={p.label}
               type="button"
               onClick={() => applyPreset(p.days)}
-              className={`rounded-xs border px-3 py-1.5 text-caption font-technical font-medium transition-all active:scale-98 shadow-e0 ${
+              className={`rounded-xs border px-3 py-1.5 text-caption font-technical font-medium transition-all active:scale-98 shadow-e0 shrink-0 ${
                 activePreset === p.days
                   ? 'border-cognac bg-cognac-subtle text-cognac font-semibold shadow-e0'
                   : 'border-border bg-surface-sunken text-text-2 hover:border-cognac hover:text-cognac hover:bg-surface'
@@ -178,8 +178,8 @@ export function HomeSearchWidget({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
-        <div className="md:col-span-4">
+      <div className="grid grid-cols-1 sm:grid-cols-12 lg:grid-cols-12 gap-3.5 sm:gap-4 items-end">
+        <div className="sm:col-span-6 lg:col-span-3 min-w-0">
           <Combobox
             label={deliveryMode === 'doorstep' ? 'Delivery region / hub base' : 'Pick-up hub'}
             placeholder="Select branch..."
@@ -190,7 +190,7 @@ export function HomeSearchWidget({
           />
         </div>
 
-        <div className="md:col-span-3">
+        <div className="sm:col-span-6 lg:col-span-4 min-w-0">
           <DateRangePicker
             label="Rental dates"
             value={dateRange}
@@ -203,24 +203,26 @@ export function HomeSearchWidget({
           />
         </div>
 
-        <div className="md:col-span-3 grid grid-cols-2 gap-2">
-          <TimePicker
-            label="Pick-up"
-            value={pickupTime}
-            onChange={(val) => {
-              if (val) setPickupTime(val);
-            }}
-          />
-          <TimePicker
-            label="Return"
-            value={returnTime}
-            onChange={(val) => {
-              if (val) setReturnTime(val);
-            }}
-          />
+        <div className="sm:col-span-7 lg:col-span-3 min-w-0">
+          <div className="grid grid-cols-2 gap-2">
+            <TimePicker
+              label="Pick-up"
+              value={pickupTime}
+              onChange={(val) => {
+                if (val) setPickupTime(val);
+              }}
+            />
+            <TimePicker
+              label="Return"
+              value={returnTime}
+              onChange={(val) => {
+                if (val) setReturnTime(val);
+              }}
+            />
+          </div>
         </div>
 
-        <div className="md:col-span-2">
+        <div className="sm:col-span-5 lg:col-span-2 min-w-0">
           <Button type="submit" variant="racing" size="md" className="w-full">
             <span>Show cars</span>
             <ArrowRight size={16} />

@@ -55,23 +55,25 @@ export function TimePicker<T extends TimeValue = TimeValue>({
       )}
 
       <div
-        className={`relative flex items-center justify-between bg-surface-sunken border rounded-s min-h-11 h-11 px-3 transition-colors duration-160 ${
+        className={`relative flex items-center justify-between bg-surface-sunken border rounded-s min-h-11 h-11 px-2.5 transition-colors duration-160 w-full min-w-0 ${
           hasError
             ? 'border-danger focus-within:border-danger focus-within:ring-2 focus-within:ring-danger-subtle'
             : 'border-border focus-within:border-accent focus-within:ring-2 focus-within:ring-accent-subtle'
         } ${fieldClassName}`.trim()}
       >
-        <DateInput className="flex items-center text-body-s text-text-1">
+        <DateInput className="flex items-center text-caption sm:text-body-s text-text-1 min-w-0 shrink-0">
           {(segment) => (
             <DateSegment
               segment={segment}
               suppressHydrationWarning
-              className="px-1 py-0.5 rounded-xs outline-none focus:bg-accent focus:text-on-accent tabular-nums data-[placeholder]:text-text-disabled"
+              className={`rounded-xs outline-none focus:bg-accent focus:text-on-accent tabular-nums data-[placeholder]:text-text-disabled ${
+                segment.type === 'literal' ? 'px-0 text-text-disabled select-none' : 'px-0.5 py-0.5'
+              }`}
             />
           )}
         </DateInput>
 
-        <Clock size={18} className="text-text-3 shrink-0 ml-2" aria-hidden="true" />
+        <Clock size={15} className="text-text-3 shrink-0 ml-1.5 select-none" aria-hidden="true" />
       </div>
 
       {description && !errorText && (

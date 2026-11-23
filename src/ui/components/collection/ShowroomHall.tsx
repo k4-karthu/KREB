@@ -457,7 +457,7 @@ export function ShowroomHall({
 
             {/* Pinned stage header information */}
             <div className="relative z-20 flex items-start justify-between p-6">
-              <div className="space-y-1">
+              <div className="space-y-1 min-w-0 pr-4">
                 <span className="text-xs font-semibold text-text-3">{selectedCategoryLabel}</span>
                 <h3 className="font-display text-2xl font-bold text-text-1">
                   {selectedVehicle.make} {selectedVehicle.model}

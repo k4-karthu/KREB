@@ -201,7 +201,7 @@ export function CarsClient({
       {/* Date & Hub Bar with Primitives */}
       <div className="rounded-m border border-border bg-surface p-4 shadow-e0">
         <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-12">
-          <div className="md:col-span-4">
+          <div className="md:col-span-4 min-w-0">
             <Select
               label="Pick-up hub"
               placeholder="Select hub location"
@@ -218,7 +218,7 @@ export function CarsClient({
             />
           </div>
 
-          <div className="md:col-span-5">
+          <div className="md:col-span-5 min-w-0">
             <DateRangePicker
               label="Rental dates"
               value={dateRange}
@@ -230,7 +230,7 @@ export function CarsClient({
             />
           </div>
 
-          <div className="md:col-span-3">
+          <div className="md:col-span-3 min-w-0">
             <Button
               type="button"
               variant="racing"

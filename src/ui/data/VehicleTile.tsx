@@ -65,7 +65,7 @@ export function VehicleTile({
 
       <div className="p-5">
         <div className="flex items-start justify-between gap-3">
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-1.5 text-label-s font-medium text-text-3">
               <span>{vehicle.category}</span>
               {vehicle.variant && (

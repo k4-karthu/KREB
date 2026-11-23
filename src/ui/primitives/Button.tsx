@@ -70,7 +70,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       ref={ref}
       type={type}
       isDisabled={isButtonDisabled}
-      className={`relative inline-flex items-center justify-center font-medium rounded-s border transition-all duration-100 ease-out select-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${
+      className={`relative inline-flex items-center justify-center font-medium rounded-s border transition-all duration-100 ease-out select-none cursor-pointer whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${
         isLink ? '' : 'data-[pressed]:scale-98 active:scale-98'
       } ${VARIANT_CLASSES[variant]} ${isLink ? '' : SIZE_CLASSES[size]} ${className}`.trim()}
       {...rest}
