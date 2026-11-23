@@ -1,8 +1,13 @@
 'use client';
 
 import { CircleNotch } from '@phosphor-icons/react';
-import { forwardRef, type ReactNode } from 'react';
-import { Button as RACButton, type ButtonProps as RACButtonProps } from 'react-aria-components';
+import Link from 'next/link';
+import { forwardRef, type MouseEventHandler, type ReactNode } from 'react';
+import {
+  type PressEvent,
+  Button as RACButton,
+  type ButtonProps as RACButtonProps,
+} from 'react-aria-components';
 
 export type ButtonVariant =
   | 'primary'
@@ -15,12 +20,15 @@ export type ButtonVariant =
   | 'cognac';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
-export interface ButtonProps extends Omit<RACButtonProps, 'children'> {
+export interface ButtonProps extends Omit<RACButtonProps, 'children' | 'onClick'> {
   variant?: ButtonVariant;
   size?: ButtonSize;
   loading?: boolean;
   disabled?: boolean;
   children?: ReactNode;
+  href?: string;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void;
+  onPress?: (e: PressEvent) => void;
 }
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
@@ -56,25 +64,24 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     children,
     type = 'button',
     isDisabled,
+    href,
+    onClick,
+    onPress,
     ...rest
   },
   ref,
 ) {
   const isButtonDisabled = disabled || isDisabled || loading;
   const isLink = variant === 'link';
-
   const spinnerSize = size === 'sm' ? 14 : size === 'lg' ? 20 : 16;
 
-  return (
-    <RACButton
-      ref={ref}
-      type={type}
-      isDisabled={isButtonDisabled}
-      className={`relative inline-flex items-center justify-center font-medium rounded-s border transition-all duration-100 ease-out select-none cursor-pointer whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${
-        isLink ? '' : 'data-[pressed]:scale-98 active:scale-98'
-      } ${VARIANT_CLASSES[variant]} ${isLink ? '' : SIZE_CLASSES[size]} ${className}`.trim()}
-      {...rest}
-    >
+  const combinedClasses =
+    `relative inline-flex items-center justify-center font-medium rounded-s border transition-all duration-100 ease-out select-none cursor-pointer whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${
+      isLink ? '' : 'data-[pressed]:scale-98 active:scale-98'
+    } ${VARIANT_CLASSES[variant]} ${isLink ? '' : SIZE_CLASSES[size]} ${className}`.trim();
+
+  const content = (
+    <>
       <span className={`inline-flex items-center gap-2 ${loading ? 'opacity-0' : 'opacity-100'}`}>
         {children}
       </span>
@@ -83,6 +90,39 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
           <CircleNotch size={spinnerSize} className="animate-spin shrink-0" />
         </span>
       )}
+    </>
+  );
+
+  if (href && !isButtonDisabled) {
+    return (
+      <Link
+        href={href}
+        className={combinedClasses}
+        onClick={onClick as MouseEventHandler<HTMLAnchorElement>}
+        {...(rest as Record<string, unknown>)}
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  const handlePress = (e: PressEvent) => {
+    onPress?.(e);
+    if (onClick && !onPress) {
+      onClick(e as unknown as React.MouseEvent<HTMLButtonElement>);
+    }
+  };
+
+  return (
+    <RACButton
+      ref={ref}
+      type={type}
+      isDisabled={isButtonDisabled}
+      onPress={handlePress}
+      className={combinedClasses}
+      {...rest}
+    >
+      {content}
     </RACButton>
   );
 });

@@ -205,8 +205,18 @@ async function verifyAllButtons() {
       console.log('    PASS: Hub selector and Update fleet button function correctly.');
     }
 
-    // 2h. Empty state recovery & waitlist button
-    console.log('  [2h] Testing Empty State & Waitlist "Notify me" button...');
+    // 2h. Testing Vehicle Card Reserve CTA button
+    console.log('  [2h] Testing Vehicle Card "Reserve" CTA button click...');
+    const firstReserveCta = page.locator('[data-testid^="reserve-cta-"]').first();
+    if (await firstReserveCta.isVisible()) {
+      await firstReserveCta.click();
+      await page.waitForURL(/\/cars\/[^?]+/, { timeout: 8000 });
+      console.log(`    PASS: Vehicle card Reserve CTA button navigated to: ${page.url()}`);
+      await page.goto(`${baseUrl}/cars`, { waitUntil: 'networkidle' });
+    }
+
+    // 2i. Empty state recovery & waitlist button
+    console.log('  [2i] Testing Empty State & Waitlist "Notify me" button...');
     await page.goto(`${baseUrl}/cars?category=luxury&fuel=cng`, { waitUntil: 'networkidle' });
     const emptyStateReset = page.getByRole('button', { name: /reset all filters/i }).first();
     if (!(await emptyStateReset.isVisible())) {

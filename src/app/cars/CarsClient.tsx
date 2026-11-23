@@ -3,7 +3,7 @@
 import { CalendarDate, type DateValue } from '@internationalized/date';
 import { ArrowClockwise, ArrowRight, EnvelopeSimple } from '@phosphor-icons/react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useMemo, useState, useTransition } from 'react';
+import { useEffect, useMemo, useState, useTransition } from 'react';
 import { EmptyState } from '@/ui/data/EmptyState';
 import { VehicleTile, type VehicleTileData } from '@/ui/data/VehicleTile';
 import { Button } from '@/ui/primitives/Button';
@@ -81,6 +81,22 @@ export function CarsClient({
   const [maxPrice, setMaxPrice] = useState<number>(() => maxAvailableDailyRupees);
   const [seatingFilter, setSeatingFilter] = useState<'all' | '5' | '7plus'>('all');
   const [depositFilter, setDepositFilter] = useState<'all' | 'low'>('all');
+  const [transmissionFilter, setTransmissionFilter] = useState<string>(selectedTransmission);
+  const [categoryFilter, setCategoryFilter] = useState<string>(selectedCategory);
+  const [fuelFilter, setFuelFilter] = useState<string>(selectedFuel);
+
+  useEffect(() => {
+    setTransmissionFilter(selectedTransmission);
+  }, [selectedTransmission]);
+
+  useEffect(() => {
+    setCategoryFilter(selectedCategory);
+  }, [selectedCategory]);
+
+  useEffect(() => {
+    setFuelFilter(selectedFuel);
+  }, [selectedFuel]);
+
   const [waitlistEmail, setWaitlistEmail] = useState('');
   const [waitlistSent, setWaitlistSent] = useState(false);
   const [waitlistLoading, setWaitlistLoading] = useState(false);
@@ -101,11 +117,35 @@ export function CarsClient({
       if (seatingFilter === '5' && v.seats !== 5) return false;
       if (seatingFilter === '7plus' && (!v.seats || v.seats < 7)) return false;
       if (depositFilter === 'low' && v.dailyMinor > 500000) return false;
+      if (
+        transmissionFilter !== 'all' &&
+        v.transmission?.toLowerCase() !== transmissionFilter.toLowerCase()
+      ) {
+        return false;
+      }
+      if (categoryFilter !== 'all' && v.category?.toLowerCase() !== categoryFilter.toLowerCase()) {
+        return false;
+      }
+      if (fuelFilter !== 'all' && v.fuelType?.toLowerCase() !== fuelFilter.toLowerCase()) {
+        return false;
+      }
       return true;
     });
-  }, [vehicles, maxPrice, seatingFilter, depositFilter]);
+  }, [
+    vehicles,
+    maxPrice,
+    seatingFilter,
+    depositFilter,
+    transmissionFilter,
+    categoryFilter,
+    fuelFilter,
+  ]);
 
   function updateFilter(key: string, value: string) {
+    if (key === 'transmission') setTransmissionFilter(value);
+    if (key === 'category') setCategoryFilter(value);
+    if (key === 'fuel') setFuelFilter(value);
+
     const next = new URLSearchParams(searchParams.toString());
     if (!next.has('start')) next.set('start', String(startAt));
     if (!next.has('end')) next.set('end', String(endAt));
@@ -115,7 +155,7 @@ export function CarsClient({
       next.delete(key);
     }
     startTransition(() => {
-      router.push(`/cars?${next.toString()}`);
+      router.replace(`/cars?${next.toString()}`, { scroll: false });
     });
   }
 
@@ -131,27 +171,31 @@ export function CarsClient({
     next.set('start', String(newStart));
     next.set('end', String(newEnd));
     startTransition(() => {
-      router.push(`/cars?${next.toString()}`);
+      router.replace(`/cars?${next.toString()}`, { scroll: false });
     });
   }
 
   function resetAllFilters() {
+    setTransmissionFilter('all');
+    setCategoryFilter('all');
+    setFuelFilter('all');
+    setSeatingFilter('all');
+    setDepositFilter('all');
+    setMaxPrice(maxAvailableDailyRupees);
+
     const next = new URLSearchParams();
     next.set('start', String(startAt));
     next.set('end', String(endAt));
     if (selectedBranchId) next.set('branch', String(selectedBranchId));
-    setMaxPrice(maxAvailableDailyRupees);
-    setSeatingFilter('all');
-    setDepositFilter('all');
     startTransition(() => {
-      router.push(`/cars?${next.toString()}`);
+      router.replace(`/cars?${next.toString()}`, { scroll: false });
     });
   }
 
   const hasActiveFilters =
-    selectedCategory !== 'all' ||
-    selectedTransmission !== 'all' ||
-    selectedFuel !== 'all' ||
+    categoryFilter !== 'all' ||
+    transmissionFilter !== 'all' ||
+    fuelFilter !== 'all' ||
     selectedSort !== 'recommended' ||
     seatingFilter !== 'all' ||
     depositFilter !== 'all' ||
@@ -275,8 +319,10 @@ export function CarsClient({
                 key={cat.id}
                 variant="filter"
                 size="sm"
-                selected={selectedCategory === cat.id}
-                onSelect={() => updateFilter('category', cat.id)}
+                selected={categoryFilter === cat.id}
+                onSelect={() =>
+                  updateFilter('category', categoryFilter === cat.id ? 'all' : cat.id)
+                }
                 count={categoryCounts[cat.id]}
               >
                 {cat.label}
@@ -294,7 +340,7 @@ export function CarsClient({
               <SegmentedControl
                 name="transmission"
                 aria-label="Filter transmission"
-                value={selectedTransmission}
+                value={transmissionFilter}
                 onValueChange={(val) => updateFilter('transmission', val)}
                 options={[
                   { value: 'all', label: 'All gearboxes' },
@@ -309,7 +355,7 @@ export function CarsClient({
               <Select
                 label="Fuel type"
                 aria-label="Filter fuel type"
-                selectedKey={selectedFuel}
+                selectedKey={fuelFilter}
                 onSelectionChange={(key) => updateFilter('fuel', String(key))}
                 options={[
                   { id: 'all', label: 'Any fuel' },
@@ -358,14 +404,11 @@ export function CarsClient({
           <button
             type="button"
             onClick={() =>
-              updateFilter(
-                'transmission',
-                selectedTransmission === 'automatic' ? 'all' : 'automatic',
-              )
+              updateFilter('transmission', transmissionFilter === 'automatic' ? 'all' : 'automatic')
             }
-            aria-pressed={selectedTransmission === 'automatic'}
+            aria-pressed={transmissionFilter === 'automatic'}
             className={`rounded-xs border px-3 py-1 text-caption font-technical font-medium transition-all ${
-              selectedTransmission === 'automatic'
+              transmissionFilter === 'automatic'
                 ? 'border-racing-green bg-racing-green-subtle text-racing-green font-semibold shadow-e0'
                 : 'border-border bg-surface-sunken text-text-2 hover:border-border-strong hover:bg-surface'
             }`}
@@ -375,11 +418,11 @@ export function CarsClient({
           <button
             type="button"
             onClick={() =>
-              updateFilter('transmission', selectedTransmission === 'manual' ? 'all' : 'manual')
+              updateFilter('transmission', transmissionFilter === 'manual' ? 'all' : 'manual')
             }
-            aria-pressed={selectedTransmission === 'manual'}
+            aria-pressed={transmissionFilter === 'manual'}
             className={`rounded-xs border px-3 py-1 text-caption font-technical font-medium transition-all ${
-              selectedTransmission === 'manual'
+              transmissionFilter === 'manual'
                 ? 'border-racing-green bg-racing-green-subtle text-racing-green font-semibold shadow-e0'
                 : 'border-border bg-surface-sunken text-text-2 hover:border-border-strong hover:bg-surface'
             }`}

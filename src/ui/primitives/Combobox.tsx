@@ -81,6 +81,7 @@ export function Combobox<T extends object = ComboboxOption>({
 
   return (
     <RACComboBox
+      menuTrigger="focus"
       isRequired={isRequired}
       isInvalid={hasError}
       className={`flex flex-col gap-1.5 w-full ${className}`.trim()}

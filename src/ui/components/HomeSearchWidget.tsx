@@ -64,6 +64,7 @@ export function HomeSearchWidget({
 
   const [deliveryMode, setDeliveryMode] = useState<'hub' | 'doorstep'>('hub');
   const [activePreset, setActivePreset] = useState<number | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
   const [selectedBranchId, setSelectedBranchId] = useState<Key | null>(
     defaultBranchId ? String(defaultBranchId) : 'all',
   );
@@ -86,20 +87,25 @@ export function HomeSearchWidget({
   ];
 
   function applyPreset(days: number) {
-    if (!dateRange.start) return;
     setActivePreset(days);
-    const startEpoch = toEpochMs(dateRange.start, pickupTime);
+    setFormError(null);
+    const baseStart = dateRange.start ?? toCalendarDateAndTime(Date.now() + 86_400_000).date;
+    const startEpoch = toEpochMs(baseStart, pickupTime);
     const endEpoch = startEpoch + days * 86_400_000;
     const endObj = toCalendarDateAndTime(endEpoch);
     setDateRange({
-      start: dateRange.start,
+      start: baseStart,
       end: endObj.date,
     });
   }
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!dateRange.start || !dateRange.end) return;
+  function handleSubmit(e?: React.FormEvent) {
+    if (e) e.preventDefault();
+    if (!dateRange.start || !dateRange.end) {
+      setFormError('Please select both pick-up and return dates.');
+      return;
+    }
+    setFormError(null);
 
     const startAt = toEpochMs(dateRange.start, pickupTime);
     const endAt = toEpochMs(dateRange.end, returnTime);
@@ -128,9 +134,10 @@ export function HomeSearchWidget({
           <button
             type="button"
             onClick={() => setDeliveryMode('hub')}
+            aria-pressed={deliveryMode === 'hub'}
             className={`inline-flex items-center gap-2 px-3.5 py-1.5 text-caption font-medium rounded-xs transition-all ${
               deliveryMode === 'hub'
-                ? 'bg-surface text-text-1 shadow-e1 border border-border-subtle'
+                ? 'bg-surface text-text-1 shadow-e1 border border-border-subtle font-semibold'
                 : 'text-text-3 hover:text-text-1'
             }`}
           >
@@ -143,9 +150,10 @@ export function HomeSearchWidget({
           <button
             type="button"
             onClick={() => setDeliveryMode('doorstep')}
+            aria-pressed={deliveryMode === 'doorstep'}
             className={`inline-flex items-center gap-2 px-3.5 py-1.5 text-caption font-medium rounded-xs transition-all ${
               deliveryMode === 'doorstep'
-                ? 'bg-surface text-text-1 shadow-e1 border border-border-subtle'
+                ? 'bg-surface text-text-1 shadow-e1 border border-border-subtle font-semibold'
                 : 'text-text-3 hover:text-text-1'
             }`}
           >
@@ -166,6 +174,7 @@ export function HomeSearchWidget({
               key={p.label}
               type="button"
               onClick={() => applyPreset(p.days)}
+              aria-pressed={activePreset === p.days}
               className={`rounded-xs border px-3 py-1.5 text-caption font-technical font-medium transition-all active:scale-98 shadow-e0 shrink-0 ${
                 activePreset === p.days
                   ? 'border-cognac bg-cognac-subtle text-cognac font-semibold shadow-e0'
@@ -223,12 +232,24 @@ export function HomeSearchWidget({
         </div>
 
         <div className="sm:col-span-5 lg:col-span-2 min-w-0">
-          <Button type="submit" variant="racing" size="md" className="w-full">
+          <Button
+            type="submit"
+            variant="racing"
+            size="md"
+            className="w-full"
+            onClick={handleSubmit}
+          >
             <span>Show cars</span>
             <ArrowRight size={16} />
           </Button>
         </div>
       </div>
+
+      {formError && (
+        <div className="rounded-xs border border-danger/30 bg-danger-subtle px-3 py-1.5 text-caption font-medium text-danger">
+          {formError}
+        </div>
+      )}
     </form>
   );
 }

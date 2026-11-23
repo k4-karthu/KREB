@@ -76,52 +76,55 @@ export function DateRangePicker<T extends DateValue = DateValue>({
       )}
 
       <RACGroup
-        className={`relative flex items-center bg-surface-sunken border rounded-s min-h-11 h-11 px-2.5 sm:px-3 w-full min-w-0 transition-colors duration-160 ${
+        className={`relative flex items-center justify-between bg-surface-sunken border rounded-s min-h-11 h-11 px-2 sm:px-2.5 w-full min-w-0 transition-colors duration-160 ${
           hasError
             ? 'border-danger focus-within:border-danger focus-within:ring-2 focus-within:ring-danger-subtle'
             : 'border-border focus-within:border-accent focus-within:ring-2 focus-within:ring-accent-subtle'
         }`}
       >
-        <DateInput
-          slot="start"
-          className="flex items-center text-caption sm:text-body-s text-text-1 shrink-0"
-        >
-          {(segment) => (
-            <DateSegment
-              segment={segment}
-              suppressHydrationWarning
-              className={`rounded-xs outline-none focus:bg-accent focus:text-on-accent tabular-nums data-[placeholder]:text-text-disabled ${
-                segment.type === 'literal' ? 'px-0 text-text-disabled select-none' : 'px-0.5 py-0.5'
-              }`}
-            />
-          )}
-        </DateInput>
+        <div className="flex items-center min-w-0 gap-0.5 sm:gap-1">
+          <DateInput
+            slot="start"
+            className="flex items-center text-caption sm:text-body-s text-text-1 shrink-0"
+          >
+            {(segment) => (
+              <DateSegment
+                segment={segment}
+                suppressHydrationWarning
+                className={`rounded-xs outline-none focus:bg-accent focus:text-on-accent tabular-nums data-[placeholder]:text-text-disabled ${
+                  segment.type === 'literal'
+                    ? 'px-0 text-text-disabled select-none'
+                    : 'px-0.5 py-0.5'
+                }`}
+              />
+            )}
+          </DateInput>
 
-        <span
-          aria-hidden="true"
-          className="px-1 sm:px-1.5 text-text-3 font-medium select-none shrink-0"
-        >
-          –
-        </span>
+          <span aria-hidden="true" className="px-0.5 text-text-3 font-medium select-none shrink-0">
+            –
+          </span>
 
-        <DateInput
-          slot="end"
-          className="flex items-center text-caption sm:text-body-s text-text-1 shrink-0"
-        >
-          {(segment) => (
-            <DateSegment
-              segment={segment}
-              suppressHydrationWarning
-              className={`rounded-xs outline-none focus:bg-accent focus:text-on-accent tabular-nums data-[placeholder]:text-text-disabled ${
-                segment.type === 'literal' ? 'px-0 text-text-disabled select-none' : 'px-0.5 py-0.5'
-              }`}
-            />
-          )}
-        </DateInput>
+          <DateInput
+            slot="end"
+            className="flex items-center text-caption sm:text-body-s text-text-1 shrink-0"
+          >
+            {(segment) => (
+              <DateSegment
+                segment={segment}
+                suppressHydrationWarning
+                className={`rounded-xs outline-none focus:bg-accent focus:text-on-accent tabular-nums data-[placeholder]:text-text-disabled ${
+                  segment.type === 'literal'
+                    ? 'px-0 text-text-disabled select-none'
+                    : 'px-0.5 py-0.5'
+                }`}
+              />
+            )}
+          </DateInput>
+        </div>
 
         <RACButton
           aria-label="Open calendar"
-          className="ml-auto p-1 rounded-xs text-text-3 hover:text-text-1 hover:bg-surface transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-accent shrink-0"
+          className="ml-1 w-7 h-7 rounded-xs text-text-2 hover:text-racing-green hover:bg-surface border border-transparent hover:border-border-subtle transition-all cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-accent shrink-0 flex items-center justify-center"
         >
           <CalendarBlank size={16} aria-hidden="true" />
         </RACButton>
@@ -146,116 +149,131 @@ export function DateRangePicker<T extends DateValue = DateValue>({
         className="z-50 p-4 bg-surface border border-border rounded-s shadow-e3 outline-none"
       >
         <RACDialog className="outline-none">
-          <RangeCalendar
-            visibleDuration={isDesktop ? { months: 2 } : { months: 1 }}
-            className="flex flex-col gap-4"
-          >
-            <header className="flex items-center justify-between px-1">
-              <RACButton
-                slot="previous"
-                aria-label="Previous month"
-                className="w-8 h-8 flex items-center justify-center rounded-xs text-text-2 hover:text-text-1 hover:bg-surface-sunken transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          {({ close }) => (
+            <>
+              <RangeCalendar
+                visibleDuration={isDesktop ? { months: 2 } : { months: 1 }}
+                className="flex flex-col gap-4"
               >
-                <CaretLeft size={16} weight="bold" />
-              </RACButton>
+                <header className="flex items-center justify-between px-1">
+                  <RACButton
+                    slot="previous"
+                    aria-label="Previous month"
+                    className="w-8 h-8 flex items-center justify-center rounded-xs text-text-2 hover:text-text-1 hover:bg-surface-sunken transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                  >
+                    <CaretLeft size={16} weight="bold" />
+                  </RACButton>
 
-              <Heading className="text-body-s font-semibold text-text-1" />
+                  <Heading className="text-body-s font-semibold text-text-1" />
 
-              <RACButton
-                slot="next"
-                aria-label="Next month"
-                className="w-8 h-8 flex items-center justify-center rounded-xs text-text-2 hover:text-text-1 hover:bg-surface-sunken transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-accent"
-              >
-                <CaretRight size={16} weight="bold" />
-              </RACButton>
-            </header>
+                  <RACButton
+                    slot="next"
+                    aria-label="Next month"
+                    className="w-8 h-8 flex items-center justify-center rounded-xs text-text-2 hover:text-text-1 hover:bg-surface-sunken transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                  >
+                    <CaretRight size={16} weight="bold" />
+                  </RACButton>
+                </header>
 
-            <div className="flex flex-col md:flex-row gap-6">
-              <CalendarGrid className="border-collapse">
-                <CalendarGridHeader>
-                  {(day) => (
-                    <CalendarHeaderCell className="text-caption font-medium text-text-3 w-9 h-9 text-center">
-                      {day}
-                    </CalendarHeaderCell>
+                <div className="flex flex-col md:flex-row gap-6">
+                  <CalendarGrid className="border-collapse">
+                    <CalendarGridHeader>
+                      {(day) => (
+                        <CalendarHeaderCell className="text-caption font-medium text-text-3 w-9 h-9 text-center">
+                          {day}
+                        </CalendarHeaderCell>
+                      )}
+                    </CalendarGridHeader>
+                    <CalendarGridBody>
+                      {(date) => (
+                        <CalendarCell
+                          date={date}
+                          className={({
+                            isSelected,
+                            isSelectionStart,
+                            isSelectionEnd,
+                            isOutsideVisibleRange,
+                            isDisabled,
+                          }) => {
+                            let classes =
+                              'w-9 h-9 text-body-s flex items-center justify-center cursor-pointer select-none outline-none font-medium tabular-nums transition-colors';
+
+                            if (isOutsideVisibleRange) {
+                              classes += ' text-text-disabled opacity-30';
+                            } else if (isDisabled) {
+                              classes += ' text-text-disabled opacity-40 cursor-not-allowed';
+                            } else if (isSelectionStart || isSelectionEnd) {
+                              classes += ' bg-accent text-on-accent rounded-s font-semibold z-10';
+                            } else if (isSelected) {
+                              classes += ' bg-accent-subtle text-accent rounded-none';
+                            } else {
+                              classes += ' hover:bg-surface-sunken rounded-s text-text-1';
+                            }
+
+                            return classes;
+                          }}
+                        />
+                      )}
+                    </CalendarGridBody>
+                  </CalendarGrid>
+
+                  {isDesktop && (
+                    <CalendarGrid offset={{ months: 1 }} className="border-collapse">
+                      <CalendarGridHeader>
+                        {(day) => (
+                          <CalendarHeaderCell className="text-caption font-medium text-text-3 w-9 h-9 text-center">
+                            {day}
+                          </CalendarHeaderCell>
+                        )}
+                      </CalendarGridHeader>
+                      <CalendarGridBody>
+                        {(date) => (
+                          <CalendarCell
+                            date={date}
+                            className={({
+                              isSelected,
+                              isSelectionStart,
+                              isSelectionEnd,
+                              isOutsideVisibleRange,
+                              isDisabled,
+                            }) => {
+                              let classes =
+                                'w-9 h-9 text-body-s flex items-center justify-center cursor-pointer select-none outline-none font-medium tabular-nums transition-colors';
+
+                              if (isOutsideVisibleRange) {
+                                classes += ' text-text-disabled opacity-30';
+                              } else if (isDisabled) {
+                                classes += ' text-text-disabled opacity-40 cursor-not-allowed';
+                              } else if (isSelectionStart || isSelectionEnd) {
+                                classes += ' bg-accent text-on-accent rounded-s font-semibold z-10';
+                              } else if (isSelected) {
+                                classes += ' bg-accent-subtle text-accent rounded-none';
+                              } else {
+                                classes += ' hover:bg-surface-sunken rounded-s text-text-1';
+                              }
+
+                              return classes;
+                            }}
+                          />
+                        )}
+                      </CalendarGridBody>
+                    </CalendarGrid>
                   )}
-                </CalendarGridHeader>
-                <CalendarGridBody>
-                  {(date) => (
-                    <CalendarCell
-                      date={date}
-                      className={({
-                        isSelected,
-                        isSelectionStart,
-                        isSelectionEnd,
-                        isOutsideVisibleRange,
-                        isDisabled,
-                      }) => {
-                        let classes =
-                          'w-9 h-9 text-body-s flex items-center justify-center cursor-pointer select-none outline-none font-medium tabular-nums transition-colors';
+                </div>
+              </RangeCalendar>
 
-                        if (isOutsideVisibleRange) {
-                          classes += ' text-text-disabled opacity-30';
-                        } else if (isDisabled) {
-                          classes += ' text-text-disabled opacity-40 cursor-not-allowed';
-                        } else if (isSelectionStart || isSelectionEnd) {
-                          classes += ' bg-accent text-on-accent rounded-s font-semibold z-10';
-                        } else if (isSelected) {
-                          classes += ' bg-accent-subtle text-accent rounded-none';
-                        } else {
-                          classes += ' hover:bg-surface-sunken rounded-s text-text-1';
-                        }
-
-                        return classes;
-                      }}
-                    />
-                  )}
-                </CalendarGridBody>
-              </CalendarGrid>
-
-              {isDesktop && (
-                <CalendarGrid offset={{ months: 1 }} className="border-collapse">
-                  <CalendarGridHeader>
-                    {(day) => (
-                      <CalendarHeaderCell className="text-caption font-medium text-text-3 w-9 h-9 text-center">
-                        {day}
-                      </CalendarHeaderCell>
-                    )}
-                  </CalendarGridHeader>
-                  <CalendarGridBody>
-                    {(date) => (
-                      <CalendarCell
-                        date={date}
-                        className={({
-                          isSelected,
-                          isSelectionStart,
-                          isSelectionEnd,
-                          isOutsideVisibleRange,
-                          isDisabled,
-                        }) => {
-                          let classes =
-                            'w-9 h-9 text-body-s flex items-center justify-center cursor-pointer select-none outline-none font-medium tabular-nums transition-colors';
-
-                          if (isOutsideVisibleRange) {
-                            classes += ' text-text-disabled opacity-30';
-                          } else if (isDisabled) {
-                            classes += ' text-text-disabled opacity-40 cursor-not-allowed';
-                          } else if (isSelectionStart || isSelectionEnd) {
-                            classes += ' bg-accent text-on-accent rounded-s font-semibold z-10';
-                          } else if (isSelected) {
-                            classes += ' bg-accent-subtle text-accent rounded-none';
-                          } else {
-                            classes += ' hover:bg-surface-sunken rounded-s text-text-1';
-                          }
-
-                          return classes;
-                        }}
-                      />
-                    )}
-                  </CalendarGridBody>
-                </CalendarGrid>
-              )}
-            </div>
-          </RangeCalendar>
+              <div className="flex items-center justify-between border-t border-border-subtle pt-3 mt-3">
+                <span className="text-caption text-text-3 font-technical">Select trip dates</span>
+                <button
+                  type="button"
+                  onClick={close}
+                  className="rounded-xs bg-racing-green px-4 py-1.5 text-caption font-technical font-semibold text-surface shadow-e0 transition-all hover:bg-racing-green-tint active:scale-98"
+                >
+                  Apply dates
+                </button>
+              </div>
+            </>
+          )}
         </RACDialog>
       </RACPopover>
     </RACDateRangePicker>

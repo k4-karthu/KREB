@@ -2,7 +2,6 @@
 
 import useEmblaCarousel from 'embla-carousel-react';
 import { AnimatePresence, m } from 'motion/react';
-import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Plate } from '../../data/Plate';
 import { useReducedMotionSafe } from '../../motion/MotionProvider';
@@ -493,11 +492,13 @@ export function ShowroomHall({
                     Reserve {selectedVehicle.model}
                   </Button>
                 ) : (
-                  <Link href={`/cars/${selectedVehicle.slug}`}>
-                    <Button variant="racing" data-testid="stage-reserve-cta">
-                      Reserve {selectedVehicle.model}
-                    </Button>
-                  </Link>
+                  <Button
+                    href={`/cars/${selectedVehicle.slug}`}
+                    variant="racing"
+                    data-testid="stage-reserve-cta"
+                  >
+                    Reserve {selectedVehicle.model}
+                  </Button>
                 )}
               </div>
             </div>
@@ -782,11 +783,14 @@ export function VehicleCard({
             Reserve {vehicle.model}
           </Button>
         ) : (
-          <Link href={`/cars/${vehicle.slug}`}>
-            <Button variant="racing" size="sm" data-testid={`reserve-cta-${vehicle.slug}`}>
-              Reserve {vehicle.model}
-            </Button>
-          </Link>
+          <Button
+            href={`/cars/${vehicle.slug}`}
+            variant="racing"
+            size="sm"
+            data-testid={`reserve-cta-${vehicle.slug}`}
+          >
+            Reserve {vehicle.model}
+          </Button>
         )}
       </div>
     </article>

@@ -1,3 +1,4 @@
+import { ArrowRight } from '@phosphor-icons/react';
 import Link from 'next/link';
 import { CarStudioImage } from '../components/CarStudioImage';
 import { Price } from './Price';
@@ -85,8 +86,8 @@ export function VehicleTile({
           </div>
         </div>
 
-        {(vehicle.transmission || vehicle.fuelType || vehicle.seats) && (
-          <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border-subtle pt-3.5 text-label-s text-text-2">
+        <div className="mt-4 flex items-center justify-between gap-2 border-t border-border-subtle pt-3.5">
+          <div className="flex flex-wrap items-center gap-1.5 text-label-s text-text-2">
             {vehicle.transmission && (
               <span className="rounded-xs border border-border-subtle bg-surface-sunken px-2 py-0.5 font-technical text-caption">
                 {vehicle.transmission}
@@ -103,7 +104,15 @@ export function VehicleTile({
               </span>
             )}
           </div>
-        )}
+
+          <span
+            data-testid={`reserve-cta-${vehicle.slug}`}
+            className="inline-flex items-center gap-1.5 rounded-xs bg-racing-green px-3 py-1 text-caption font-technical font-semibold text-surface shadow-e0 group-hover:bg-racing-green-tint group-hover:shadow-e1 transition-all shrink-0"
+          >
+            <span>Reserve</span>
+            <ArrowRight size={13} weight="bold" />
+          </span>
+        </div>
       </div>
     </article>
   );

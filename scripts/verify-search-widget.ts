@@ -10,7 +10,7 @@ async function main() {
     { name: 'Mobile-390', width: 390, height: 844 },
   ];
 
-  let allOk = true;
+  const allOk = true;
 
   for (const vp of viewports) {
     const page = await browser.newPage({ viewport: { width: vp.width, height: vp.height } });
